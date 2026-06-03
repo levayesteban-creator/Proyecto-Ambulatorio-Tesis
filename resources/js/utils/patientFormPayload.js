@@ -79,7 +79,7 @@ function mapFamilyMember(member) {
 }
 
 function familyMemberToForm(member, feminine = false) {
-  if (!member || member.unknown) {
+  if (!member || member.unknown || member.status == null || member.status === '') {
     return { unknown: false, status: '', age: '', pathology: '' }
   }
   const dead = member.status === 'fallecido'
@@ -251,7 +251,7 @@ function mapBackground(bg) {
     pathological_onset_unit: pathSince.unit,
     pathological_controlled: bg.pathological?.deny
       ? false
-      : String(bg.pathological?.state || '').toLowerCase().includes('control'),
+      : String(bg.pathological?.state || '').trim().toLowerCase() === 'controlado',
     pathological_treatment: bg.pathological?.treatment || null,
 
     infectious_deny: toBool(bg.infectious?.deny),

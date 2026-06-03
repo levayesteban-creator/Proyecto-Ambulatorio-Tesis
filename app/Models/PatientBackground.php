@@ -137,12 +137,12 @@ class PatientBackground extends Model
         'disability_types'           => 'array',
 
         // Tipos numéricos explícitos para cálculo clínico
-        'obgyn_gestas'               => 'integer',
-        'obgyn_partos'               => 'integer',
-        'obgyn_cesareas'             => 'integer',
-        'obgyn_abortos'              => 'integer',
-        'obgyn_menarche'             => 'integer',
-        'obgyn_menopause'            => 'integer',
+        'obgyn_gestas'               => 'string',
+        'obgyn_partos'               => 'string',
+        'obgyn_cesareas'             => 'string',
+        'obgyn_abortos'              => 'string',
+        'obgyn_menarche'             => 'string',
+        'obgyn_menopause'            => 'string',
         'obgyn_cycle_pads_per_day'   => 'integer',
 
         // Campos de tipo fecha nativa

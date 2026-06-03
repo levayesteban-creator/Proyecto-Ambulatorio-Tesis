@@ -1,6 +1,8 @@
 <script setup>
+import { computed } from 'vue';
 import { Link, Head } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import PhysicalExamShow from '@/Components/PhysicalExamShow.vue';
 
 const props = defineProps({
     consultation: { type: Object, required: true },
@@ -13,9 +15,29 @@ const formatDate = (d) => d
     ? new Date(d).toLocaleDateString('es-VE', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     : '—';
 
+const consultationDate = computed(() => formatDate(c.consultation_date ?? c.created_at));
+
 const typeLabel = (t) => ({ P: 'Primera Vez', S: 'Sucesiva', X: 'Asociada' }[t] ?? t);
 const typeColor = (t) => ({ P: 'bg-green-100 text-green-700', S: 'bg-blue-100 text-blue-700', X: 'bg-purple-100 text-purple-700' }[t] ?? 'bg-gray-100 text-gray-700');
-const diagTypeColor = (t) => ({ Confirmado: 'bg-green-100 text-green-700', Probable: 'bg-yellow-100 text-yellow-700', Sospechoso: 'bg-red-100 text-red-700' }[t] ?? 'bg-gray-100 text-gray-700');
+const diagTypeColor = (t) => ({
+    Confirmado: 'bg-green-100 text-green-700',
+    Probable: 'bg-yellow-100 text-yellow-700',
+    Sospechoso: 'bg-red-100 text-red-700',
+    'No Aplica': 'bg-gray-100 text-gray-600',
+}[t] ?? 'bg-gray-100 text-gray-700');
+
+const imc = computed(() => {
+    if (!c.weight || !c.height || c.height <= 0) return null;
+    return (c.weight / (c.height * c.height)).toFixed(1);
+});
+
+const functionalDeny = (key, exam) => {
+    if (key === 'gastrointestinal' || key === 'genitourinary') {
+        if (exam[`${key}_deny`] != null) return exam[`${key}_deny`];
+        return !exam[`${key}_description`];
+    }
+    return exam[`${key}_deny`];
+};
 
 // Nombre de la especialidad a partir del código (diccionario MPPS)
 const specialties = {
@@ -43,7 +65,7 @@ const specialties = {
                         Detalle de Consulta <span class="text-blue-600">#{{ c.id }}</span>
                     </h2>
                     <p class="text-sm text-gray-500 mt-0.5">
-                        {{ p?.full_name }} · {{ formatDate(c.created_at) }}
+                        {{ p?.full_name }} · {{ consultationDate }}
                     </p>
                 </div>
                 <div class="flex gap-3">
@@ -97,14 +119,16 @@ const specialties = {
                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-4">
                     Signos Vitales y Antropometría
                 </h3>
-                <div class="grid grid-cols-3 md:grid-cols-6 gap-3">
+                <div class="grid grid-cols-3 md:grid-cols-8 gap-3">
                     <div v-for="(val, label) in {
                         'TA (mmHg)':    c.blood_pressure,
-                        'Temp (°C)':    c.temperature,
+                        'Temp (°C)':    c.temperature ? `${c.temperature}${c.temperature_route ? ' (' + c.temperature_route + ')' : ''}` : null,
                         'FC (lpm)':     c.heart_rate,
                         'FR (rpm)':     c.respiratory_rate,
+                        'SpO₂ (%)':     c.oxygen_saturation,
                         'Peso (kg)':    c.weight,
                         'Talla (m)':    c.height,
+                        'IMC':          imc,
                     }" :key="label"
                          class="bg-gray-50 rounded-lg border p-3 text-center">
                         <p class="text-xs text-gray-400 font-medium">{{ label }}</p>
@@ -148,22 +172,30 @@ const specialties = {
                     }" :key="key"
                          class="flex items-start gap-3 p-3 rounded-lg border bg-gray-50 text-xs">
                         <span
-                            :class="c.functional_exam[key + '_deny']
+                            :class="functionalDeny(key, c.functional_exam)
                                 ? 'bg-green-100 text-green-700'
                                 : 'bg-red-100 text-red-700'"
                             class="flex-shrink-0 px-2 py-0.5 rounded font-bold uppercase"
                         >
-                            {{ c.functional_exam[key + '_deny'] ? 'Niega' : 'Positivo' }}
+                            {{ functionalDeny(key, c.functional_exam) ? 'Niega' : 'Positivo' }}
                         </span>
                         <div>
                             <p class="font-bold text-gray-700">{{ label }}</p>
-                            <p v-if="!c.functional_exam[key + '_deny'] && c.functional_exam[key + '_description']"
+                            <p v-if="!functionalDeny(key, c.functional_exam) && c.functional_exam[key + '_description']"
                                class="text-gray-600 mt-0.5 italic">
                                 {{ c.functional_exam[key + '_description'] }}
                             </p>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- ── EXAMEN FÍSICO ─────────────────────────────────────────── -->
+            <div v-if="c.physical_exam" class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+                <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide border-b pb-2 mb-4">
+                    Examen Físico por Secciones Anatómicas
+                </h3>
+                <PhysicalExamShow :physical-exam="c.physical_exam" />
             </div>
 
             <!-- ── EXPLORACIÓN COMPLEMENTARIA ───────────────────────────── -->

@@ -16,7 +16,8 @@ const props = defineProps({
 
 // ── APARTADOS CLÍNICOS (estructura MPPS) ─────────────────
 const sections = [
-    { label: 'Examen funcional',       short: 'Examen funcional' },
+    { label: 'Examen funcional por aparatos y sistemas', short: 'Examen funcional' },
+    { label: 'Examen físico y signos vitales', short: 'Examen físico' },
     { label: 'Consulta y diagnóstico', short: 'Consulta / diagnóstico' },
 ]
 
@@ -174,18 +175,33 @@ watch(() => form.referral_state, (state, prev) => {
     }
 })
 
+watch(() => form.is_healthy, (healthy) => {
+    if (healthy) {
+        if (!form.reason_for_consultation.trim()) {
+            form.reason_for_consultation = 'Control de salud / consulta preventiva'
+        }
+        if (!form.current_illness.trim()) {
+            form.current_illness = 'Paciente refiere encontrarse en buen estado general. Sin síntomas activos al momento de la consulta.'
+        }
+    }
+})
+
 // ── COMPUTED ─────────────────────────────────────────────
 
 // Errores por apartado (indicador ! en pestaña)
 const hasStep0Error = computed(() =>
+    Object.keys(form.errors).some(k => k.startsWith('functional_exam.'))
+)
+
+const hasStep1Error = computed(() =>
     Object.keys(form.errors).some(k =>
-        k.startsWith('functional_exam.') || k.startsWith('physical_exam.') ||
+        k.startsWith('physical_exam.') ||
         ['blood_pressure', 'temperature', 'temperature_route', 'oxygen_saturation',
          'heart_rate', 'respiratory_rate', 'weight', 'height'].includes(k)
     )
 )
 
-const hasStep1Error = computed(() => {
+const hasStep2Error = computed(() => {
     let err = !!(
         form.errors.reason_for_consultation ||
         form.errors.current_illness ||
@@ -204,7 +220,7 @@ const hasStep1Error = computed(() => {
     return err
 })
 
-const stepErrors = [hasStep0Error, hasStep1Error]
+const stepErrors = [hasStep0Error, hasStep1Error, hasStep2Error]
 
 // IMC reactivo (talla en metros, según planilla)
 const imc = computed(() => {
@@ -346,7 +362,7 @@ const submit = () => {
                 <div class="tab-content">
 
                 <!-- ══════ CONSULTA: ANAMNESIS ══════════════ -->
-                <div v-show="currentStep === 1">
+                <div v-show="currentStep === 2">
 
                     <!-- Control paciente sano -->
                     <div class="inline-alert alert-info" style="margin-bottom:20px;cursor:pointer"
@@ -501,8 +517,20 @@ const submit = () => {
                             </Transition>
                         </div>
                     </div>
+                </div>
+                <nav v-show="currentStep === 0" class="section-nav">
+                    <button type="button" class="btn-ghost-nav" @click="prevStep">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="15,18 9,12 15,6"/></svg>
+                        Anterior
+                    </button>
+                    <button type="button" class="btn-primary-nav" @click="nextStep">
+                        Siguiente: {{ sections[1].short }}
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
+                    </button>
+                </nav>
 
-                    <hr class="divider" style="margin:24px 0"/>
+                <!-- ══════ EXAMEN FÍSICO Y SIGNOS VITALES ════════ -->
+                <div v-show="currentStep === 1">
 
                     <!-- SIGNOS VITALES ─────────────────────────────────── -->
                     <div class="form-section">
@@ -603,23 +631,22 @@ const submit = () => {
                             Examen Físico por Secciones Anatómicas
                         </div>
 
-                        <!-- Componente dedicado — no infla Create.vue -->
                         <PhysicalExamTab :form="form" />
                     </div>
                 </div>
-                <nav v-show="currentStep === 0" class="section-nav">
+                <nav v-show="currentStep === 1" class="section-nav">
                     <button type="button" class="btn-ghost-nav" @click="prevStep">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="15,18 9,12 15,6"/></svg>
                         Anterior
                     </button>
                     <button type="button" class="btn-primary-nav" @click="nextStep">
-                        Siguiente: {{ sections[1].short }}
+                        Siguiente: {{ sections[2].short }}
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
                     </button>
                 </nav>
 
                 <!-- ══════ CONSULTA: EXPLORACIÓN COMPLEMENTARIA ═════ -->
-                <div v-show="currentStep === 1" class="form-section">
+                <div v-show="currentStep === 2" class="form-section">
                     <div class="section-title">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="section-icon">
                             <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4"/>
@@ -654,9 +681,7 @@ const submit = () => {
                 </nav>
 
                 <!-- ══════ CONSULTA: DIAGNÓSTICO PRESUNTIVO ═════ -->
-                <div v-show="currentStep === 1">
-
-                    <!-- Diagnósticos SIS -->
+                <div v-show="currentStep === 2">
                     <div class="form-section">
                         <div class="section-title" style="justify-content:space-between">
                             <div style="display:flex;align-items:center;gap:8px">
@@ -731,19 +756,9 @@ const submit = () => {
                         </div>
                     </div>
                 </div>
-                <nav v-show="false" class="section-nav">
-                    <button type="button" class="btn-ghost-nav" @click="prevStep">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="15,18 9,12 15,6"/></svg>
-                        Anterior
-                    </button>
-                    <button type="button" class="btn-primary-nav" @click="nextStep">
-                        Siguiente
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
-                    </button>
-                </nav>
 
                 <!-- ══════ CONSULTA: TRATAMIENTO ═════ -->
-                <div v-show="currentStep === 1" class="form-section">
+                <div v-show="currentStep === 2" class="form-section">
                         <div class="section-title">
                             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="section-icon">
                                 <path d="M12 2a8 8 0 0 0-8 8c0 5.52 8 12 8 12s8-6.48 8-12a8 8 0 0 0-8-8z"/>
@@ -754,19 +769,9 @@ const submit = () => {
                                   placeholder="Medicamentos, dosis, vía, frecuencia, duración, indicaciones al paciente, medidas generales…"/>
                         <p v-if="form.errors.treatment_plan" class="field-error">{{ form.errors.treatment_plan }}</p>
                 </div>
-                <nav v-show="false" class="section-nav">
-                    <button type="button" class="btn-ghost-nav" @click="prevStep">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="15,18 9,12 15,6"/></svg>
-                        Anterior
-                    </button>
-                    <button type="button" class="btn-primary-nav" @click="nextStep">
-                        Siguiente
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
-                    </button>
-                </nav>
 
                 <!-- ══════ CONSULTA: EPICRISIS ═════ -->
-                <div v-show="currentStep === 1">
+                <div v-show="currentStep === 2">
                     <div class="form-section">
                         <div class="section-title">
                             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="section-icon">
@@ -856,7 +861,7 @@ const submit = () => {
                         </Transition>
                     </div>
                 </div>
-                <nav v-show="currentStep === 1" class="section-nav">
+                <nav v-show="currentStep === 2" class="section-nav">
                     <button type="button" class="btn-ghost-nav" @click="prevStep">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="15,18 9,12 15,6"/></svg>
                         Anterior

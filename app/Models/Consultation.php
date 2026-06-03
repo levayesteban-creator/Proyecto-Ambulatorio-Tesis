@@ -38,6 +38,7 @@ class Consultation extends Model
         'complementary_studies',
         'epicrisis',
         'treatment_plan',
+        'consultation_date',
     ];
 
     protected $casts = [
@@ -46,6 +47,7 @@ class Consultation extends Model
         'oxygen_saturation'  => 'decimal:1',
         'weight'             => 'decimal:2',
         'height'             => 'decimal:2',
+        'consultation_date'  => 'datetime',
     ];
 
     // ─────────────────────────────────────────────────────────────────────

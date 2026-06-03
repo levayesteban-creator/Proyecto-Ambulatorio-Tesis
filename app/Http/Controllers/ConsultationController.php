@@ -53,6 +53,9 @@ class ConsultationController extends Controller
                 'occupation_id'           => $patient->occupation_id,
                 'consultation_type'       => $validated['consultation_type'],
                 'is_healthy'              => $validated['is_healthy'],
+                'consultation_date'       => ! empty($validated['attended_at'])
+                    ? Carbon::parse($validated['attended_at'])
+                    : now(),
                 'reason_for_consultation' => $validated['reason_for_consultation'],
                 'current_illness'         => $validated['current_illness'],
                 'therapeutic_plan'        => $validated['therapeutic_plan'] ?? null,
@@ -67,8 +70,7 @@ class ConsultationController extends Controller
                 'weight'                  => $validated['weight'] ?? null,
                 'height'                  => $validated['height'] ?? null,
                 'physical_examination'    => $validated['physical_examination'] ?? null,
-                'complementary_studies'   => $validated['complementary_studies']
-                    ?? $validated['physical_examination'] ?? null,
+                'complementary_studies'   => $validated['complementary_studies'] ?? null,
                 'epicrisis'               => $validated['epicrisis'] ?? null,
             ]);
 

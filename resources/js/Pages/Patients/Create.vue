@@ -100,6 +100,14 @@ const initialState = props.patient
 
 const form = useForm(initialState)
 
+watch(() => form.gender, (gender) => {
+  if (gender === 'M') {
+    form.background.gynecological.not_apply = true
+  } else if (gender === 'F') {
+    form.background.gynecological.not_apply = false
+  }
+})
+
 // ── Edad calculada desde fecha de nacimiento ─────────────────
 const calculatedAge = computed(() => {
   if (!form.birth_date) return null
