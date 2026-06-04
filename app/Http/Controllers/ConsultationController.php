@@ -7,6 +7,7 @@ use App\Models\Patient;
 use App\Models\SisDiagnosis;
 use App\Models\MedicalConduct;
 use App\Http\Requests\StoreConsultationRequest;
+use App\Http\Requests\UpdateConsultationRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -192,7 +193,7 @@ class ConsultationController extends Controller
      * Actualizar consulta existente (ATÓMICA).
      * PUT /patients/{patient}/consultations/{consultation}
      */
-    public function update(StoreConsultationRequest $request, Patient $patient, Consultation $consultation): RedirectResponse
+    public function update(UpdateConsultationRequest $request, Patient $patient, Consultation $consultation): RedirectResponse
     {
         $validated = $request->validated();
 
