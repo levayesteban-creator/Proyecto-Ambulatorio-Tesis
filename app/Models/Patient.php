@@ -65,10 +65,10 @@ class Patient extends Model
      * Atributos dinámicos que se adjuntan automáticamente a la serialización JSON / Inertia.
      */
     protected $appends = [
-    'age',
-    'current_address', // Dirección consolidada que pre-carga el formulario de consulta
-    'phone',           // Alias de phone_number para el formulario de consulta
-];
+        'age',
+        'current_address', // Dirección consolidada que pre-carga el formulario de consulta
+        'phone',           // Alias de phone_number para el formulario de consulta
+    ];
 
     /**
      * --------------------------------------------------------------------------
@@ -105,9 +105,9 @@ class Patient extends Model
                 $this->addr_locality,
                 $this->addr_parish,
                 $this->addr_municipality,
-            ]);
+            ], fn($value) => !is_null($value) && $value !== '');
 
-            return implode(', ', $parts);
+            return !empty($parts) ? implode(', ', $parts) : '';
         });
     }
 
