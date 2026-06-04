@@ -66,6 +66,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Historial: despliega cronológicamente el registro acumulativo del paciente específico
     Route::get('/patients/{patient}/consultations/history', [ConsultationController::class, 'showHistory'])
         ->name('consultations.history');
+
+    /**
+     * RUTAS DE EDICIÓN DE CONSULTAS (NUEVAS)
+     * Permitir editar consultas existentes del paciente
+     */
+    // Formulario para editar consulta existente
+    Route::get('/patients/{patient}/consultations/{consultation}/edit', [ConsultationController::class, 'edit'])
+        ->name('consultations.edit');
+
+    // Actualizar consulta: Almacenar cambios en la consulta editada
+    Route::put('/patients/{patient}/consultations/{consultation}', [ConsultationController::class, 'update'])
+        ->name('consultations.update');
+
+    // Opcionalmente: ruta para eliminar consulta (si lo requieres)
+    Route::delete('/patients/{patient}/consultations/{consultation}', [ConsultationController::class, 'destroy'])
+        ->name('consultations.destroy');
 });
 
 /**
