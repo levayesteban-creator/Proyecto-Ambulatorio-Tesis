@@ -163,4 +163,152 @@ class ConsultationController extends Controller
             'consultation' => $consultation,
         ]);
     }
+
+    /**
+     * Formulario para editar consulta existente.
+     * GET /patients/{patient}/consultations/{consultation}/edit
+     */
+    public function edit(Patient $patient, Consultation $consultation): Response
+    {
+        // Cargar datos de la consulta existente con todas sus relaciones
+        $consultation->load([
+            'functionalExam',
+            'physicalExam',
+            'sisDiagnoses.medicalConduct',
+            'referrals',
+        ]);
+
+        return Inertia::render('Consultations/Create', [
+            'patient'          => $patient->load('occupation'),
+            'consultation'     => $consultation,
+            'mode'             => 'edit',
+            'age_at_moment'    => Carbon::parse($patient->birth_date)->age,
+            'diagnosesCatalog' => SisDiagnosis::select('id', 'code', 'name')->orderBy('code')->get(),
+            'medicalConducts'  => MedicalConduct::select('id', 'name')->orderBy('name')->get(),
+        ]);
+    }
+
+    /**
+     * Actualizar consulta existente (ATÓMICA).
+     * PUT /patients/{patient}/consultations/{consultation}
+     */
+    public function update(StoreConsultationRequest $request, Patient $patient, Consultation $consultation): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        try {
+            DB::beginTransaction();
+
+            // ── 1. Actualizar registro principal ────────────────────────
+            $consultation->update([
+                'reason_for_consultation' => $validated['reason_for_consultation'],
+                'current_illness'         => $validated['current_illness'],
+                'consultation_type'       => $validated['consultation_type'],
+                'is_healthy'              => $validated['is_healthy'],
+                'therapeutic_plan'        => $validated['therapeutic_plan'] ?? null,
+                'treatment_plan'          => $validated['treatment_plan'] ?? null,
+                'blood_pressure'          => $validated['blood_pressure'] ?? null,
+                'temperature'             => $validated['temperature'] ?? null,
+                'temperature_route'       => $validated['temperature_route'] ?? null,
+                'heart_rate'              => $validated['heart_rate'] ?? null,
+                'respiratory_rate'        => $validated['respiratory_rate'] ?? null,
+                'oxygen_saturation'       => $validated['oxygen_saturation'] ?? null,
+                'weight'                  => $validated['weight'] ?? null,
+                'height'                  => $validated['height'] ?? null,
+                'physical_examination'    => $validated['physical_examination'] ?? null,
+                'complementary_studies'   => $validated['complementary_studies'] ?? null,
+                'epicrisis'               => $validated['epicrisis'] ?? null,
+            ]);
+
+            // ── 2. Actualizar examen funcional ─────────────────────────
+            if ($consultation->functionalExam()->exists()) {
+                $consultation->functionalExam()->update($validated['functional_exam']);
+            } else {
+                $consultation->functionalExam()->create($validated['functional_exam']);
+            }
+
+            // ── 3. Actualizar examen físico ────────────────────────────
+            if (!empty($validated['physical_exam'])) {
+                if ($consultation->physicalExam()->exists()) {
+                    $consultation->physicalExam()->update($validated['physical_exam']);
+                } else {
+                    $consultation->physicalExam()->create(
+                        array_merge(
+                            $validated['physical_exam'],
+                            ['consultation_id' => $consultation->id]
+                        )
+                    );
+                }
+            }
+
+            // ── 4. Actualizar referencias (borrar y recrear) ────────────
+            $consultation->referrals()->delete();
+            if (!empty($validated['referrals'])) {
+                $consultation->referrals()->createMany($validated['referrals']);
+            }
+
+            // ── 5. Actualizar diagnósticos (borrar y recrear) ──────────
+            $consultation->sisDiagnoses()->delete();
+            foreach ($validated['diagnoses'] as $diag) {
+                $consultation->sisDiagnoses()->create($diag);
+            }
+
+            DB::commit();
+
+            return redirect()
+                ->route('patients.show', $patient->id)
+                ->with('success', 'Consulta actualizada exitosamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error actualizando consulta: ' . $e->getMessage(), [
+                'consultation_id' => $consultation->id,
+                'patient_id'      => $patient->id,
+                'user_id'         => Auth::id(),
+                'trace'           => $e->getTraceAsString(),
+            ]);
+
+            return back()->withErrors([
+                'error' => 'No se pudo actualizar la consulta: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Eliminar consulta de forma segura (en cascada).
+     * DELETE /patients/{patient}/consultations/{consultation}
+     */
+    public function destroy(Patient $patient, Consultation $consultation): RedirectResponse
+    {
+        try {
+            DB::beginTransaction();
+
+            // Eliminar en cascada siguiendo el orden de dependencias
+            $consultation->referrals()->delete();
+            $consultation->sisDiagnoses()->delete();
+            $consultation->functionalExam()->delete();
+            $consultation->physicalExam()->delete();
+
+            // Finalmente eliminar la consulta principal
+            $consultation->delete();
+
+            DB::commit();
+
+            return redirect()
+                ->route('patients.show', $patient->id)
+                ->with('success', 'Consulta eliminada exitosamente.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error eliminando consulta: ' . $e->getMessage(), [
+                'consultation_id' => $consultation->id,
+                'patient_id'      => $patient->id,
+                'user_id'         => Auth::id(),
+            ]);
+
+            return back()->withErrors([
+                'error' => 'No se pudo eliminar la consulta: ' . $e->getMessage(),
+            ]);
+        }
+    }
 }
