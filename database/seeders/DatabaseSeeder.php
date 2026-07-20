@@ -13,12 +13,11 @@ class DatabaseSeeder extends Seeder
     {
         // Llamamos a todos los seeders en orden lógico
         $this->call([
-            RoleSeeder::class,                 // Primero creamos los roles
-            UserSeeder::class,                 // Luego los usuarios
+            RoleSeeder::class,                 // Primero creamos los roles + admin
             DatabaseLookupSeeder::class,       // Tablas maestras (ocupaciones, etc.)
             MedicalConductSeeder::class,       // Catálogo de conductas
             EpidemiologicalDiagnosisSeeder::class, // Catálogo EPI-12
-            SisDiagnosisSeeder::class,         // <--- NUEVO: Catálogo SIS
+            SisDiagnosisSeeder::class,         // Catálogo SIS
         ]);
     }
 }

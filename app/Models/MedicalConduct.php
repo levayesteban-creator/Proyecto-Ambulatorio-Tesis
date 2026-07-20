@@ -4,5 +4,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class MedicalConduct extends Model
 {
-    protected $fillable = ['code', 'description'];
+    protected $fillable = ['code', 'name'];
 }

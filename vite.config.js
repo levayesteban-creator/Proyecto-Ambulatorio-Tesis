@@ -16,9 +16,13 @@ export default defineConfig({
         host: '127.0.0.1',
         port: 5173,
         strictPort: true,
-        // Aquí le damos permiso explícito a tu dominio de Laragon
         cors: {
-            origin: 'http://gestion-salud.test',
+            origin: [
+                'http://gestion-salud.test',
+                /^http:\/\/localhost(:\d+)?$/,
+                /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+                /^http:\/\/192\.168\.\d+\.\d+:\d+$/,
+            ],
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
         },

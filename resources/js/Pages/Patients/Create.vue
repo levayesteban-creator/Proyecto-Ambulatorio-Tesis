@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { useForm, Head } from '@inertiajs/vue3'
+import { useForm, Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
+import DatePicker from '@/Components/DatePicker.vue'
 import {
   buildPatientStorePayload,
   patientToFormState,
@@ -96,9 +97,221 @@ const initialState = props.patient
       background: defaultBackground(),
       family_background: defaultFamilyBackground(),
       habits: defaultHabits(),
+      close_history: false,
     }
 
 const form = useForm(initialState)
+
+const fieldLabels = {
+  full_name: 'Nombre Completo',
+  id_number: 'Cédula de Identidad',
+  nationality: 'Nacionalidad',
+  nationality_country: 'Nacionalidad (país)',
+  gender: 'Sexo',
+  birth_date: 'Fecha de Nacimiento',
+  birth_place: 'Lugar de Nacimiento',
+  marital_status_id: 'Estado Civil',
+  ethnicity_id: 'Etnia',
+  instruction_level_id: 'Grado de Instrucción',
+  occupation_id: 'Profesión u Oficio',
+  occupation_detail: 'Detalle de Ocupación',
+  religion_id: 'Religión',
+  religion_detail: 'Detalle de Religión',
+  knows_blood_type: '¿Conoce grupo sanguíneo?',
+  blood_type: 'Tipo de Sangre',
+  rh_factor: 'Factor Rh',
+  phone_number: 'Teléfono',
+  addr_state: 'Estado (dirección)',
+  addr_municipality: 'Municipio',
+  addr_parish: 'Parroquia',
+  addr_locality: 'Localidad',
+  addr_sector: 'Sector',
+  addr_street: 'Calle',
+  addr_house_number: 'N° Casa',
+  addr_zip_code: 'Código Postal',
+  addr_reference: 'Punto de Referencia',
+  residence_time: 'Tiempo de Residencia',
+  close_history: 'Cerrar Historia Clínica',
+  clinical_validation_error: 'Validación clínica',
+
+  // Antecedentes personales (background)
+  'background.allergies_deny': '¿Niega alergias?',
+  'background.allergies_description': 'Descripción de alergias',
+  'background.pathological_deny': '¿Niega enfermedades patológicas?',
+  'background.pathological_disease': 'Enfermedad patológica',
+  'background.pathological_onset_value': 'Tiempo de evolución',
+  'background.pathological_onset_unit': 'Unidad de tiempo',
+  'background.pathological_controlled': '¿Enfermedad controlada?',
+  'background.pathological_treatment': 'Tratamiento',
+  'background.infectious_deny': '¿Niega enfermedades infecciosas?',
+  'background.infectious_disease': 'Enfermedad infecciosa',
+  'background.infectious_age': 'Edad al padecerla',
+  'background.infectious_treatment': 'Tratamiento',
+  'background.infectious_hospitalization': '¿Requirió hospitalización?',
+  'background.infectious_complications': 'Complicaciones',
+  'background.immune_deny_vaccination': 'Esquema de vacunación',
+  'background.immune_childhood_status': 'Estado inmunizaciones',
+  'background.immune_missing_vaccines': 'Vacunas faltantes',
+  'background.immune_adult_vaccines': 'Vacunas de adulto',
+  'background.immune_adult_age': 'Edad de vacunación',
+  'background.immune_complications': 'Complicaciones',
+  'background.transfusion_deny': '¿Niega transfusiones?',
+  'background.transfusion_age': 'Edad de transfusión',
+  'background.transfusion_type': 'Tipo de transfusión',
+  'background.transfusion_bags_count': 'N° bolsas transfundidas',
+  'background.transfusion_reason': 'Motivo de transfusión',
+  'background.obgyn_apply': '¿Aplica antecedentes gineco-obstétricos?',
+  'background.obgyn_gestas': 'Número de gestas',
+  'background.obgyn_partos': 'Número de partos',
+  'background.obgyn_cesareas': 'Número de cesáreas',
+  'background.obgyn_abortos': 'Número de abortos',
+  'background.obgyn_menarche': 'Fecha de menarca',
+  'background.obgyn_menopause': 'Fecha de menopausia',
+  'background.obgyn_cycle_periodicity': 'Periodicidad del ciclo',
+  'background.obgyn_cycle_duration': 'Duración del ciclo',
+  'background.obgyn_cycle_pads_per_day': 'Toallas por día',
+  'background.obgyn_fur': 'Fecha de última regla',
+  'background.surgical_deny': '¿Niega cirugías?',
+  'background.surgical_intervention': 'Intervención quirúrgica',
+  'background.surgical_age': 'Edad de la cirugía',
+  'background.surgical_complications': 'Complicaciones quirúrgicas',
+  'background.traumatic_deny': '¿Niega traumatismos?',
+  'background.traumatic_fracture': 'Fractura o traumatismo',
+  'background.traumatic_age': 'Edad del traumatismo',
+  'background.traumatic_treatment': 'Tratamiento',
+  'background.traumatic_complications': 'Complicaciones',
+  'background.std_deny': '¿Niega ETS?',
+  'background.std_disease': 'ETS padecida',
+  'background.std_age': 'Edad al padecerla',
+  'background.std_treatment': 'Tratamiento',
+  'background.std_hospitalization': '¿Requirió hospitalización?',
+  'background.std_complications': 'Complicaciones',
+  'background.epidemiological_deny': '¿Niega antecedentes epidemiológicos?',
+  'background.epidem_destination': 'Destino del viaje',
+  'background.epidem_start_date': 'Fecha de ida',
+  'background.epidem_end_date': 'Fecha de retorno',
+  'background.epidem_biome': 'Bioma del lugar',
+  'background.disability_deny': '¿Niega discapacidad?',
+  'background.disability_types': 'Tipos de discapacidad',
+  'background.disability_type': 'Tipo de discapacidad',
+  'background.disability_specific_name': 'Nombre de discapacidad',
+  'background.disability_onset_value': 'Tiempo de evolución',
+  'background.disability_onset_unit': 'Unidad de tiempo',
+  'background.disability_pharmacological_treatment': 'Tratamiento farmacológico',
+
+  // Antecedentes familiares
+  'family_background.mother.status': 'Estado de la madre',
+  'family_background.mother.age': 'Edad de la madre',
+  'family_background.mother.pathology': 'Patología de la madre',
+  'family_background.mother.unknown': 'Madre sin datos',
+  'family_background.father.status': 'Estado del padre',
+  'family_background.father.age': 'Edad del padre',
+  'family_background.father.pathology': 'Patología del padre',
+  'family_background.father.unknown': 'Padre sin datos',
+  'family_background.grandmother_maternal.status': 'Estado abuela materna',
+  'family_background.grandmother_maternal.age': 'Edad abuela materna',
+  'family_background.grandmother_maternal.pathology': 'Patología abuela materna',
+  'family_background.grandmother_maternal.unknown': 'Abuela materna sin datos',
+  'family_background.grandfather_maternal.status': 'Estado abuelo materno',
+  'family_background.grandfather_maternal.age': 'Edad abuelo materno',
+  'family_background.grandfather_maternal.pathology': 'Patología abuelo materno',
+  'family_background.grandfather_maternal.unknown': 'Abuelo materno sin datos',
+  'family_background.grandmother_paternal.status': 'Estado abuela paterna',
+  'family_background.grandmother_paternal.age': 'Edad abuela paterna',
+  'family_background.grandmother_paternal.pathology': 'Patología abuela paterna',
+  'family_background.grandmother_paternal.unknown': 'Abuela paterna sin datos',
+  'family_background.grandfather_paternal.status': 'Estado abuelo paterno',
+  'family_background.grandfather_paternal.age': 'Edad abuelo paterno',
+  'family_background.grandfather_paternal.pathology': 'Patología abuelo paterno',
+  'family_background.grandfather_paternal.unknown': 'Abuelo paterno sin datos',
+  'family_background.siblings.unknown': 'Hermanos sin datos',
+  'family_background.siblings.quantity': 'Cantidad de hermanos',
+  'family_background.siblings.female_count': 'Cantidad de hermanas',
+  'family_background.siblings.male_count': 'Cantidad de hermanos',
+  'family_background.siblings.pathology': 'Patología de hermanos',
+  'family_background.children.unknown': 'Hijos sin datos',
+  'family_background.children.quantity': 'Cantidad de hijos',
+  'family_background.children.female_count': 'Cantidad de hijas',
+  'family_background.children.male_count': 'Cantidad de hijos',
+  'family_background.children.pathology': 'Patología de hijos',
+
+  // Hábitos - Alcohol
+  'habits.alcohol.deny': '¿Consume alcohol?',
+  'habits.alcohol.start_age': 'Edad de inicio',
+  'habits.alcohol.end_age': 'Edad de abandono',
+  'habits.alcohol.type': 'Tipo de bebida',
+  'habits.alcohol.quantity_ml': 'Cantidad (ml)',
+  'habits.alcohol.frequency_days': 'Frecuencia',
+  'habits.alcohol.gets_drunk': '¿Se embriaga?',
+  // Tabaco
+  'habits.tobacco.deny': '¿Consume tabaco?',
+  'habits.tobacco.start_age': 'Edad de inicio',
+  'habits.tobacco.end_age': 'Edad de abandono',
+  'habits.tobacco.cigarettes_per_day': 'Cigarrillos/día',
+  'habits.tobacco.boxes_per_year': 'Cajetillas/año',
+  // Café
+  'habits.coffee.deny': '¿Consume café?',
+  'habits.coffee.start_age': 'Edad de inicio',
+  'habits.coffee.end_age': 'Edad de abandono',
+  'habits.coffee.quantity_ml': 'Cantidad (ml)',
+  'habits.coffee.type': 'Tipo de café',
+  // Drogas
+  'habits.drugs.deny': '¿Consume drogas?',
+  'habits.drugs.start_age': 'Edad de inicio',
+  'habits.drugs.end_age': 'Edad de abandono',
+  'habits.drugs.route': 'Vía de administración',
+  'habits.drugs.frequency_per_day': 'Frecuencia diaria',
+  // Actividad física
+  'habits.physical_activity.type': 'Tipo de actividad',
+  'habits.physical_activity.times_per_week': 'Veces por semana',
+  'habits.physical_activity.minutes_per_day': 'Minutos por día',
+  // Nutrición
+  'habits.nutrition.type': 'Tipo de alimentación',
+  'habits.nutrition.predominance_description': 'Descripción del predominio',
+  'habits.nutrition.meals_count': 'Comidas al día',
+  'habits.nutrition.appetite': 'Apetito',
+  // Sueño
+  'habits.sleep.type': 'Patrón de sueño',
+  'habits.sleep.frequency_per_day': 'Frecuencia diaria',
+  'habits.sleep.hours': 'Horas de sueño',
+  'habits.sleep.interrupted': '¿Sueño interrumpido?',
+  'habits.sleep.medication': 'Medicación',
+  'habits.sleep.siesta_duration_min': 'Duración siesta (min)',
+  'habits.sleep.siesta_frequency_per_day': 'Siestas por día',
+  // Vida sexual
+  'habits.sexual_habits.active': '¿Vida sexual activa?',
+  'habits.sexual_habits.sexarche_age': 'Edad de sexarquía',
+  'habits.sexual_habits.partners_count': 'N° parejas sexuales',
+  'habits.sexual_habits.orientation': 'Orientación sexual',
+  'habits.sexual_habits.frequency_per_week': 'Frecuencia semanal',
+  'habits.sexual_habits.contraceptive_method': 'Método anticonceptivo',
+  // Vivienda
+  'habits.housing.floor_material': 'Material del piso',
+  'habits.housing.roof_material': 'Material del techo',
+  'habits.housing.walls_material': 'Material de paredes',
+  'habits.housing.rooms_count': 'N° habitaciones',
+  'habits.housing.habitants_count': 'N° habitantes',
+  'habits.housing.animals': 'Animales',
+  'habits.housing.services.water': 'Agua potable',
+  'habits.housing.services.electricity': 'Electricidad',
+  'habits.housing.services.gas': 'Gas',
+  'habits.housing.services.waste_collection': 'Recolección de basura',
+}
+
+// ────────────────────────────────────────────────────────────
+// CONFIRMACIÓN AL SALIR CON CAMBIOS SIN GUARDAR
+// ────────────────────────────────────────────────────────────
+const hasUnsavedChanges = computed(() => form.isDirty)
+
+const confirmExit = () => {
+  if (hasUnsavedChanges.value && !form.processing) {
+    if (confirm('¿Desea salir sin guardar los cambios?')) {
+      router.visit(route('patients.index'))
+    }
+  } else {
+    router.visit(route('patients.index'))
+  }
+}
 
 watch(() => form.gender, (gender) => {
   if (gender === 'M') {
@@ -111,9 +324,11 @@ watch(() => form.gender, (gender) => {
 // ── Edad calculada desde fecha de nacimiento ─────────────────
 const calculatedAge = computed(() => {
   if (!form.birth_date) return null
-  const bd  = new Date(form.birth_date)
+  const parts = form.birth_date.split('-')
+  if (parts.length !== 3) return null
+  const bd = new Date(+parts[0], +parts[1] - 1, +parts[2])
   const now = new Date()
-  let age   = now.getFullYear() - bd.getFullYear()
+  let age = now.getFullYear() - bd.getFullYear()
   if (now.getMonth() < bd.getMonth() || (now.getMonth() === bd.getMonth() && now.getDate() < bd.getDate())) age--
   return age
 })
@@ -161,13 +376,25 @@ const fieldProgress = computed(() => {
 const progress = computed(() => Math.max(fieldProgress.value, stepProgress.value))
 
 // ── Toggle antecedente niega ─────────────────────────────────
-const toggleDeny = (section, field = 'deny') => {
-  form.background[section][field] = !form.background[section][field]
+const toggleDeny = (section, val) => {
+  form.background[section].deny = val
 }
-const toggleHabit = (habit, field = 'deny') => {
-  form.habits[habit][field] = !form.habits[habit][field]
+const toggleHabit = (habit, val) => {
+  form.habits[habit].deny = val
 }
+const toggleGynecological = (val) => { form.background.gynecological.not_apply = !val }
+const toggleSexualActive = (val) => { form.habits.sexual_habits.active = val }
 
+const filterIdNumber = (e) => {
+  const val = e.target.value.replace(/[^0-9.]/g, '')
+  e.target.value = val
+  form.id_number = val
+}
+const filterDigits = (e) => {
+  const val = e.target.value.replace(/\D/g, '')
+  e.target.value = val
+  form.addr_zip_code = val
+}
 const disabilityTypes = Object.keys(DISABILITY_TYPE_MAP)
 const toggleDisabilityType = (type) => {
   const idx = form.background.disability.types.indexOf(type)
@@ -185,11 +412,111 @@ const familyMembers = [
   { key: 'father',               label: '👨 Padre',           statusF: false },
 ]
 
+// ── Manejadores de antecedentes familiares ──────────────────
+const handleFamilyMemberStatus = (key, value) => {
+  if (value === '') {
+    // Se seleccionó "Desconoce"
+    form.family_background[key].unknown = true
+    form.family_background[key].age = ''
+    form.family_background[key].pathology = ''
+  } else {
+    // Se seleccionó un estado específico
+    form.family_background[key].unknown = false
+  }
+}
+
+const handleSiblingsChildrenStatus = (type, value) => {
+  if (value === '') {
+    form.family_background[type].not_apply = true
+    form.family_background[type].female_count = ''
+    form.family_background[type].male_count = ''
+    form.family_background[type].status = ''
+    form.family_background[type].pathology = ''
+  } else {
+    form.family_background[type].not_apply = false
+    if (!form.family_background[type].female_count) {
+      form.family_background[type].female_count = 0
+    }
+    if (!form.family_background[type].male_count) {
+      form.family_background[type].male_count = 0
+    }
+  }
+}
+
+let savedScrollPosition = 0
+
+const saveScrollPosition = () => {
+  savedScrollPosition = window.scrollY
+}
+
+const restoreScrollPosition = () => {
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: savedScrollPosition, behavior: 'instant' })
+  })
+}
+
 const submit = () => {
-  const action = isEdit.value
-    ? form.transform((data) => buildPatientStorePayload(data)).put(route('patients.update', props.patient.id))
-    : form.transform((data) => buildPatientStorePayload(data)).post(route('patients.store'))
-  action
+  console.log('=== INICIANDO ENVÍO DE FORMULARIO ===')
+  saveScrollPosition()
+
+  const formData = {
+      full_name: form.full_name,
+      id_number: form.id_number,
+      nationality: form.nationality,
+      nationality_country: form.nationality_country,
+      gender: form.gender,
+      birth_date: form.birth_date,
+      birth_place: form.birth_place,
+      marital_status_id: form.marital_status_id,
+      ethnicity_id: form.ethnicity_id,
+      instruction_level_id: form.instruction_level_id,
+      occupation_id: form.occupation_id,
+      occupation_detail: form.occupation_detail,
+      religion_id: form.religion_id,
+      religion_detail: form.religion_detail,
+      knows_blood_type: form.knows_blood_type,
+      blood_type: form.blood_type,
+      rh_factor: form.rh_factor,
+      phone_number: form.phone_number,
+      addr_state: form.addr_state,
+      addr_municipality: form.addr_municipality,
+      addr_parish: form.addr_parish,
+      addr_locality: form.addr_locality,
+      addr_sector: form.addr_sector,
+      addr_street: form.addr_street,
+      addr_house_number: form.addr_house_number,
+      addr_zip_code: form.addr_zip_code,
+      addr_reference: form.addr_reference,
+      residence_time: form.residence_time,
+      background: form.background,
+      family_background: form.family_background,
+      habits: form.habits,
+      close_history: form.close_history,
+    }
+
+  const payload = buildPatientStorePayload(formData)
+
+  const submitMethod = isEdit.value ? 'put' : 'post'
+  const submitRoute = isEdit.value
+    ? route('patients.update', props.patient.id)
+    : route('patients.store')
+
+  form.transform(() => payload)[submitMethod](submitRoute, {
+    preserveScroll: true,
+    onSuccess: () => {
+      console.log('✅ PACIENTE GUARDADO EXITOSAMENTE')
+    },
+    onError: (errors) => {
+      console.error('❌ Error de validación:', errors)
+      restoreScrollPosition()
+      requestAnimationFrame(() => {
+        document.querySelector('.validation-errors')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    },
+    onFinish: () => {
+      console.log('🏁 PROCESO FINALIZADO')
+    }
+  })
 }
 </script>
 
@@ -232,6 +559,17 @@ const submit = () => {
       </div>
     </div>
 
+    <!-- ══ ERRORES DE VALIDACIÓN ═══════════════════════════════ -->
+    <div v-if="form.hasErrors" class="validation-errors">
+      <div class="validation-errors-title">Corrige los siguientes errores antes de guardar:</div>
+      <ul class="validation-errors-list">
+        <li v-for="(msg, field) in form.errors" :key="field">
+          <span class="error-field-label">{{ fieldLabels[field] || field }}:</span>
+          {{ msg }}
+        </li>
+      </ul>
+    </div>
+
     <!-- ══ TABS WRAPPER ════════════════════════════════════════ -->
     <div class="tabs-wrapper">
 
@@ -247,7 +585,7 @@ const submit = () => {
           @click="goToStep(i)"
         >
           <span class="tab-step-num">{{ i + 1 }}</span>
-          <span class="tab-label-text">{{ section.short }}</span>
+          <span class="tab-label-text">{{ section?.short }}</span>
         </button>
       </div>
 
@@ -259,6 +597,7 @@ const submit = () => {
         <div class="step-counter">Apartado {{ currentStep + 1 }} / {{ sections.length }}</div>
       </div>
 
+      <form @submit.prevent="submit">
       <div class="tab-content">
 
         <!-- 1. Ficha Patronímica -->
@@ -284,13 +623,13 @@ const submit = () => {
                   <option value="V">V</option>
                   <option value="E">E</option>
                 </select>
-                <input v-model="form.id_number" class="field-input" type="text" placeholder="00.000.000" style="font-family:'DM Mono',monospace"/>
+                <input :value="form.id_number" class="field-input" type="text" placeholder="00.000.000" style="font-family:'DM Mono',monospace" @input="filterIdNumber"/>
               </div>
               <p v-if="form.errors.id_number" class="field-error">{{ form.errors.id_number }}</p>
             </div>
             <div>
               <label class="field-label">Fecha de Nacimiento <span class="req">*</span></label>
-              <input v-model="form.birth_date" class="field-input" type="date" />
+              <DatePicker v-model="form.birth_date" class="field-input" />
               <p v-if="form.errors.birth_date" class="field-error">{{ form.errors.birth_date }}</p>
             </div>
             <div>
@@ -362,7 +701,7 @@ const submit = () => {
         <nav v-show="false" class="section-nav">
           <span class="section-nav-hint">Fin de «Ficha Patronímica»</span>
           <button v-if="!isLastStep" type="button" class="btn btn-primary-nav" @click="nextStep">
-            Siguiente: {{ sections[1].short }}
+            Siguiente: {{ sections[1]?.short }}
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
           </button>
         </nav>
@@ -400,7 +739,7 @@ const submit = () => {
             Anterior
           </button>
           <button v-if="!isLastStep" type="button" class="btn btn-primary-nav" @click="nextStep">
-            Siguiente: {{ sections[2].short }}
+            Siguiente: {{ sections[2]?.short }}
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
           </button>
         </nav>
@@ -452,7 +791,7 @@ const submit = () => {
             Anterior
           </button>
           <button v-if="!isLastStep" type="button" class="btn btn-primary-nav" @click="nextStep">
-            Siguiente: {{ sections[3].short }}
+            Siguiente: {{ sections[3]?.short }}
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
           </button>
         </nav>
@@ -482,7 +821,7 @@ const submit = () => {
             <div><label class="field-label">N° Casa / Apto.</label>
               <input v-model="form.addr_house_number" class="field-input" type="text"/></div>
             <div><label class="field-label">Código Postal</label>
-              <input v-model="form.addr_zip_code" class="field-input" type="text" style="font-family:'DM Mono',monospace"/></div>
+              <input :value="form.addr_zip_code" class="field-input" type="text" style="font-family:'DM Mono',monospace" @input="filterDigits"/></div>
             <div><label class="field-label">Tiempo de Residencia</label>
               <input v-model="form.residence_time" class="field-input" type="text" placeholder="Ej: 5 años"/></div>
             <div><label class="field-label">Punto de Referencia</label>
@@ -495,7 +834,7 @@ const submit = () => {
             Anterior
           </button>
           <button v-if="!isLastStep" type="button" class="btn btn-primary-nav" @click="nextStep">
-            Siguiente: {{ sections[4].short }}
+            Siguiente: {{ sections[4]?.short }}
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
           </button>
         </nav>
@@ -617,7 +956,7 @@ const submit = () => {
             Anterior
           </button>
           <button v-if="!isLastStep" type="button" class="btn btn-primary-nav" @click="nextStep">
-            Siguiente: {{ sections[1].short }}
+            Siguiente: {{ sections[1]?.short }}
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
           </button>
         </nav>
@@ -635,11 +974,10 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.allergic.deny }">
             <div class="ante-header">
               <div class="ante-title">🤧 Antecedentes Alérgicos</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.allergic.deny }"
-                      @click="toggleDeny('allergic')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div>
-                Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.allergic.deny }" @click="toggleDeny('allergic', true)">NO</button>
+                <button type="button" :class="{ active: !form.background.allergic.deny }" @click="toggleDeny('allergic', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.allergic.deny" class="ante-fields">
@@ -654,10 +992,10 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.pathological.deny }">
             <div class="ante-header">
               <div class="ante-title">🏥 Antecedentes Patológicos</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.pathological.deny }"
-                      @click="toggleDeny('pathological')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.pathological.deny }" @click="toggleDeny('pathological', true)">NO</button>
+                <button type="button" :class="{ active: !form.background.pathological.deny }" @click="toggleDeny('pathological', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.pathological.deny" class="ante-fields form-grid grid-3">
@@ -680,10 +1018,10 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.infectious.deny }">
             <div class="ante-header">
               <div class="ante-title">🦠 Antecedentes Infectocontagiosos</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.infectious.deny }"
-                      @click="toggleDeny('infectious')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.infectious.deny }" @click="toggleDeny('infectious', true)">NO</button>
+                <button type="button" :class="{ active: !form.background.infectious.deny }" @click="toggleDeny('infectious', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.infectious.deny" class="ante-fields form-grid grid-2">
@@ -745,10 +1083,10 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.transfusion.deny }">
             <div class="ante-header">
               <div class="ante-title">🩸 Antecedentes Transfusionales</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.transfusion.deny }"
-                      @click="toggleDeny('transfusion')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.transfusion.deny }" @click="toggleDeny('transfusion', true)">NO</button>
+                <button type="button" :class="{ active: !form.background.transfusion.deny }" @click="toggleDeny('transfusion', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.transfusion.deny" class="ante-fields form-grid grid-3">
@@ -768,10 +1106,10 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.gynecological.not_apply }">
             <div class="ante-header">
               <div class="ante-title">🤰 Antecedentes Gineco-Obstétricos</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.gynecological.not_apply }"
-                      @click="form.background.gynecological.not_apply = !form.background.gynecological.not_apply">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> N/A
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.gynecological.not_apply }" @click="toggleGynecological(false)">NO</button>
+                <button type="button" :class="{ active: !form.background.gynecological.not_apply }" @click="toggleGynecological(true)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.gynecological.not_apply" class="ante-fields form-grid grid-4">
@@ -794,7 +1132,7 @@ const submit = () => {
                 <div><label class="field-label">Toallas/día</label>
                   <input v-model="form.background.gynecological.pads_per_day" class="field-input" type="number" placeholder="3"/></div>
                 <div><label class="field-label">Fecha Última Regla</label>
-                  <input v-model="form.background.gynecological.last_period" class="field-input" type="date"/></div>
+                  <DatePicker v-model="form.background.gynecological.last_period" class="field-input" /></div>
               </div>
             </Transition>
           </div>
@@ -803,10 +1141,10 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.surgical.deny }">
             <div class="ante-header">
               <div class="ante-title">🔪 Antecedentes Quirúrgicos</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.surgical.deny }"
-                      @click="toggleDeny('surgical')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.surgical.deny }" @click="toggleDeny('surgical', true)">NO</button>
+                <button type="button" :class="{ active: !form.background.surgical.deny }" @click="toggleDeny('surgical', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.surgical.deny" class="ante-fields form-grid grid-2">
@@ -824,10 +1162,10 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.traumatic.deny }">
             <div class="ante-header">
               <div class="ante-title">🦴 Antecedentes Traumáticos</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.traumatic.deny }"
-                      @click="toggleDeny('traumatic')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.traumatic.deny }" @click="toggleDeny('traumatic', true)">NO</button>
+                <button type="button" :class="{ active: !form.background.traumatic.deny }" @click="toggleDeny('traumatic', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.traumatic.deny" class="ante-fields form-grid grid-3">
@@ -847,10 +1185,10 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.ets.deny }">
             <div class="ante-header">
               <div class="ante-title">⚕️ Antecedentes de ETS</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.ets.deny }"
-                      @click="toggleDeny('ets')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.ets.deny }" @click="toggleDeny('ets', true)">NO</button>
+                <button type="button" :class="{ active: !form.background.ets.deny }" @click="toggleDeny('ets', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.ets.deny" class="ante-fields form-grid grid-2">
@@ -880,19 +1218,19 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.epidemiological.deny }">
             <div class="ante-header">
               <div class="ante-title">🌍 Antecedentes Epidemiológicos (Viaje)</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.epidemiological.deny }"
-                      @click="toggleDeny('epidemiological')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.epidemiological.deny }" @click="toggleDeny('epidemiological', true)">NO</button>
+                <button type="button" :class="{ active: !form.background.epidemiological.deny }" @click="toggleDeny('epidemiological', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.epidemiological.deny" class="ante-fields form-grid grid-3">
                 <div><label class="field-label">Destino de viaje</label>
                   <input v-model="form.background.epidemiological.destination" class="field-input" type="text" placeholder="País / Ciudad"/></div>
                 <div><label class="field-label">Fecha de salida</label>
-                  <input v-model="form.background.epidemiological.departure_date" class="field-input" type="date"/></div>
+                  <DatePicker v-model="form.background.epidemiological.departure_date" class="field-input" /></div>
                 <div><label class="field-label">Fecha de regreso</label>
-                  <input v-model="form.background.epidemiological.return_date" class="field-input" type="date"/></div>
+                  <DatePicker v-model="form.background.epidemiological.return_date" class="field-input" /></div>
                 <div class="col-full"><label class="field-label">Bioma visitado</label>
                   <input v-model="form.background.epidemiological.biome" class="field-input" type="text" placeholder="Ej: Río, playa, selva, montaña…"/></div>
               </div>
@@ -903,10 +1241,10 @@ const submit = () => {
           <div class="ante-card" :class="{ focused: !form.background.disability.deny }">
             <div class="ante-header">
               <div class="ante-title">♿ Discapacidades</div>
-              <button type="button" class="ante-niega" :class="{ active: form.background.disability.deny }"
-                      @click="toggleDeny('disability')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.background.disability.deny }" @click="toggleDeny('disability', true)">NO</button>
+                <button type="button" :class="{ active: !form.background.disability.deny }" @click="toggleDeny('disability', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.background.disability.deny" class="ante-fields">
@@ -940,7 +1278,7 @@ const submit = () => {
             Anterior
           </button>
           <button v-if="!isLastStep" type="button" class="btn btn-primary-nav" @click="nextStep">
-            Siguiente: {{ sections[6].short }}
+            Siguiente: {{ sections[6]?.short }}
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
           </button>
         </nav>
@@ -961,7 +1299,7 @@ const submit = () => {
               <div class="form-grid grid-2">
                 <div>
                   <label class="field-label">Estado</label>
-                  <select v-model="form.family_background[m.key].status" class="field-select">
+                  <select v-model="form.family_background[m.key].status" class="field-select" @change="handleFamilyMemberStatus(m.key, $event.target.value)">
                     <option value="">Desconoce</option>
                     <option>{{ m.statusF ? 'Viva' : 'Vivo' }}</option>
                     <option>{{ m.statusF ? 'Fallecida' : 'Fallecido' }}</option>
@@ -969,11 +1307,11 @@ const submit = () => {
                 </div>
                 <div>
                   <label class="field-label">Edad</label>
-                  <input v-model="form.family_background[m.key].age" class="field-input" type="number" placeholder="—"/>
+                  <input :disabled="form.family_background[m.key].unknown" v-model="form.family_background[m.key].age" class="field-input" type="number" placeholder="—"/>
                 </div>
                 <div class="col-full">
                   <label class="field-label">Patología / Causa de muerte</label>
-                  <input v-model="form.family_background[m.key].pathology" class="field-input" type="text" placeholder="HTA, DM, Ca…"/>
+                  <input :disabled="form.family_background[m.key].unknown" v-model="form.family_background[m.key].pathology" class="field-input" type="text" placeholder="HTA, DM, Ca…"/>
                 </div>
               </div>
             </div>
@@ -982,16 +1320,16 @@ const submit = () => {
               <div class="family-label">👫 Hermanos</div>
               <div class="form-grid grid-3">
                 <div><label class="field-label">Cantidad ♀</label>
-                  <input v-model="form.family_background.siblings.female_count" class="field-input" type="number" placeholder="0"/></div>
+                  <input v-model.number="form.family_background.siblings.female_count" class="field-input" type="number" min="0"/></div>
                 <div><label class="field-label">Cantidad ♂</label>
-                  <input v-model="form.family_background.siblings.male_count" class="field-input" type="number" placeholder="0"/></div>
+                  <input v-model.number="form.family_background.siblings.male_count" class="field-input" type="number" min="0"/></div>
                 <div><label class="field-label">Estado</label>
-                  <select v-model="form.family_background.siblings.status" class="field-select">
+                  <select v-model="form.family_background.siblings.status" class="field-select" @change="handleSiblingsChildrenStatus('siblings', $event.target.value)">
                     <option value="">Desconoce</option><option>Vivos</option><option>Alguno fallecido</option>
                   </select>
                 </div>
                 <div class="col-full"><label class="field-label">Patología relevante</label>
-                  <input v-model="form.family_background.siblings.pathology" class="field-input" type="text" placeholder="Antecedentes familiares relevantes"/></div>
+                  <input :disabled="form.family_background.siblings.not_apply" v-model="form.family_background.siblings.pathology" class="field-input" type="text" placeholder="Antecedentes familiares relevantes"/></div>
               </div>
             </div>
             <!-- Hijos -->
@@ -999,16 +1337,16 @@ const submit = () => {
               <div class="family-label">🧒 Hijos</div>
               <div class="form-grid grid-3">
                 <div><label class="field-label">Cantidad ♀</label>
-                  <input v-model="form.family_background.children.female_count" class="field-input" type="number" placeholder="0"/></div>
+                  <input v-model.number="form.family_background.children.female_count" class="field-input" type="number" min="0"/></div>
                 <div><label class="field-label">Cantidad ♂</label>
-                  <input v-model="form.family_background.children.male_count" class="field-input" type="number" placeholder="0"/></div>
+                  <input v-model.number="form.family_background.children.male_count" class="field-input" type="number" min="0"/></div>
                 <div><label class="field-label">Estado</label>
-                  <select v-model="form.family_background.children.status" class="field-select">
+                  <select v-model="form.family_background.children.status" class="field-select" @change="handleSiblingsChildrenStatus('children', $event.target.value)">
                     <option value="">Desconoce</option><option>Vivos</option><option>Alguno fallecido</option>
                   </select>
                 </div>
                 <div class="col-full"><label class="field-label">Patología relevante</label>
-                  <input v-model="form.family_background.children.pathology" class="field-input" type="text" placeholder="Enfermedades hereditarias"/></div>
+                  <input :disabled="form.family_background.children.not_apply" v-model="form.family_background.children.pathology" class="field-input" type="text" placeholder="Enfermedades hereditarias"/></div>
               </div>
             </div>
           </div>
@@ -1019,7 +1357,7 @@ const submit = () => {
             Anterior
           </button>
           <button v-if="!isLastStep" type="button" class="btn btn-primary-nav" @click="nextStep">
-            Siguiente: {{ sections[7].short }}
+            Siguiente: {{ sections[7]?.short }}
             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
           </button>
         </nav>
@@ -1037,10 +1375,10 @@ const submit = () => {
           <div class="ante-card">
             <div class="ante-header">
               <div class="ante-title">🍺 Alcohol</div>
-              <button type="button" class="ante-niega" :class="{ active: form.habits.alcohol.deny }"
-                      @click="toggleHabit('alcohol')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.habits.alcohol.deny }" @click="toggleHabit('alcohol', true)">NO</button>
+                <button type="button" :class="{ active: !form.habits.alcohol.deny }" @click="toggleHabit('alcohol', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.habits.alcohol.deny" class="ante-fields form-grid grid-4">
@@ -1073,10 +1411,10 @@ const submit = () => {
           <div class="ante-card">
             <div class="ante-header">
               <div class="ante-title">☕ Café</div>
-              <button type="button" class="ante-niega" :class="{ active: form.habits.coffee.deny }"
-                      @click="toggleHabit('coffee')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.habits.coffee.deny }" @click="toggleHabit('coffee', true)">NO</button>
+                <button type="button" :class="{ active: !form.habits.coffee.deny }" @click="toggleHabit('coffee', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.habits.coffee.deny" class="ante-fields form-grid grid-4">
@@ -1096,10 +1434,10 @@ const submit = () => {
           <div class="ante-card">
             <div class="ante-header">
               <div class="ante-title">🚬 Tabaco</div>
-              <button type="button" class="ante-niega" :class="{ active: form.habits.tobacco.deny }"
-                      @click="toggleHabit('tobacco')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.habits.tobacco.deny }" @click="toggleHabit('tobacco', true)">NO</button>
+                <button type="button" :class="{ active: !form.habits.tobacco.deny }" @click="toggleHabit('tobacco', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.habits.tobacco.deny" class="ante-fields form-grid grid-4">
@@ -1119,10 +1457,10 @@ const submit = () => {
           <div class="ante-card">
             <div class="ante-header">
               <div class="ante-title">💊 Drogas Ilícitas</div>
-              <button type="button" class="ante-niega" :class="{ active: form.habits.drugs.deny }"
-                      @click="toggleHabit('drugs')">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Niega
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: form.habits.drugs.deny }" @click="toggleHabit('drugs', true)">NO</button>
+                <button type="button" :class="{ active: !form.habits.drugs.deny }" @click="toggleHabit('drugs', false)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="!form.habits.drugs.deny" class="ante-fields form-grid grid-4">
@@ -1219,10 +1557,10 @@ const submit = () => {
           <div class="ante-card">
             <div class="ante-header">
               <div class="ante-title">❤️ Hábitos Sexuales</div>
-              <button type="button" class="ante-niega" :class="{ active: !form.habits.sexual_habits.active }"
-                      @click="form.habits.sexual_habits.active = !form.habits.sexual_habits.active">
-                <div class="toggle-switch"><div class="toggle-knob"></div></div> Inactivo
-              </button>
+              <div class="btn-group-si-no">
+                <button type="button" :class="{ active: !form.habits.sexual_habits.active }" @click="toggleSexualActive(false)">NO</button>
+                <button type="button" :class="{ active: form.habits.sexual_habits.active }" @click="toggleSexualActive(true)">SÍ</button>
+              </div>
             </div>
             <Transition name="expand">
               <div v-if="form.habits.sexual_habits.active" class="ante-fields form-grid grid-3">
@@ -1297,6 +1635,32 @@ const submit = () => {
 
       </div><!-- /tab-content -->
 
+      <!-- Botón de envío dentro del formulario -->
+      <div style="display:flex;justify-content:flex-end;padding-top:16px;align-items:center;gap:16px">
+        <!-- Checkbox para cerrar historia clínica -->
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" v-model="form.close_history" style="width:18px;height:18px;cursor:pointer"/>
+          <span style="font-size:14px;color:#374151">
+            🔒 Cerrar historia clínica al registrar
+          </span>
+        </label>
+        <button type="button" class="btn btn-ghost" @click="confirmExit" :disabled="form.processing">
+          ❌ Cancelar
+        </button>
+        <button type="submit" class="btn btn-success" :disabled="form.processing">
+          <svg v-if="form.processing" style="width:15px;height:15px;animation:spin 1s linear infinite" fill="none" viewBox="0 0 24 24">
+            <circle style="opacity:.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path style="opacity:.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+          </svg>
+          <svg v-else fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+          {{ form.processing ? 'Guardando…' : (isEdit ? 'Actualizar Historia Clínica' : 'Registrar Historia Clínica') }}
+        </button>
+      </div>
+      </form>
+
     </div><!-- /tabs-wrapper -->
 
     <!-- ══ BOTTOM BAR ════════════════════════════════════════ -->
@@ -1321,17 +1685,6 @@ const submit = () => {
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px">
             <polyline points="9,18 15,12 9,6"/>
           </svg>
-        </button>
-        <button type="button" class="btn btn-success" :disabled="form.processing" @click="submit">
-          <svg v-if="form.processing" style="width:15px;height:15px;animation:spin 1s linear infinite" fill="none" viewBox="0 0 24 24">
-            <circle style="opacity:.25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path style="opacity:.75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-          </svg>
-          <svg v-else fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px">
-            <path d="M9 11l3 3L22 4"/>
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-          </svg>
-          {{ form.processing ? 'Guardando…' : (isEdit ? 'Actualizar Historia Clínica' : 'Registrar Historia Clínica') }}
         </button>
       </div>
     </div>
@@ -1560,25 +1913,21 @@ const submit = () => {
   display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;
 }
 .ante-title { font-size: 12.5px; font-weight: 600; color: #0F172A; display: flex; align-items: center; gap: 6px; }
-.ante-niega {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 12px; color: #64748B; cursor: pointer;
-  padding: 4px 10px; border-radius: 6px;
-  border: 1px solid #E2E8F0; background: #fff;
-  transition: all 0.15s;
+.btn-group-si-no {
+  display: inline-flex; border-radius: 6px; overflow: hidden;
+  border: 1px solid #D1D5DB; background: #fff;
 }
-.ante-niega.active { border-color: #6EE7B7; background: #ECFDF5; color: #065F46; }
-.toggle-switch {
-  width: 28px; height: 16px; border-radius: 8px;
-  background: #CBD5E1; position: relative; transition: background 0.2s;
+.btn-group-si-no button {
+  padding: 5px 14px; font-size: 12px; font-weight: 600;
+  border: none; cursor: pointer; transition: all 0.15s;
+  background: #fff; color: #94A3B8; line-height: 1.4;
 }
-.ante-niega.active .toggle-switch { background: #10B981; }
-.toggle-knob {
-  position: absolute; top: 2px; left: 2px;
-  width: 12px; height: 12px; border-radius: 50%; background: #fff;
-  transition: transform 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+.btn-group-si-no button.active {
+  background: #10B981; color: #fff;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.08);
 }
-.ante-niega.active .toggle-knob { transform: translateX(12px); }
+.btn-group-si-no button:first-child { border-right: 1px solid #E2E8F0; }
+.btn-group-si-no button:first-child.active { background: #EF4444; }
 .ante-fields { display: grid; gap: 10px; }
 
 /* ── EXPAND TRANSITION ───────────────────────────────────── */

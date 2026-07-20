@@ -65,8 +65,16 @@ class DatabaseLookupSeeder extends Seeder
             Religion::firstOrCreate(['name' => $name]);
         }
 
-        // 5. Ocupaciones iniciales (Mantenidas de tu estructura)
-        $ocupaciones = ['Desempleado', 'Obrero', 'Estudiante', 'Jubilado', 'Otro'];
+        // 5. Ocupaciones (Clasificación ampliada para contexto venezolano)
+        $ocupaciones = [
+            'Desempleado', 'Obrero', 'Estudiante', 'Jubilado', 'Ama de Casa',
+            'Profesional', 'Docente', 'Médico', 'Enfermero', 'Ingeniero',
+            'Abogado', 'Comerciante', 'Conductor', 'Agricultor', 'Pescador',
+            'Albañil', 'Carpintero', 'Electricista', 'Mecánico', 'Panadero',
+            'Cocinero', 'Vigilante', 'Oficinista', 'Policía', 'Militar',
+            'Trabajador Informal (Buhonero)', 'Músico', 'Deportista', 'Artesano',
+            'Otro',
+        ];
         foreach ($ocupaciones as $name) {
             Occupation::firstOrCreate(['name' => $name]);
         }

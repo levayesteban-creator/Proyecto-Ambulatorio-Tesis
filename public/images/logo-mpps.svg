@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="300" height="200">
+  <!-- Background -->
+  <rect width="300" height="200" fill="white"/>
+  
+  <!-- Venezuelan flag arcs -->
+  <path d="M15,30 Q80,10 150,25 Q200,35 240,20" stroke="#FFCC00" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M15,60 Q80,40 150,55 Q200,65 240,50" stroke="#003DA5" stroke-width="14" fill="none" stroke-linecap="round"/>
+  <path d="M15,90 Q80,70 150,85 Q200,95 240,80" stroke="#CF142B" stroke-width="14" fill="none" stroke-linecap="round"/>
+  
+  <!-- Stars on yellow arc -->
+  <g fill="#FFCC00" stroke="#000" stroke-width="0.3">
+    <polygon points="60,22 61.5,26 66,27 62.5,29.5 63.5,34 60,31.5 56.5,34 57.5,29.5 54,27 58.5,26" transform="scale(0.6) translate(40,15)"/>
+    <polygon points="60,22 61.5,26 66,27 62.5,29.5 63.5,34 60,31.5 56.5,34 57.5,29.5 54,27 58.5,26" transform="scale(0.6) translate(65,12)"/>
+    <polygon points="60,22 61.5,26 66,27 62.5,29.5 63.5,34 60,31.5 56.5,34 57.5,29.5 54,27 58.5,26" transform="scale(0.6) translate(90,10)"/>
+    <polygon points="60,22 61.5,26 66,27 62.5,29.5 63.5,34 60,31.5 56.5,34 57.5,29.5 54,27 58.5,26" transform="scale(0.6) translate(115,10)"/>
+    <polygon points="60,22 61.5,26 66,27 62.5,29.5 63.5,34 60,31.5 56.5,34 57.5,29.5 54,27 58.5,26" transform="scale(0.6) translate(140,12)"/>
+    <polygon points="60,22 61.5,26 66,27 62.5,29.5 63.5,34 60,31.5 56.5,34 57.5,29.5 54,27 58.5,26" transform="scale(0.6) translate(165,15)"/>
+    <polygon points="60,22 61.5,26 66,27 62.5,29.5 63.5,34 60,31.5 56.5,34 57.5,29.5 54,27 58.5,26" transform="scale(0.6) translate(190,19)"/>
+    <polygon points="60,22 61.5,26 66,27 62.5,29.5 63.5,34 60,31.5 56.5,34 57.5,29.5 54,27 58.5,26" transform="scale(0.6) translate(215,24)"/>
+  </g>
+  
+  <!-- Gobierno Bolivariano de Venezuela text -->
+  <text x="15" y="130" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#000">Gobierno</text>
+  <text x="15" y="148" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#000">Bolivariano</text>
+  <text x="140" y="148" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" fill="#000">de Venezuela</text>
+  
+  <!-- Ministerio text -->
+  <text x="15" y="170" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#333">Ministerio del Poder Popular</text>
+  <text x="15" y="182" font-family="Arial, Helvetica, sans-serif" font-size="10" fill="#333" font-style="italic">para la Salud</text>
+</svg>

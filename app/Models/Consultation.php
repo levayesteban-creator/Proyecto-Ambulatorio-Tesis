@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +12,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Consultation extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
+
+    const SERVICE_TYPES = [
+        'MG' => 'Medicina General',
+        'EP' => 'Epidemiología',
+        'EM' => 'Emergencia',
+        'PR' => 'Preventiva / Programas',
+        'OT' => 'Otra',
+    ];
 
     protected $fillable = [
         'patient_id',
@@ -23,8 +32,8 @@ class Consultation extends Model
         'reason_for_consultation',
         'current_illness',
         'consultation_type',
+        'service_type',
         'is_healthy',
-        'therapeutic_plan',
         // Signos vitales
         'blood_pressure',
         'temperature',
@@ -39,6 +48,9 @@ class Consultation extends Model
         'epicrisis',
         'treatment_plan',
         'consultation_date',
+        'edit_justification',
+        'verified_at',
+        'verified_by',
     ];
 
     protected $casts = [
@@ -62,6 +74,11 @@ class Consultation extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function verifiedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -90,22 +107,6 @@ class Consultation extends Model
     // RELACIONES DE DIAGNÓSTICOS (SIS)
     // ─────────────────────────────────────────────────────────────────────
 
-    public function diagnoses(): BelongsToMany
-    {
-        return $this->belongsToMany(
-            SisDiagnosis::class,
-            'consultation_sis_diagnosis',
-            'consultation_id',
-            'sis_diagnosis_id'
-        )
-        ->withPivot([
-            'id', 'diagnosis_type', 'unlisted_diagnosis',
-            'medical_conduct_id', 'sort_order',
-        ])
-        ->withTimestamps()
-        ->orderByPivot('sort_order');
-    }
-
     public function sisDiagnoses(): HasMany
     {
         return $this->hasMany(ConsultationDiagnosis::class, 'consultation_id')
@@ -129,6 +130,11 @@ class Consultation extends Model
     {
         return $query->whereYear('created_at', $year)
                      ->whereMonth('created_at', $month);
+    }
+
+    public function serviceTypeLabel(): string
+    {
+        return static::SERVICE_TYPES[$this->service_type] ?? $this->service_type;
     }
 
     public function scopePrimeraVez($query)

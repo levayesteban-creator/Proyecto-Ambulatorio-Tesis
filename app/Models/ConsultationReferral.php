@@ -26,7 +26,7 @@ class ConsultationReferral extends Model
         24 => 'Educación Especial ME', 25 => 'Rehabilitación', 26 => 'Médico de Familia',
         27 => 'Reumatología', 28 => 'Oncología', 29 => 'Urología', 30 => 'Gastroenterología',
         31 => 'Psicología', 32 => 'Infectología', 33 => 'Cirugía Cardiovascular', 34 => 'Hematología',
-        35 => 'Neurología', 36 => 'Radiodiagnóstico', 37 => 'Toxicología', 38 => 'Alergólogo',
+        35 => 'Neuroradiología', 36 => 'Radiodiagnóstico', 37 => 'Toxicología', 38 => 'Alergólogo',
         39 => 'Optometrista'
     ];
 

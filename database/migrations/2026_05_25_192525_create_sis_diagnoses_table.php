@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('sis_diagnoses', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 10)->unique()->comment('Código CIE-10 / SIS');
+            $table->string('code', 10)->nullable()->unique()->comment('Código CIE-10 / SIS');
             $table->string('name')->comment('Descripción de la patología');
             $table->timestamps();
         });

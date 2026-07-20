@@ -8,6 +8,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -29,15 +31,41 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->validated());
+        $user->two_factor_enabled = $request->boolean('two_factor_enabled');
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
 
         return Redirect::route('profile.edit');
+    }
+
+    /**
+     * Cambio obligatorio de contraseña en el primer inicio de sesión.
+     */
+    public function forcePasswordChange(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        if (!$user || !$user->must_change_password) {
+            return Redirect::route('dashboard');
+        }
+
+        $request->validate([
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user->update([
+            'password' => Hash::make($request->password),
+            'must_change_password' => false,
+        ]);
+
+        return Redirect::route('dashboard')
+            ->with('success', 'Contraseña cambiada correctamente.');
     }
 
     /**

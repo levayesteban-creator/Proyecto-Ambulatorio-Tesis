@@ -106,12 +106,6 @@ class PatientBackground extends Model
         'disability_onset_value',
         'disability_onset_unit',
         'disability_pharmacological_treatment',
-
-        // Columnas JSON de soporte para flujos dinámicos complejos (El "otro" código)
-        'pathologies',
-        'infectious_diseases',
-        'surgeries',
-        'traumas'
     ];
 
     /**
@@ -149,12 +143,6 @@ class PatientBackground extends Model
         'obgyn_fur'                  => 'date',
         'epidem_start_date'          => 'date',
         'epidem_end_date'            => 'date',
-
-        // Casts heredados del segundo bloque (Persistencia dinámica JSON en MySQL/MariaDB)
-        'pathologies'                => 'array',
-        'infectious_diseases'        => 'array',
-        'surgeries'                  => 'array',
-        'traumas'                    => 'array',
     ];
 
     /**

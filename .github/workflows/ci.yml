@@ -1,0 +1,128 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    name: PHP Code Style (Laravel Pint)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_sqlite, bcmath, xml, curl, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run Pint (Code Style)
+        run: ./vendor/bin/pint --test
+
+  test:
+    runs-on: ubuntu-latest
+    name: PHPUnit Tests
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: gestion_salud_test
+          MYSQL_USER: test
+          MYSQL_PASSWORD: test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mbstring, pdo_mysql, pdo_sqlite, bcmath, xml, curl, zip
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Create .env.testing
+        run: |
+          cp .env.example .env.testing
+          sed -i 's/DB_CONNECTION=.*/DB_CONNECTION=mysql/' .env.testing
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
+          sed -i 's/DB_PORT=.*/DB_PORT=3306/' .env.testing
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=gestion_salud_test/' .env.testing
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=test/' .env.testing
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=test/' .env.testing
+          sed -i 's/APP_ENV=.*/APP_ENV=testing/' .env.testing
+          sed -i 's/APP_KEY=.*/APP_KEY='$(php artisan key:generate --show --env=testing)'/' .env.testing
+
+      - name: Run database migrations
+        run: php artisan migrate --env=testing --force
+
+      - name: Run PHPUnit tests
+        run: ./vendor/bin/phpunit --env=testing
+        env:
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: gestion_salud_test
+          DB_USERNAME: test
+          DB_PASSWORD: test
+
+  build:
+    runs-on: ubuntu-latest
+    name: Frontend Build (Vite)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache Node dependencies
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build

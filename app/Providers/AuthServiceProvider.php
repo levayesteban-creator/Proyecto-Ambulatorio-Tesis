@@ -1,28 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
-// use Illuminate\Support\Facades\Gate;
+use App\Models\Patient;
+use App\Models\Consultation;
+use App\Models\AuditLog;
+use App\Models\User;
+use App\Policies\PatientPolicy;
+use App\Policies\ConsultationPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
-    /**
-     * The model to policy mappings for the application.
-     *
-     * @var array<class-string, class-string>
-     */
     protected $policies = [
-        // 'App\Models\Model' => 'App\Policies\ModelPolicy',
+        Patient::class => PatientPolicy::class,
+        Consultation::class => ConsultationPolicy::class,
     ];
 
-    /**
-     * Register any authentication / authorization services.
-     */
     public function boot(): void
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('view-audit-logs', function (User $user) {
+            return $user->role_id <= 2;
+        });
     }
 }
+

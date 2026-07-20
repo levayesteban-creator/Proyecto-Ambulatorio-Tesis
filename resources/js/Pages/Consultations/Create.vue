@@ -3,11 +3,14 @@ import { ref, computed, watch } from 'vue'
 import { useForm, Head, Link } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import PhysicalExamTab from '@/Components/PhysicalExamTab.vue'
+import DatePicker from '@/Components/DatePicker.vue'
 import { MPPS_SPECIALTIES, specialtyNameByCode } from '@/utils/mppsSpecialties'
 
 const props = defineProps({
     patient:         Object,
     age_at_moment:   Number,
+    consultation:    Object,
+    mode:            String,
     institution:     String,
     userName:        String,
     diagnosesCatalog:Array,
@@ -16,6 +19,7 @@ const props = defineProps({
 
 // ── APARTADOS CLÍNICOS (estructura MPPS) ─────────────────
 const sections = [
+    { label: 'Anamnesis', short: 'Anamnesis' },
     { label: 'Examen funcional por aparatos y sistemas', short: 'Examen funcional' },
     { label: 'Examen físico y signos vitales', short: 'Examen físico' },
     { label: 'Consulta y diagnóstico', short: 'Consulta / diagnóstico' },
@@ -66,16 +70,12 @@ const commonSpecialties = MPPS_SPECIALTIES
 
 // ── FORM STATE ───────────────────────────────────────────
 const form = useForm({
-    age_at_moment:    props.age_at_moment,
-    address_at_moment:props.patient.current_address || '',
-    phone_at_moment:  props.patient.phone || '',
-    occupation_id:    props.patient.occupation_id || '',
-
     // Tab 0: Anamnesis
-    attended_at:             new Date().toISOString().slice(0,16), // datetime-local: fecha y hora de la consulta
+
     reason_for_consultation: '',
     current_illness:         '',
     consultation_type:       'P',
+    service_type:            'MG',
     is_healthy:              false,
 
     // Tab 1: Examen Funcional (16 sistemas)
@@ -144,6 +144,7 @@ const form = useForm({
     referrals:      [],
     referral_state: 'N/A', // N/A | Referencia | Contra-referencia (estado global de referencia)
     treatment_plan: '',
+    edit_justification: '',
 })
 
 const referralApiType = computed(() =>
@@ -189,11 +190,21 @@ watch(() => form.is_healthy, (healthy) => {
 // ── COMPUTED ─────────────────────────────────────────────
 
 // Errores por apartado (indicador ! en pestaña)
-const hasStep0Error = computed(() =>
+const hasStep0Error = computed(() => {
+    let err = !!(
+        form.errors.reason_for_consultation ||
+        form.errors.current_illness ||
+        form.errors.consultation_type ||
+        form.errors.service_type
+    )
+    return err
+})
+
+const hasStep1Error = computed(() =>
     Object.keys(form.errors).some(k => k.startsWith('functional_exam.'))
 )
 
-const hasStep1Error = computed(() =>
+const hasStep2Error = computed(() =>
     Object.keys(form.errors).some(k =>
         k.startsWith('physical_exam.') ||
         ['blood_pressure', 'temperature', 'temperature_route', 'oxygen_saturation',
@@ -201,12 +212,8 @@ const hasStep1Error = computed(() =>
     )
 )
 
-const hasStep2Error = computed(() => {
+const hasStep3Error = computed(() => {
     let err = !!(
-        form.errors.reason_for_consultation ||
-        form.errors.current_illness ||
-        form.errors.consultation_type ||
-        form.errors.attended_at ||
         form.errors.complementary_studies ||
         form.errors.physical_examination ||
         form.errors.treatment_plan ||
@@ -220,7 +227,7 @@ const hasStep2Error = computed(() => {
     return err
 })
 
-const stepErrors = [hasStep0Error, hasStep1Error, hasStep2Error]
+const stepErrors = [hasStep0Error, hasStep1Error, hasStep2Error, hasStep3Error]
 
 // IMC reactivo (talla en metros, según planilla)
 const imc = computed(() => {
@@ -278,17 +285,29 @@ const buildConsultationPayload = (data) => {
                 type: data.referral_state === 'Contra-referencia' ? 'counter_referral' : 'referral',
             }))
 
+    const diagnoses = data.diagnoses.map((d) => ({
+        ...d,
+        medical_conduct_id: d.medical_conduct_id || null,
+        sis_diagnosis_id: d.sis_diagnosis_id || null,
+    }))
+
     return {
         ...data,
         referrals,
-        therapeutic_plan: data.treatment_plan || null,
+        diagnoses,
     }
 }
 
 const submit = () => {
+    const isEdit = props.mode === 'edit' && props.consultation?.id
+    const method = isEdit ? 'put' : 'post'
+    const url = isEdit
+        ? route('consultations.update', { patient: props.patient.id, consultation: props.consultation.id })
+        : route('consultations.store', props.patient.id)
+
     form
         .transform(buildConsultationPayload)
-        .post(route('consultations.store', props.patient.id), {
+        [method](url, {
             preserveScroll: true,
             onError: () => {
                 const idx = stepErrors.findIndex((e) => e.value)
@@ -344,7 +363,7 @@ const submit = () => {
                     @click="goToStep(i)"
                 >
                     <span class="tab-step-num">{{ i + 1 }}</span>
-                    <span class="tab-label-text">{{ section.short }}</span>
+                    <span class="tab-label-text">{{ section?.short }}</span>
                     <span v-if="stepErrors[i].value" class="tab-num tab-num-error">!</span>
                 </button>
             </div>
@@ -359,10 +378,17 @@ const submit = () => {
 
             <form @submit.prevent="submit">
 
+                <div v-if="Object.keys(form.errors).length" class="alert alert-error" style="margin-bottom:16px">
+                    <strong>Errores en el formulario:</strong>
+                    <ul style="margin:4px 0 0 16px;padding:0">
+                        <li v-for="(msg, field) in form.errors" :key="field">{{ msg }}</li>
+                    </ul>
+                </div>
+
                 <div class="tab-content">
 
                 <!-- ══════ CONSULTA: ANAMNESIS ══════════════ -->
-                <div v-show="currentStep === 2">
+                <div v-show="currentStep === 0">
 
                     <!-- Control paciente sano -->
                     <div class="inline-alert alert-info" style="margin-bottom:20px;cursor:pointer"
@@ -405,17 +431,28 @@ const submit = () => {
                                 <p v-if="form.errors.consultation_type" class="field-error">{{ form.errors.consultation_type }}</p>
                             </div>
 
-                            <!-- Fecha y hora de la consulta -->
+                            <!-- Servicio / Especialidad -->
                             <div>
-                                <label class="field-label">Fecha y Hora de Consulta <span class="req">*</span></label>
-                                <input
-                                    v-model="form.attended_at"
-                                    type="datetime-local"
-                                    class="field-input"
-                                    style="font-family:'DM Mono',monospace"
-                                />
-                                <p v-if="form.errors.attended_at" class="field-error">{{ form.errors.attended_at }}</p>
+                                <label class="field-label">Servicio de Atención <span class="req">*</span></label>
+                                <div class="radio-group" style="margin-top:4px">
+                                    <label v-for="s in [
+                                        {v:'MG',l:'Medicina General'},
+                                        {v:'EP',l:'Epidemiología'},
+                                        {v:'EM',l:'Emergencia'},
+                                        {v:'PR',l:'Preventiva'},
+                                        {v:'OT',l:'Otra'},
+                                    ]" :key="s.v"
+                                           class="radio-option radio-option-sm" :class="{ selected: form.service_type === s.v }"
+                                           @click="form.service_type = s.v">
+                                        <div class="radio-dot" :class="{ sel: form.service_type === s.v }">
+                                            <div class="radio-inner"></div>
+                                        </div>
+                                        {{ s.l }}
+                                    </label>
+                                </div>
+                                <p v-if="form.errors.service_type" class="field-error">{{ form.errors.service_type }}</p>
                             </div>
+
                         </div>
                     </div>
 
@@ -442,16 +479,16 @@ const submit = () => {
                         </div>
                     </div>
                 </div>
-                <nav v-show="false" class="section-nav">
+                <nav v-show="currentStep === 0" class="section-nav">
                     <span class="section-nav-hint">Fin de «La anamnesis»</span>
                     <button v-if="!isLastStep" type="button" class="btn-primary-nav" @click="nextStep">
-                        Siguiente
+                        Siguiente: {{ sections[1]?.short }}
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
                     </button>
                 </nav>
 
                 <!-- ══════ EXAMEN FUNCIONAL Y FÍSICO ════════ -->
-                <div v-show="currentStep === 0">
+                <div v-show="currentStep === 1">
 
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
                         <div class="inline-alert alert-info" style="flex:1;margin-right:16px">
@@ -518,19 +555,19 @@ const submit = () => {
                         </div>
                     </div>
                 </div>
-                <nav v-show="currentStep === 0" class="section-nav">
+                <nav v-show="currentStep === 1" class="section-nav">
                     <button type="button" class="btn-ghost-nav" @click="prevStep">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="15,18 9,12 15,6"/></svg>
                         Anterior
                     </button>
                     <button type="button" class="btn-primary-nav" @click="nextStep">
-                        Siguiente: {{ sections[1].short }}
+                        Siguiente: {{ sections[2]?.short }}
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
                     </button>
                 </nav>
 
                 <!-- ══════ EXAMEN FÍSICO Y SIGNOS VITALES ════════ -->
-                <div v-show="currentStep === 1">
+                <div v-show="currentStep === 2">
 
                     <!-- SIGNOS VITALES ─────────────────────────────────── -->
                     <div class="form-section">
@@ -634,19 +671,19 @@ const submit = () => {
                         <PhysicalExamTab :form="form" />
                     </div>
                 </div>
-                <nav v-show="currentStep === 1" class="section-nav">
+                <nav v-show="currentStep === 2" class="section-nav">
                     <button type="button" class="btn-ghost-nav" @click="prevStep">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="15,18 9,12 15,6"/></svg>
                         Anterior
                     </button>
                     <button type="button" class="btn-primary-nav" @click="nextStep">
-                        Siguiente: {{ sections[2].short }}
+                        Siguiente: {{ sections[3]?.short }}
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="9,18 15,12 9,6"/></svg>
                     </button>
                 </nav>
 
                 <!-- ══════ CONSULTA: EXPLORACIÓN COMPLEMENTARIA ═════ -->
-                <div v-show="currentStep === 2" class="form-section">
+                <div v-show="currentStep === 3" class="form-section">
                     <div class="section-title">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="section-icon">
                             <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4"/>
@@ -681,7 +718,7 @@ const submit = () => {
                 </nav>
 
                 <!-- ══════ CONSULTA: DIAGNÓSTICO PRESUNTIVO ═════ -->
-                <div v-show="currentStep === 2">
+                <div v-show="currentStep === 3">
                     <div class="form-section">
                         <div class="section-title" style="justify-content:space-between">
                             <div style="display:flex;align-items:center;gap:8px">
@@ -758,12 +795,12 @@ const submit = () => {
                 </div>
 
                 <!-- ══════ CONSULTA: TRATAMIENTO ═════ -->
-                <div v-show="currentStep === 2" class="form-section">
+                <div v-show="currentStep === 3" class="form-section">
                         <div class="section-title">
                             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="section-icon">
                                 <path d="M12 2a8 8 0 0 0-8 8c0 5.52 8 12 8 12s8-6.48 8-12a8 8 0 0 0-8-8z"/>
                             </svg>
-                            Tratamiento <span class="req" style="font-size:13px">*</span>
+                            Tratamiento
                         </div>
                         <textarea v-model="form.treatment_plan" class="field-textarea" rows="8"
                                   placeholder="Medicamentos, dosis, vía, frecuencia, duración, indicaciones al paciente, medidas generales…"/>
@@ -771,7 +808,7 @@ const submit = () => {
                 </div>
 
                 <!-- ══════ CONSULTA: EPICRISIS ═════ -->
-                <div v-show="currentStep === 2">
+                <div v-show="currentStep === 3">
                     <div class="form-section">
                         <div class="section-title">
                             <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="section-icon">
@@ -789,6 +826,24 @@ const submit = () => {
                             placeholder="Síntesis del cuadro, evolución, conclusiones y recomendaciones de seguimiento…"
                         />
                         <p v-if="form.errors.epicrisis" class="field-error">{{ form.errors.epicrisis }}</p>
+                    </div>
+
+                    <!-- ══════ EDICIÓN: JUSTIFICACIÓN ═════ -->
+                    <div v-if="mode === 'edit'" class="form-section" style="border-left-color:#DC2626">
+                        <div class="section-title">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="section-icon" style="color:#DC2626">
+                                <path d="M12 2a8 8 0 0 0-8 8c0 5.52 8 12 8 12s8-6.48 8-12a8 8 0 0 0-8-8z"/>
+                            </svg>
+                            Justificación de la Modificación <span class="req">*</span>
+                        </div>
+                        <label class="field-label">Explique brevemente la razón del cambio (auditoría interna)</label>
+                        <textarea
+                            v-model="form.edit_justification"
+                            class="field-textarea"
+                            rows="4"
+                            placeholder="Ej: Corrección de error de tipeo en diagnóstico / Actualización del tratamiento por nuevos resultados…"
+                        />
+                        <p v-if="form.errors.edit_justification" class="field-error">{{ form.errors.edit_justification }}</p>
                     </div>
 
                     <!-- Referencias / Contrarreferencias (cierre) -->
@@ -861,7 +916,7 @@ const submit = () => {
                         </Transition>
                     </div>
                 </div>
-                <nav v-show="currentStep === 2" class="section-nav">
+                <nav v-show="currentStep === 3" class="section-nav">
                     <button type="button" class="btn-ghost-nav" @click="prevStep">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><polyline points="15,18 9,12 15,6"/></svg>
                         Anterior

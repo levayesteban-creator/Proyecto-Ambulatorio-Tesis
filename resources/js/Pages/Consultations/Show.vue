@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { Link, Head } from '@inertiajs/vue3';
+import { Link, Head, router, usePage } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import PhysicalExamShow from '@/Components/PhysicalExamShow.vue';
 
@@ -8,17 +8,32 @@ const props = defineProps({
     consultation: { type: Object, required: true },
 });
 
+const currentUser = computed(() => usePage().props.auth?.user);
+const canDelete = computed(() => {
+    return currentUser.value?.role_id <= 2;
+});
+
 const p = props.consultation.patient;
 const c = props.consultation;
 
+// Lógica de fechas
 const formatDate = (d) => d
     ? new Date(d).toLocaleDateString('es-VE', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     : '—';
 
 const consultationDate = computed(() => formatDate(c.consultation_date ?? c.created_at));
 
+// Funciones de eliminación
+const deleteConsultation = () => {
+    if (confirm('¿Estás seguro de que deseas eliminar esta consulta? Esta acción no se puede deshacer.')) {
+        router.delete(route('consultations.destroy', { patient: p?.id || c.patient_id, consultation: c.id }));
+    }
+};
+
+// Diccionario de especialidades y utilidades
 const typeLabel = (t) => ({ P: 'Primera Vez', S: 'Sucesiva', X: 'Asociada' }[t] ?? t);
 const typeColor = (t) => ({ P: 'bg-green-100 text-green-700', S: 'bg-blue-100 text-blue-700', X: 'bg-purple-100 text-purple-700' }[t] ?? 'bg-gray-100 text-gray-700');
+const serviceTypeLabel = (s) => ({ MG:'Medicina General', EP:'Epidemiología', EM:'Emergencia', PR:'Preventiva / Programas', OT:'Otra' }[s] ?? s);
 const diagTypeColor = (t) => ({
     Confirmado: 'bg-green-100 text-green-700',
     Probable: 'bg-yellow-100 text-yellow-700',
@@ -31,15 +46,9 @@ const imc = computed(() => {
     return (c.weight / (c.height * c.height)).toFixed(1);
 });
 
-const functionalDeny = (key, exam) => {
-    if (key === 'gastrointestinal' || key === 'genitourinary') {
-        if (exam[`${key}_deny`] != null) return exam[`${key}_deny`];
-        return !exam[`${key}_description`];
-    }
-    return exam[`${key}_deny`];
-};
+// Nota: Esta función ya la tenías, la mantenemos
+const functionalDeny = (key, exam) => exam[`${key}_deny`];
 
-// Nombre de la especialidad a partir del código (diccionario MPPS)
 const specialties = {
     1:'Odontología', 2:'Oftalmología', 3:'Traumatología y Ortopedia', 4:'ORL',
     5:'Pediatría', 6:'Medicina Interna', 7:'Dermatología', 8:'Cirugía',
@@ -83,9 +92,19 @@ const specialties = {
                     >
                         Ficha del Paciente
                     </Link>
-                </div>
-            </div>
-        </template>
+
+                    <Link :href="route('consultations.edit', [p?.id, c?.id])"
+                          class="px-4 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-sm font-medium text-yellow-700 hover:bg-yellow-100 transition">
+                        Editar
+                    </Link>
+
+                    <button v-if="canDelete" @click="deleteConsultation"
+                            class="px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-sm font-medium text-red-600 hover:bg-red-100 transition">
+                          Eliminar
+                      </button>
+                  </div>
+              </div>
+          </template>
 
         <div class="max-w-5xl mx-auto py-10 px-4 sm:px-6 lg:px-8 space-y-6 print:py-4">
 
@@ -102,7 +121,11 @@ const specialties = {
                         {{ c.age_at_moment }} años al momento · Dr. {{ c.doctor?.name }}
                     </p>
                 </div>
-                <div class="text-right">
+                <div class="text-right flex items-center gap-2">
+                    <span v-if="c.service_type"
+                          class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                        {{ serviceTypeLabel(c.service_type) }}
+                    </span>
                     <span :class="typeColor(c.consultation_type)"
                           class="inline-block px-3 py-1.5 rounded-full text-sm font-bold">
                         {{ typeLabel(c.consultation_type) }}
@@ -217,14 +240,23 @@ const specialties = {
             </div>
 
             <!-- ── PLAN TERAPÉUTICO ─────────────────────────────────────── -->
-            <div v-if="c.therapeutic_plan || c.treatment_plan"
+            <div v-if="c.treatment_plan"
                  class="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
                 <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wide border-b pb-2 mb-3">
                     Plan Terapéutico
                 </h3>
                 <p class="text-sm text-gray-800 whitespace-pre-line">
-                    {{ c.therapeutic_plan ?? c.treatment_plan }}
+                    {{ c.treatment_plan }}
                 </p>
+            </div>
+
+            <!-- ── JUSTIFICACIÓN DE EDICIÓN ──────────────────────────── -->
+            <div v-if="c.edit_justification"
+                 class="bg-white rounded-xl border border-red-200 shadow-sm p-5">
+                <h3 class="text-xs font-bold text-red-500 uppercase tracking-wide border-b pb-2 mb-3">
+                    Justificación de Modificación
+                </h3>
+                <p class="text-sm text-gray-800 whitespace-pre-line">{{ c.edit_justification }}</p>
             </div>
 
             <!-- ── DIAGNÓSTICOS SIS ─────────────────────────────────────── -->
@@ -254,7 +286,7 @@ const specialties = {
                                 </span>
                             </div>
                             <p v-if="dx.medical_conduct" class="text-xs text-gray-500 mt-1">
-                                Conducta: {{ dx.medical_conduct.name }}
+                                Conducta: {{ dx.medical_conduct?.name ?? '—' }}
                             </p>
                         </div>
                     </div>

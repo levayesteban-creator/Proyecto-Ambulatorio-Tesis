@@ -58,10 +58,14 @@ const removeToast = (id) => {
 }
 
 const flash = computed(() => page.props.flash)
-if (flash.value?.success) addToast('success', flash.value.success)
-if (flash.value?.error) addToast('error', flash.value.error)
+
+watch(flash, (f) => {
+  if (f?.success) addToast('success', f.success)
+  if (f?.error) addToast('error', f.error)
+}, { immediate: true })
 
 const logout = () => router.post(route('logout'))
+const goBack = () => window.history.back()
 </script>
 
 <template>
@@ -94,8 +98,18 @@ const logout = () => router.post(route('logout'))
         <span class="nav-label">Inicio</span>
       </Link>
 
+      <Link class="nav-item" :href="route('patients.create')" :title="'Registrar Historia Clínica'"
+            :class="{ active: $page.url === '/patients/create' }">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="12" y1="13" x2="12" y2="17"/><line x1="10" y1="15" x2="14" y2="15"/>
+        </svg>
+        <span class="nav-label">Registrar Historia Clínica</span>
+      </Link>
+
       <Link class="nav-item" :href="route('patients.index')" :title="'Pacientes'"
-            :class="{ active: $page.url.startsWith('/patients') && $page.url !== '/patients/create' }">
+            :class="{ active: $page.url.startsWith('/patients') && !$page.url.includes('/patients/create') && !$page.url.includes('/patients/trashed') && !$page.url.includes('/consultations') }">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
@@ -104,14 +118,36 @@ const logout = () => router.post(route('logout'))
         <span class="nav-label">Pacientes</span>
       </Link>
 
-      <Link class="nav-item" :href="route('patients.create')" :title="'Historia Clínica'"
-            :class="{ active: $page.url === '/patients/create' }">
+      <Link class="nav-item" :href="route('consultations.index')" :title="'Consultas'"
+            :class="{ active: $page.url.startsWith('/consultations') }">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14,2 14,8 20,8"/>
-          <line x1="12" y1="13" x2="12" y2="17"/><line x1="10" y1="15" x2="14" y2="15"/>
+          <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+          <rect x="9" y="3" width="6" height="4" rx="1"/>
+          <path d="M9 12l2 2 4-4"/>
         </svg>
-        <span class="nav-label">Historia Clínica</span>
+        <span class="nav-label">Consultas</span>
+      </Link>
+
+      <div class="nav-section-title">Reportes</div>
+
+      <Link class="nav-item" :href="route('reports.historical')" :title="'Historial Epidemiológico'"
+            :class="{ active: $page.url.startsWith('/reportes/historical') }">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+        <span class="nav-label">Historial EPI</span>
+      </Link>
+
+      <Link class="nav-item" :href="route('reports.epi.matrix')" :title="'Consolidados Epidemiológicos'"
+            :class="{ active: $page.url.startsWith('/reportes/epi') }">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        <span class="nav-label">Consolidados EPI</span>
       </Link>
 
       <div class="nav-section-title">Sistema</div>
@@ -125,14 +161,52 @@ const logout = () => router.post(route('logout'))
         <span class="nav-label">Mi perfil</span>
       </Link>
 
+      <Link v-if="$page.props.auth.user?.role_id <= 2" class="nav-item" :href="route('admin.users.index')" :title="'Usuarios'"
+            :class="{ active: $page.url.startsWith('/admin/users') }">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        <span class="nav-label">Usuarios</span>
+      </Link>
+
+      <Link v-if="$page.props.auth.user?.role_id <= 2" class="nav-item" :href="route('audit-logs.index')" :title="'Bitácora'"
+            :class="{ active: $page.url.startsWith('/audit-logs') }">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14,2 14,8 20,8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10,9 9,9 8,9"/>
+        </svg>
+        <span class="nav-label">Bitácora</span>
+      </Link>
+
+      <Link v-if="$page.props.auth.user?.role_id <= 2" class="nav-item" :href="route('help.backup')" :title="'Respaldo y Recuperación'"
+            :class="{ active: $page.url.startsWith('/help/backup') }">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 16v-4"/><path d="M12 8h.01"/>
+        </svg>
+        <span class="nav-label">Respaldo</span>
+      </Link>
+
       <div class="sidebar-footer">
         <div class="user-card" @click="logout" title="Cerrar sesión">
           <div class="user-avatar">{{ initials }}</div>
           <div class="user-info">
             <div class="user-name">{{ user?.name }}</div>
-            <div class="user-role">Médico General</div>
+            <div class="user-role">{{ user?.role?.name ?? 'Médico' }}</div>
           </div>
         </div>
+        <button class="switch-user-btn" @click="logout" title="Cambiar de usuario">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+            <polyline points="10 17 15 12 10 7"/>
+            <line x1="15" y1="12" x2="3" y2="12"/>
+          </svg>
+          <span class="nav-label">Cambiar Usuario</span>
+        </button>
       </div>
     </aside>
 
@@ -159,15 +233,18 @@ const logout = () => router.post(route('logout'))
           <span class="bc-current">{{ title || breadcrumb || 'Registro' }}</span>
         </div>
 
-        <div class="header-search">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-               style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#94a3b8">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input type="text" placeholder="Buscar por nombre o cédula…" @keydown.enter.prevent />
-        </div>
-
         <div class="header-actions">
+          <button class="nav-btn" title="Atrás (Alt+←)" @click="goBack">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button class="nav-btn" title="Recargar (F5)" @click="router.reload()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+          </button>
           <div class="header-avatar" :title="user?.name">{{ initials }}</div>
         </div>
       </header>
@@ -348,6 +425,18 @@ const logout = () => router.post(route('logout'))
 .user-name  { font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; }
 .user-role  { font-size: 10px; color: #64748B; white-space: nowrap; }
 
+.switch-user-btn {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 8px; margin-top: 4px;
+  border-radius: 8px; border: none;
+  background: transparent; color: #94A3B8;
+  font-size: 12px; cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.switch-user-btn:hover { background: rgba(255, 255, 255, 0.06); color: #fff; }
+.switch-user-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+.sidebar-collapsed .switch-user-btn .nav-label { display: none; }
+
 /* Modo contraído: solo iconos, barra siempre visible */
 .sidebar-collapsed .logo-text,
 .sidebar-collapsed .nav-section-title,
@@ -425,26 +514,14 @@ const logout = () => router.post(route('logout'))
 .bc-sep     { color: #CBD5E1; font-size: 12px; }
 .bc-current { font-size: 13px; font-weight: 600; color: var(--text); }
 
-.header-search {
-  flex: 1;
-  max-width: 360px;
-  margin-left: auto;
-  position: relative;
+.header-actions { display: flex; align-items: center; gap: 4px; }
+.nav-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border: none; border-radius: 6px;
+  background: transparent; color: #64748B; cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
-
-.header-search input {
-  width: 100%;
-  padding: 8px 12px 8px 34px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
-  font-size: 13px;
-  color: var(--text);
-  outline: none;
-  font-family: inherit;
-}
-
-.header-actions { display: flex; align-items: center; gap: 8px; }
+.nav-btn:hover { background: #F1F5F9; color: #0F172A; }
 
 .header-avatar {
   width: 36px;
@@ -523,7 +600,6 @@ const logout = () => router.post(route('logout'))
 .toast-enter-from, .toast-leave-to { opacity: 0; transform: translateX(20px); }
 
 @media (max-width: 768px) {
-  .header-search { display: none; }
   .page-body { padding: 16px; }
 }
 </style>

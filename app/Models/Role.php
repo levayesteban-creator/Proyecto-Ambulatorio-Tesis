@@ -10,8 +10,12 @@ class Role extends Model
 {
     use HasFactory;
 
-    // Permitimos que se guarde el nombre del rol
-    protected $fillable = ['name'];
+    const ADMIN = 1;
+    const COORDINATOR = 2;
+    const DOCTOR = 3;
+    const NURSE = 4;
+
+    protected $fillable = ['name', 'descripcion'];
 
     /**
      * Un Rol tiene muchos Usuarios (Un médico, muchos usuarios con rol médico)

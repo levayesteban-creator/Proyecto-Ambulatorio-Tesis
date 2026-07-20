@@ -37,7 +37,9 @@ return new class extends Migration
             }
         });
 
-        if (Schema::hasTable('consultation_sis_diagnosis')) {
+        if (Schema::hasTable('consultation_sis_diagnosis')
+            && DB::connection()->getDriverName() !== 'sqlite'
+        ) {
             DB::statement(
                 "ALTER TABLE consultation_sis_diagnosis MODIFY diagnosis_type "
                 . "ENUM('Sospechoso', 'Probable', 'Confirmado', 'No Aplica') NOT NULL DEFAULT 'Confirmado'"

@@ -16,3 +16,11 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+/.devinignore
+/.phpunit.result.cache
+/composer-setup.php
+/cookies.txt
+/gen_pdf10.php
+/test_users.php
+/launcher/launcher.log
+*.timestamp-*.mjs

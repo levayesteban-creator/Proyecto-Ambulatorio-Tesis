@@ -23,11 +23,10 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Forgot Password" />
+        <Head title="Recuperar Contraseña" />
 
         <div class="mb-4 text-sm text-gray-600">
-            Forgot your password? No problem. Just let us know your email address and we will email you a password reset
-            link that will allow you to choose a new one.
+            Ingresa tu correo electrónico o cédula y te enviaremos un enlace para restablecer tu contraseña.
         </div>
 
         <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
@@ -36,13 +35,14 @@ const submit = () => {
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Correo electrónico o Cédula" />
 
                 <TextInput
                     id="email"
-                    type="email"
+                    type="text"
                     class="mt-1 block w-full"
                     v-model="form.email"
+                    placeholder="correo@ejemplo.com / 12345678"
                     required
                     autofocus
                     autocomplete="username"
@@ -53,7 +53,7 @@ const submit = () => {
 
             <div class="flex items-center justify-end mt-4">
                 <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Email Password Reset Link
+                    Enviar enlace de recuperación
                 </PrimaryButton>
             </div>
         </form>

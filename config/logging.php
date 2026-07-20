@@ -114,6 +114,14 @@ return [
             'handler' => NullHandler::class,
         ],
 
+        'audit' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/audit.log'),
+            'level' => 'info',
+            'days' => 90,
+            'formatter' => \Monolog\Formatter\JsonFormatter::class,
+        ],
+
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],

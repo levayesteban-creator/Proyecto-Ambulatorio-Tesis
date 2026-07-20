@@ -1,0 +1,27 @@
+{
+  "name": "Gestión Salud - El Chaparro",
+  "short_name": "Gestión Salud",
+  "description": "Sistema de Gestión de Salud - Consultorio El Chaparro",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#16A34A",
+  "theme_color": "#16A34A",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}

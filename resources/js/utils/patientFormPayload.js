@@ -676,8 +676,8 @@ export function defaultFamilyBackground() {
     grandfather_paternal: { unknown: false, status: '', age: '', pathology: '' },
     mother: { unknown: false, status: '', age: '', pathology: '' },
     father: { unknown: false, status: '', age: '', pathology: '' },
-    siblings: { not_apply: false, female_count: '', male_count: '', status: '', pathology: '' },
-    children: { not_apply: false, female_count: '', male_count: '', status: '', pathology: '' },
+    siblings: { not_apply: false, female_count: 0, male_count: 0, status: '', pathology: '' },
+    children: { not_apply: false, female_count: 0, male_count: 0, status: '', pathology: '' },
   }
 }
 

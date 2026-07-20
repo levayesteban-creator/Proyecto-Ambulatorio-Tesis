@@ -1,17 +1,30 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Head, Link } from '@inertiajs/vue3';
+import { Head, Link, router } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import { DISABILITY_LABELS, overcrowdingIndex } from '@/utils/patientFormPayload';
 
 const props = defineProps({
     patient: { type: Object, required: true },
     consultations: { type: Array, default: () => [] },
+    auth: { type: Object, default: () => ({}) },
 });
 
 const bg = computed(() => props.patient.patient_background);
 const fb = computed(() => props.patient.family_background);
 const habits = computed(() => props.patient.psychobiological_habit);
+
+const confirmClose = () => {
+    if (confirm('¿Está seguro de cerrar la historia clínica? Una vez cerrada solo el administrador y médico coordinador podrán reabrirla.')) {
+        router.post(route('patients.close', props.patient.id))
+    }
+}
+
+const confirmReopen = () => {
+    if (confirm('¿Está seguro de reabrir la historia clínica?')) {
+        router.post(route('patients.reopen', props.patient.id))
+    }
+}
 
 const formatDate = (value) => {
     if (!value) return '—';
@@ -130,8 +143,46 @@ const denyOr = (deny, text) => (deny ? 'Niega' : (text || '—'));
                     <Link :href="route('patients.index')" class="px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50">
                         Listado
                     </Link>
-                    <Link :href="route('patients.edit', patient.id)" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-md text-sm font-medium shadow-sm">
+                    <!-- Botón Editar: visible solo para admin y médico coordinador, y si la historia no está cerrada -->
+                    <Link
+                        v-if="auth?.can_edit_patient && !patient.closed_at"
+                        :href="route('patients.edit', patient.id)"
+                        class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-md text-sm font-medium shadow-sm"
+                    >
                         Editar Ficha
+                    </Link>
+                    <!-- Botón Cerrar Historia: visible para admin, médico coordinador y médicos, si la historia está abierta -->
+                    <button
+                        v-if="auth?.can_close_patient && !patient.closed_at"
+                        class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md text-sm font-medium shadow-sm"
+                        @click="confirmClose"
+                    >
+                        🔒 Cerrar Historia
+                    </button>
+                    <button
+                        v-if="auth?.can_reopen_patient && patient.closed_at"
+                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm font-medium shadow-sm"
+                        @click="confirmReopen"
+                    >
+                        🔓 Reabrir Historia
+                    </button>
+                    <!-- Historia clínica cerrada - visible solo para admin y médico coordinador -->
+                    <span
+                        v-if="auth?.can_edit_patient && patient.closed_at"
+                        class="px-4 py-2 bg-red-100 border border-red-300 text-red-700 rounded-md text-sm font-medium"
+                    >
+                        🔒 Historia Cerrada
+                    </span>
+                    <!-- Usuario sin permiso para editar -->
+                    <span
+                        v-if="!auth?.can_edit_patient"
+                        class="px-4 py-2 bg-gray-100 border border-gray-300 text-gray-500 rounded-md text-sm font-medium cursor-not-allowed"
+                        title="Solo administradores y médicos coordinadores pueden editar"
+                    >
+                        Editar
+                    </span>
+                    <Link :href="route('patients.edit-contact', patient.id)" class="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-md text-sm font-medium shadow-sm">
+                        Editar Contacto
                     </Link>
                     <Link :href="route('consultations.create', patient.id)" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium shadow-sm">
                         + Nueva Consulta
@@ -226,14 +277,14 @@ const denyOr = (deny, text) => (deny ? 'Niega' : (text || '—'));
                     </div>
                     <div>
                         <dt class="text-gray-500 font-medium">Quirúrgicos</dt>
-                        <dd>{{ denyOr(bg.surgical_deny, `${bg.surgical_intervention} (edad ${bg.surgical_age})`) }}</dd>
+                        <dd>{{ denyOr(bg.surgical_deny, [bg.surgical_intervention, bg.surgical_age ? `(edad ${bg.surgical_age})` : ''].filter(Boolean).join(' ')) }}</dd>
                     </div>
                     <div>
                         <dt class="text-gray-500 font-medium">Traumáticos</dt>
                         <dd>
                             <template v-if="bg.traumatic_deny">Niega</template>
                             <template v-else>
-                                {{ bg.traumatic_fracture }} (edad {{ bg.traumatic_age }}). {{ bg.traumatic_treatment }}.
+                                <template v-if="bg.traumatic_fracture">{{ bg.traumatic_fracture }}</template><template v-if="bg.traumatic_age"> (edad {{ bg.traumatic_age }})</template><template v-if="bg.traumatic_treatment">. {{ bg.traumatic_treatment }}</template>.
                                 <span v-if="bg.traumatic_complications">Complicaciones: {{ bg.traumatic_complications }}</span>
                             </template>
                         </dd>
@@ -243,7 +294,7 @@ const denyOr = (deny, text) => (deny ? 'Niega' : (text || '—'));
                         <dd>
                             <template v-if="bg.std_deny">Niega</template>
                             <template v-else>
-                                {{ bg.std_disease }} (edad {{ bg.std_age }}). {{ bg.std_treatment }}.
+                                <template v-if="bg.std_disease">{{ bg.std_disease }}</template><template v-if="bg.std_age"> (edad {{ bg.std_age }})</template><template v-if="bg.std_treatment">. {{ bg.std_treatment }}</template>.
                                 {{ bg.std_hospitalization ? 'Con' : 'Sin' }} hospitalización.
                                 <span v-if="bg.std_complications"> Complicaciones: {{ bg.std_complications }}</span>
                             </template>
@@ -408,7 +459,7 @@ const denyOr = (deny, text) => (deny ? 'Niega' : (text || '—'));
                                 </span>
                                 <h4 class="mt-2 font-bold text-gray-700">{{ consulta.reason_for_consultation }}</h4>
                             </div>
-                            <p class="text-xs text-gray-500">Dr. {{ consulta.doctor?.name }}</p>
+                            <p class="text-xs text-gray-500">Dr. {{ consulta.doctor?.name ?? 'No registrado' }}</p>
                         </div>
                     </div>
                 </div>

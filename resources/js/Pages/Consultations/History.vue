@@ -29,6 +29,7 @@ const typeColor = (type) => {
     };
     return map[type] ?? 'bg-gray-100 text-gray-700';
 };
+const serviceTypeLabel = (s) => ({ MG:'Medicina General', EP:'Epidemiología', EM:'Emergencia', PR:'Preventiva / Programas', OT:'Otra' }[s] ?? s);
 
 // Etiqueta del tipo de diagnóstico
 const diagTypeColor = (type) => {
@@ -36,6 +37,7 @@ const diagTypeColor = (type) => {
         Confirmado:  'bg-green-100 text-green-700',
         Probable:    'bg-yellow-100 text-yellow-700',
         Sospechoso:  'bg-red-100 text-red-700',
+        'No Aplica': 'bg-gray-100 text-gray-600',
     };
     return map[type] ?? 'bg-gray-100 text-gray-700';
 };
@@ -107,7 +109,7 @@ const diagTypeColor = (type) => {
                         <!-- Círculo en la línea de tiempo -->
                         <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-600 flex items-center
                                     justify-center text-white text-xs font-bold shadow-md z-10">
-                            {{ new Date(consulta.created_at).getDate() }}
+                            {{ new Date(consulta.consultation_date ?? consulta.created_at).getDate() }}
                         </div>
 
                         <!-- Tarjeta de la consulta -->
@@ -118,6 +120,10 @@ const diagTypeColor = (type) => {
                             <div class="flex items-center justify-between px-5 py-3
                                         bg-gray-50 border-b border-gray-200">
                                 <div class="flex items-center gap-3">
+                                    <span v-if="consulta.service_type"
+                                          class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">
+                                        {{ serviceTypeLabel(consulta.service_type) }}
+                                    </span>
                                     <span :class="typeColor(consulta.consultation_type)"
                                           class="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wide">
                                         {{ typeLabel(consulta.consultation_type) }}
@@ -129,7 +135,7 @@ const diagTypeColor = (type) => {
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-4 text-xs text-gray-500">
-                                    <span>{{ formatDate(consulta.created_at) }}</span>
+                                    <span>{{ formatDate(consulta.consultation_date ?? consulta.created_at) }}</span>
                                     <span class="font-medium text-gray-700">
                                         Dr. {{ consulta.doctor?.name ?? 'No registrado' }}
                                     </span>

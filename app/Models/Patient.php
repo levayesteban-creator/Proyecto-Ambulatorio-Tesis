@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +13,7 @@ use Carbon\Carbon;
 
 class Patient extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * Atributos asignables de forma masiva (Mass Assignment)
@@ -52,6 +53,9 @@ class Patient extends Model
 
         'addr_reference',
         'residence_time',
+
+        // Control de historias clínicas cerradas
+        'closed_at',
     ];
 
     /**
@@ -59,6 +63,7 @@ class Patient extends Model
      */
     protected $casts = [
         'birth_date' => 'date',
+        'closed_at' => 'datetime',
     ];
 
     /**
