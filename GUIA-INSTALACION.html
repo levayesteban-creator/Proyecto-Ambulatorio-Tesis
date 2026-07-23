@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Guía de Instalación - Sistema de Gestión de Salud</title>
+    <style>
+        @media print {
+            .no-print { display: none; }
+            body { font-size: 11px; }
+            .step { break-inside: avoid; }
+        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; color: #333; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { color: #1E40AF; font-size: 24px; border-bottom: 3px solid #1E40AF; padding-bottom: 10px; }
+        h2 { color: #1E40AF; font-size: 18px; margin-top: 30px; border-left: 4px solid #2563EB; padding-left: 12px; }
+        .step { background: #F8FAFC; border-left: 4px solid #2563EB; padding: 16px 20px; margin: 16px 0; border-radius: 0 8px 8px 0; }
+        .step-title { font-weight: bold; color: #1E40AF; font-size: 15px; margin-bottom: 8px; }
+        .command { background: #1E293B; color: #E2E8F0; padding: 10px 14px; border-radius: 6px; font-family: Consolas, 'Courier New', monospace; font-size: 12px; margin: 8px 0; }
+        .warning { background: #FEF3C7; border: 1px solid #F59E0B; padding: 14px; border-radius: 8px; margin: 14px 0; }
+        .warning strong { color: #92400E; }
+        .tip { background: #ECFDF5; border: 1px solid #10B981; padding: 14px; border-radius: 8px; margin: 14px 0; }
+        .tip strong { color: #065F46; }
+        table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+        th { background: #1E40AF; color: white; padding: 10px; text-align: left; font-size: 12px; }
+        td { padding: 10px; border-bottom: 1px solid #E5E7EB; font-size: 12px; }
+        .url { color: #2563EB; font-weight: bold; }
+        ul, ol { margin: 6px 0; padding-left: 24px; }
+        li { margin: 4px 0; }
+        code { background: #E2E8F0; padding: 2px 6px; border-radius: 4px; font-family: Consolas, monospace; font-size: 12px; }
+        .print-btn { position: fixed; top: 20px; right: 20px; background: #2563EB; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 1000; }
+        .print-btn:hover { background: #1D4ED8; }
+        .footer { text-align: center; color: #9CA3AF; font-size: 11px; margin-top: 40px; border-top: 1px solid #E5E7EB; padding-top: 16px; }
+    </style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">Descargar como PDF</button>
+
+<h1>Guía de Instalación</h1>
+<p><strong>Sistema de Gestión de Salud - Consultorio "El Chaparro de Guanta"</strong></p>
+<p style="color: #6B7280;">Para alguien que nunca ha instalado un programa de desarrollo. Sigue cada paso en orden. No saltes ninguno.</p>
+
+<div class="warning">
+    <strong>IMPORTANTE:</strong> Antes de comenzar, verifica que tu computadora tenga Windows 10 o superior y conexión a internet.
+</div>
+
+<h2>Paso 1: Instalar Laragon</h2>
+<div class="step">
+    <div class="step-title">Laragon incluye PHP, MySQL y Apache</div>
+    <p>Estos son los programas que necesita el sistema para funcionar con la base de datos.</p>
+    <ol>
+        <li>Abrir el navegador (Chrome)</li>
+        <li>Ir a: <span class="url">https://laragon.org/download</span></li>
+        <li>Hacer clic en <strong>"Download"</strong> (la versión "Lite" es suficiente)</li>
+        <li>Abrir el archivo descargado (<code>laragon-*.exe</code>)</li>
+        <li>Si Windows pregunta "¿Quieres permitir que esta app haga cambios?", dar clic en <strong>Sí</strong></li>
+        <li>En el instalador:
+            <ul>
+                <li>Idioma: seleccionar <strong>Español</strong></li>
+                <li>Clic en <strong>Siguiente</strong></li>
+                <li>Carpeta de instalación: dejar como está (C:\laragon)</li>
+                <li>Clic en <strong>Instalar</strong></li>
+                <li>Esperar a que termine</li>
+                <li>Clic en <strong>Finalizar</strong></li>
+            </ul>
+        </li>
+        <li>Laragon se abre solo. Verás una ventana pequeña en la esquina inferior derecha</li>
+    </ol>
+</div>
+
+<h2>Paso 2: Instalar Git</h2>
+<div class="step">
+    <div class="step-title">Git sirve para descargar el programa desde internet</div>
+    <ol>
+        <li>Ir a: <span class="url">https://git-scm.com/downloads/win</span></li>
+        <li>Hacer clic en <strong>"Download"</strong> (se descarga solo)</li>
+        <li>Abrir el archivo descargado</li>
+        <li>Si Windows pregunta, dar clic en <strong>Sí</strong></li>
+        <li>En el instalador, dar clic en <strong>Next</strong> en todas las pantallas (las opciones por defecto están bien)</li>
+        <li>Clic en <strong>Install</strong> → Esperar → <strong>Finish</strong></li>
+    </ol>
+</div>
+
+<h2>Paso 3: Instalar Node.js</h2>
+<div class="step">
+    <div class="step-title">Node.js es para compilar el frontend del programa</div>
+    <ol>
+        <li>Ir a: <span class="url">https://nodejs.org</span></li>
+        <li>Hacer clic en el botón verde <strong>"LTS"</strong> (versión estable)</li>
+        <li>Abrir el archivo descargado</li>
+        <li>Si Windows pregunta, dar clic en <strong>Sí</strong></li>
+        <li>En el instalador, dar clic en <strong>Next</strong> en todas las pantallas</li>
+        <li>Si pregunta instalar componentes adicionales, dar clic en <strong>Sí</strong></li>
+        <li>Esperar → <strong>Finish</strong></li>
+    </ol>
+</div>
+
+<h2>Paso 4: Instalar Composer</h2>
+<div class="step">
+    <div class="step-title">Composer es para instalar las dependencias PHP</div>
+    <ol>
+        <li>Ir a: <span class="url">https://getcomposer.org/download/</span></li>
+        <li>Hacer clic en <strong>"Composer-Setup.exe"</strong> (Windows Installer)</li>
+        <li>Abrir el archivo descargado → <strong>Sí</strong></li>
+        <li>En el instalador:
+            <ul>
+                <li>Seleccionar <strong>"Install for all users"</strong> → <strong>Next</strong></li>
+                <li>Marcar <strong>"Add to PATH"</strong> (debe estar marcado) → <strong>Next</strong></li>
+                <li>En "PHP executable": buscar y seleccionar la ruta de PHP de Laragon. Generalmente es:<br>
+                    <code>C:\laragon\bin\php\php-8.x.x-Win32-vs16-x64\php.exe</code>
+                </li>
+                <li><strong>Next</strong> → <strong>Install</strong> → Esperar → <strong>Finish</strong></li>
+            </ul>
+        </li>
+    </ol>
+</div>
+
+<h2>Paso 5: Instalar Visual Studio Code</h2>
+<div class="step">
+    <div class="step-title">Es el programa donde se escribe el código</div>
+    <ol>
+        <li>Ir a: <span class="url">https://code.visualstudio.com/download</span></li>
+        <li>Hacer clic en <strong>"Windows"</strong> (el botón grande)</li>
+        <li>Abrir el archivo descargado → <strong>Sí</strong></li>
+        <li>En el instalador: Aceptar términos → <strong>Next</strong> → <strong>Next</strong> → <strong>Install</strong> → <strong>Finish</strong></li>
+    </ol>
+</div>
+
+<h2>Paso 6: REINICIAR LA COMPUTADORA</h2>
+<div class="warning">
+    <strong>ESTO ES OBLIGATORIO.</strong> Sin reiniciar, los programas no funcionarán correctamente.<br>
+    Guardar todo lo que tengas abierto → Inicio → Apagar o cerrar sesión → Reiniciar.<br>
+    Después de reiniciar, abrir Laragon y verificar que Apache y MySQL estén en verde (activos).
+</div>
+
+<h2>Paso 7: Clonar el proyecto</h2>
+<div class="step">
+    <div class="step-title">Descargar el programa desde GitHub</div>
+    <ol>
+        <li>Hacer clic derecho en cualquier parte del escritorio</li>
+        <li>Seleccionar <strong>"Abrir en Terminal"</strong> o <strong>"Open in Terminal"</strong></li>
+        <li>Escribir estos comandos uno por uno, presionando Enter después de cada uno:</li>
+    </ol>
+    <div class="command">cd Desktop</div>
+    <div class="command">git clone https://github.com/levayesteban-creator/Proyecto-Ambulatorio-Tesis.git</div>
+    <p>Esperar a que descargue todos los archivos (puede tardar 1-2 minutos).</p>
+</div>
+
+<h2>Paso 8: Ejecutar el instalador</h2>
+<div class="step">
+    <div class="step-title">Instalación automática del sistema</div>
+    <ol>
+        <li>En la misma terminal, escribir:</li>
+    </ol>
+    <div class="command">cd Proyecto-Ambulatorio-Tesis</div>
+    <div class="command">.\instalar.bat</div>
+    <ol>
+        <li>El instalador te preguntará:
+            <ul>
+                <li><strong>Email del admin:</strong> escribe tu correo (ejemplo: tu@gmail.com)</li>
+                <li><strong>Contraseña del admin:</strong> escribe una contraseña segura</li>
+                <li><strong>Nombre del admin:</strong> escribe tu nombre completo</li>
+            </ul>
+        </li>
+        <li>Esperar a que termine (puede tardar 3-5 minutos)</li>
+        <li>Cuando diga <strong>"INSTALACION COMPLETADA"</strong>, presionar cualquier tecla</li>
+    </ol>
+</div>
+
+<h2>Paso 9: Configurar el sitio web</h2>
+<div class="step">
+    <div class="step-title">Crear la dirección del sitio en Laragon</div>
+    <ol>
+        <li>Abrir <strong>Laragon</strong> (clic en el ícono en la esquina inferior derecha)</li>
+        <li>Clic en <strong>Menu</strong> → <strong>Apache</strong> → <strong>vhosts</strong></li>
+        <li>Se abrirá un archivo de texto. Borrar todo y escribir:</li>
+    </ol>
+    <div class="command" style="font-size: 11px;">&lt;VirtualHost *:80&gt;<br>
+&nbsp;&nbsp;ServerName gestion-salud.test<br>
+&nbsp;&nbsp;DocumentRoot "C:/laragon/www/Proyecto-Ambulatorio-Tesis/public"<br>
+&nbsp;&nbsp;&lt;Directory "C:/laragon/www/Proyecto-Ambulatorio-Tesis/public"&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;AllowOverride All<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Require all granted<br>
+&nbsp;&nbsp;&lt;/Directory&gt;<br>
+&lt;/VirtualHost&gt;</div>
+    <ol>
+        <li>Guardar el archivo (Ctrl+S) y cerrar</li>
+        <li>En Laragon, clic en <strong>"Reload"</strong></li>
+    </ol>
+</div>
+
+<h2>Paso 10: Acceder al programa</h2>
+<div class="step">
+    <div class="step-title">Abrir el sistema en el navegador</div>
+    <ol>
+        <li>Abrir el navegador (Chrome)</li>
+        <li>En la barra de direcciones, escribir:</li>
+    </ol>
+    <div class="command">http://gestion-salud.test</div>
+    <ol>
+        <li>Verás la pantalla de inicio de sesión</li>
+        <li>Escribir el email y contraseña que configuraste en el Paso 8</li>
+        <li>Clic en <strong>Iniciar Sesión</strong></li>
+        <li><strong>¡Listo!</strong> El programa está funcionando</li>
+    </ol>
+</div>
+
+<div class="tip">
+    <strong>Resumen rápido</strong> (si ya tienes todo instalado):<br>
+    <code>git clone https://github.com/levayesteban-creator/Proyecto-Ambulatorio-Tesis.git</code><br>
+    <code>cd Proyecto-Ambulatorio-Tesis</code><br>
+    <code>.\instalar.bat</code>
+</div>
+
+<h2>Solución de problemas</h2>
+<table>
+    <tr><th>Problema</th><th>Solución</th></tr>
+    <tr><td>"No se reconoce 'git' como comando"</td><td>Reiniciar la computadora después de instalar Git</td></tr>
+    <tr><td>"No se reconoce 'node' como comando"</td><td>Reiniciar la computadora después de instalar Node.js</td></tr>
+    <tr><td>"No se reconoce 'composer' como comando"</td><td>Reiniciar y verificar que Composer se instaló con "Add to PATH"</td></tr>
+    <tr><td>No carga la página</td><td>Verificar que Laragon esté abierto y que Apache y MySQL estén en verde</td></tr>
+    <tr><td>Error de base de datos</td><td>Verificar que MySQL esté activo en Laragon (verde)</td></tr>
+    <tr><td>El frontend se ve sin estilos</td><td>Ejecutar en la terminal: <code>npm run build</code></td></tr>
+</table>
+
+<div class="footer">
+    Sistema de Gestión de Salud - Consultorio Popular Tipo III "El Chaparro de Guanta"<br>
+    Guía de Instalación v2.0 - Julio 2026
+</div>
+
+</body>
+</html>
