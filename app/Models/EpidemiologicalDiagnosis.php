@@ -26,8 +26,5 @@ class EpidemiologicalDiagnosis extends Model
      */
     protected $casts = [
         'is_eno' => 'boolean',
-        // Asegura que las fechas se manejen correctamente si las usas
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
     ];
 }

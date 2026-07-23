@@ -169,7 +169,7 @@ class ConsultationController extends Controller
             ]);
 
             return back()->withErrors([
-                'error' => 'No se pudo guardar la consulta: ' . $e->getMessage(),
+                'error' => 'No se pudo guardar la consulta. Intente de nuevo.',
             ]);
         }
     }
@@ -367,7 +367,7 @@ class ConsultationController extends Controller
             ]);
 
             return back()->withErrors([
-                'error' => 'No se pudo actualizar la consulta: ' . $e->getMessage(),
+                'error' => 'No se pudo actualizar la consulta. Intente de nuevo.',
             ]);
         }
     }

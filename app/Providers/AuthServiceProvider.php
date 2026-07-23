@@ -7,6 +7,7 @@ namespace App\Providers;
 use App\Models\Patient;
 use App\Models\Consultation;
 use App\Models\AuditLog;
+use App\Models\Role;
 use App\Models\User;
 use App\Policies\PatientPolicy;
 use App\Policies\ConsultationPolicy;
@@ -25,7 +26,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('view-audit-logs', function (User $user) {
-            return $user->role_id <= 2;
+            return in_array($user->role_id, [Role::ADMIN, Role::COORDINATOR]);
         });
     }
 }

@@ -142,7 +142,7 @@ class PatientController extends Controller
             ]);
 
             return back()
-                ->withErrors(['error' => 'Error de base de datos: ' . $e->getMessage()])
+                ->withErrors(['error' => 'Error de base de datos. Intente de nuevo o contacte al administrador.'])
                 ->withInput();
 
         } catch (\Exception $e) {
@@ -156,7 +156,7 @@ class PatientController extends Controller
             ]);
 
             return back()
-                ->withErrors(['error' => 'Error inesperado: ' . $e->getMessage()])
+                ->withErrors(['error' => 'Error inesperado. Intente de nuevo o contacte al administrador.'])
                 ->withInput();
         }
     }
@@ -292,13 +292,17 @@ class PatientController extends Controller
             ]);
 
             return back()
-                ->withErrors(['error' => 'Error al actualizar el paciente: ' . $e->getMessage()])
+                ->withErrors(['error' => 'Error al actualizar el paciente. Intente de nuevo.'])
                 ->withInput();
         }
     }
 
     public function editContact(Patient $patient): Response
     {
+        if (Gate::denies('update', $patient)) {
+            return back()->withErrors(['error' => 'No tiene permiso para editar datos de contacto.']);
+        }
+
         return Inertia::render('Patients/EditContact', [
             'patient' => $patient,
         ]);
@@ -306,6 +310,9 @@ class PatientController extends Controller
 
     public function updateContact(Request $request, Patient $patient): RedirectResponse
     {
+        if (Gate::denies('update', $patient)) {
+            return back()->withErrors(['error' => 'No tiene permiso para editar datos de contacto.']);
+        }
         $validated = $request->validate([
             'phone_number'      => ['nullable', 'string', 'max:20', 'regex:/^[\d\s\+\-\(\)]+$/'],
             'addr_state'        => ['required', 'string', 'max:100'],
@@ -437,7 +444,7 @@ class PatientController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            return back()->withErrors(['error' => 'Error al eliminar el paciente: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Error al eliminar el paciente. Intente de nuevo.']);
         }
     }
 
@@ -459,7 +466,7 @@ class PatientController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            return back()->withErrors(['error' => 'Error al restaurar el paciente: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Error al restaurar el paciente. Intente de nuevo.']);
         }
     }
 
@@ -481,7 +488,7 @@ class PatientController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            return back()->withErrors(['error' => 'Error al eliminar permanentemente: ' . $e->getMessage()]);
+            return back()->withErrors(['error' => 'Error al eliminar permanentemente. Intente de nuevo.']);
         }
     }
 

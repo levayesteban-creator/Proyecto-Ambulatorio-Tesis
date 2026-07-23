@@ -14,6 +14,5 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         'reportes/epi/data',
         'reportes/epi/data-15',
-        'reportes/epi/verify',
     ];
 }

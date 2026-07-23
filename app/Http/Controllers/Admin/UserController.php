@@ -17,7 +17,7 @@ class UserController extends Controller
     {
         $this->middleware(function ($request, $next) {
             $user = $request->user();
-            if (!$user || !in_array($user->role_id, [1, 2])) {
+            if (!$user || !in_array($user->role_id, [Role::ADMIN, Role::COORDINATOR])) {
                 abort(403, 'No autorizado');
             }
             return $next($request);

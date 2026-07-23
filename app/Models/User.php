@@ -47,6 +47,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'two_factor_enabled' => 'boolean',
+        'must_change_password' => 'boolean',
     ];
 
     /**

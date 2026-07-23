@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Models\Patient;
 use App\Models\Consultation;
 use App\Models\AuditLog;
+use App\Models\Role;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -14,12 +15,20 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class ExportController extends Controller
 {
+    private function authorizeExport(): void
+    {
+        if (!in_array(auth()->user()->role_id, [Role::ADMIN, Role::COORDINATOR])) {
+            abort(403, 'Solo administradores y médicos coordinadores pueden exportar datos.');
+        }
+    }
+
     // ═══════════════════════════════════════════════════════════════════
     // PACIENTES
     // ═══════════════════════════════════════════════════════════════════
 
     public function patientsPdf(Request $request)
     {
+        $this->authorizeExport();
         $patients = $this->getFilteredPatients($request);
         $filters = $this->getPatientFilters($request);
 
@@ -36,6 +45,8 @@ class ExportController extends Controller
 
     public function patientsCsv(Request $request)
     {
+        $this->authorizeExport();
+
         $patients = $this->getFilteredPatients($request);
 
         $headers = [
@@ -125,6 +136,7 @@ class ExportController extends Controller
 
     public function consultationsPdf(Request $request)
     {
+        $this->authorizeExport();
         $consultations = $this->getFilteredConsultations($request);
         $filters = $this->getConsultationFilters($request);
 
@@ -141,6 +153,7 @@ class ExportController extends Controller
 
     public function consultationsCsv(Request $request)
     {
+        $this->authorizeExport();
         $consultations = $this->getFilteredConsultations($request);
 
         $headers = [
@@ -231,6 +244,7 @@ class ExportController extends Controller
 
     public function historicalPdf(Request $request)
     {
+        $this->authorizeExport();
         $consultations = $this->getFilteredHistorical($request);
         $filters = $this->getHistoricalFilters($request);
 

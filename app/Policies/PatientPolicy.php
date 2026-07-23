@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\Patient;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
@@ -15,22 +16,22 @@ class PatientPolicy
 
     private function isAdmin(User $user): bool
     {
-        return $user->role_id === 1;
+        return $user->role_id === Role::ADMIN;
     }
 
     private function isCoordinator(User $user): bool
     {
-        return $user->role_id === 2;
+        return $user->role_id === Role::COORDINATOR;
     }
 
     private function isDoctor(User $user): bool
     {
-        return $user->role_id === 3;
+        return $user->role_id === Role::DOCTOR;
     }
 
     private function isAdminOrCoordinator(User $user): bool
     {
-        return $user->role_id <= 2;
+        return in_array($user->role_id, [Role::ADMIN, Role::COORDINATOR]);
     }
 
     public function viewAny(User $user): Response

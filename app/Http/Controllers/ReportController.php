@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Consultation;
 use App\Models\Patient;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Inertia\Inertia;
@@ -15,6 +16,13 @@ use Illuminate\Support\Facades\Log;
  */
 class ReportController extends Controller
 {
+    private function authorizeExport(): void
+    {
+        if (!in_array(auth()->user()->role_id, [Role::ADMIN, Role::COORDINATOR])) {
+            abort(403, 'Solo administradores y médicos coordinadores pueden exportar reportes.');
+        }
+    }
+
     /**
      * Verifica si hay datos para un reporte EPI antes de exportar
      *
@@ -77,6 +85,7 @@ class ReportController extends Controller
      */
     public function exportEpi10(Request $request)
     {
+        $this->authorizeExport();
         // Validar la fecha
         $request->validate([
             'fecha' => 'required|date'
@@ -132,6 +141,7 @@ class ReportController extends Controller
      */
     public function exportEpi12(Request $request)
     {
+        $this->authorizeExport();
         // Validar la semana y año (acepta YYYY-Www o YYYY-ww)
         $request->validate([
             'semana' => 'required|regex:/^\d{4}-W?\d{2}$/'
@@ -311,6 +321,7 @@ class ReportController extends Controller
      */
     public function exportEpi13(Request $request)
     {
+        $this->authorizeExport();
         // Validar la semana y año (acepta YYYY-Www o YYYY-ww)
         $request->validate([
             'semana' => 'required|regex:/^\d{4}-W?\d{2}$/'
@@ -742,6 +753,7 @@ class ReportController extends Controller
      */
     public function exportEpi15(Request $request)
     {
+        $this->authorizeExport();
         $request->validate([
             'periodo' => 'required|date_format:Y-m'
         ]);

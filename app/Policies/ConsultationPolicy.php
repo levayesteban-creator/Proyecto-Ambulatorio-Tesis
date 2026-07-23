@@ -6,6 +6,7 @@ namespace App\Policies;
 
 use App\Models\Consultation;
 use App\Models\Patient;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
@@ -16,27 +17,27 @@ class ConsultationPolicy
 
     private function isAdmin(User $user): bool
     {
-        return $user->role_id === 1;
+        return $user->role_id === Role::ADMIN;
     }
 
     private function isCoordinator(User $user): bool
     {
-        return $user->role_id === 2;
+        return $user->role_id === Role::COORDINATOR;
     }
 
     private function isDoctor(User $user): bool
     {
-        return $user->role_id === 3;
+        return $user->role_id === Role::DOCTOR;
     }
 
     private function isMedicalStaff(User $user): bool
     {
-        return $user->role_id <= 3;
+        return in_array($user->role_id, [Role::ADMIN, Role::COORDINATOR, Role::DOCTOR]);
     }
 
     private function canViewConsultations(User $user): bool
     {
-        return $user->role_id <= 4;
+        return in_array($user->role_id, [Role::ADMIN, Role::COORDINATOR, Role::DOCTOR, Role::NURSE]);
     }
 
     public function viewAny(User $user): Response
