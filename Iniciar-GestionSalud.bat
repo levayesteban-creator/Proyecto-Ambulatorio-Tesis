@@ -1,12 +1,12 @@
 @echo off
-title Gesti?n Salud - El Chaparro
+title Tepuy - El Chaparro de Guanta
 color 0A
 cd /d "C:\laragon\www\gestion-salud"
 
 set MAX_RETRIES=30
 
 echo ============================================
-echo   Gesti?n Salud - El Chaparro
+echo   Tepuy - El Chaparro de Guanta
 echo ============================================
 echo   Iniciando servicios...
 echo ============================================
@@ -88,7 +88,7 @@ echo [OK] Abriendo aplicacion...
 start "" "C:\Program Files\Google\Chrome\Application\chrome.exe" --app=http://gestion-salud.test --start-maximized
 
 echo ============================================
-echo   Gesti?n Salud iniciado correctamente
+echo   Tepuy iniciado correctamente
 echo   Esta ventana se cerrara en 5 segundos...
 echo ============================================
 timeout /t 5 /nobreak >NUL

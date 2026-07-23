@@ -1,10 +1,11 @@
 @echo off
-title Gestión Salud - El Chaparro
+title Tepuy - El Chaparro de Guanta
 color 0A
 
 echo ============================================
-echo   Gestión Salud - Consultorio El Chaparro
+echo   Tepuy - El Chaparro de Guanta
 echo ============================================
+echo   Sistema digital de salud
 echo.
 
 SET ROOT=C:\laragon\www\gestion-salud

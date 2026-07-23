@@ -44,7 +44,8 @@ const submit = () => {
         <div class="text-center mb-6">
             <h1 class="text-2xl font-bold text-gray-800">Consultorio Popular Tipo III</h1>
             <h2 class="text-xl font-semibold text-gray-600 mt-1">"El Chaparro de Guanta"</h2>
-            <p class="text-sm text-gray-500 mt-2">Sistema de Gestión de Historias Clínicas</p>
+            <p class="text-lg font-medium text-blue-600 mt-2">Tepuy</p>
+            <p class="text-sm text-gray-500 mt-1">Sistema digital de salud El Chaparro de Guanta</p>
         </div>
 
         <form @submit.prevent="submit">

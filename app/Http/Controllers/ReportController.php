@@ -23,6 +23,7 @@ class ReportController extends Controller
      */
     public function checkExportData(Request $request)
     {
+        \Log::info('checkExportData', ['all' => $request->all()]);
         $tipo = $request->input('tipo');
         $hasData = false;
         $message = '';

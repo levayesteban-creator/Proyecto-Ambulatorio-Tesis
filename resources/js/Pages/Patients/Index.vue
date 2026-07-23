@@ -78,7 +78,7 @@ const deletePatient = (patientId) => {
                     <Link :href="route('patients.create')" class="inline-flex items-center px-4 py-2 bg-blue-900 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-800 transition">
                         + Registrar Paciente
                     </Link>
-                    <Link v-if="auth?.role_name === 'Administrador' || auth?.role_name === 'Médico Coordinador'"
+                    <Link v-if="auth?.user?.role_name === 'Administrador' || auth?.user?.role_name === 'Médico Coordinador'"
                         :href="route('patients.trashed')"
                         class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 transition">
                         🗑️ Papelera

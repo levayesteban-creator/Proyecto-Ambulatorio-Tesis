@@ -267,7 +267,7 @@ const toolModules = computed(() => {
             <div class="dash-card-icon" style="background: #DC262615; color: #DC2626;">📋</div>
             <div class="dash-card-body">
               <div class="dash-card-title">EPI-13 — Notificación Obligatoria</div>
-              <div class="dash-card-desc">Registro semanal de casos (line listing)</div>
+              <div class="dash-card-desc">Registro semanal de casos</div>
               <div class="dash-epi-controls">
                 <DatePicker v-model="semanaEpi13" type="week" class="dash-epi-input" />
                 <button @click="exportarEpi13" :disabled="exportandoEpi13 || !semanaEpi13" class="dash-epi-btn">
@@ -284,7 +284,7 @@ const toolModules = computed(() => {
               <div class="dash-card-title">EPI-15 — Consolidado Mensual</div>
               <div class="dash-card-desc">Morbilidad por aparatos y sistemas</div>
               <div class="dash-epi-controls">
-                <DatePicker v-model="periodoSeleccionado" type="month" class="dash-epi-input" />
+                <input type="month" v-model="periodoSeleccionado" class="dash-epi-input" style="padding:0.5rem 0.75rem;font-size:0.875rem;border:1px solid #d1d5db;border-radius:0.375rem;width:100%;" />
                 <button @click="exportarEpi15" :disabled="exportandoEpi15 || !periodoSeleccionado" class="dash-epi-btn">
                   {{ exportandoEpi15 ? 'Exportando...' : 'Exportar PDF' }}
                 </button>
@@ -392,7 +392,7 @@ const toolModules = computed(() => {
               
               <div class="help-epi-card">
                 <strong>📋 EPI-13 — Registro de Enfermedades de Notificación Obligatoria</strong>
-                <p>Listado individual de casos (line listing) con datos del paciente y enfermedad notificable. Hasta 16 filas por semana.</p>
+                <p>Listado individual de casos con datos del paciente y enfermedad notificable. Hasta 16 filas por semana.</p>
               </div>
               
               <div class="help-epi-card">
@@ -409,29 +409,34 @@ const toolModules = computed(() => {
               <p>El sistema utiliza autenticación por credenciales (usuario y contraseña) con roles diferenciados:</p>
               
               <div class="help-epi-card">
+                <strong>🛠️ Administrador</strong>
+                <p>Acceso total al sistema: gestionar usuarios, eliminar/restaurar registros (con papelera), eliminación permanente, ver y exportar bitácora de auditoría, cerrar/reabrir historias clínicas, exportar todos los reportes.</p>
+              </div>
+
+              <div class="help-epi-card">
                 <strong>👨‍⚕️ Médico Coordinador</strong>
-                <p>Acceso completo: gestionar usuarios, eliminar/restaurar registros, exportar todos los reportes EPI, ver bitácora de auditoría.</p>
+                <p>Gestionar usuarios, crear/editar pacientes y consultas, eliminar y restaurar registros, cerrar historias clínicas, ver bitácora de auditoría, exportar todos los reportes EPI.</p>
               </div>
               
               <div class="help-epi-card">
                 <strong>👨‍⚕️ Médico</strong>
-                <p>Puede registrar pacientes, crear y editar consultas, ver historiales, exportar reportes. No puede eliminar registros ni administrar usuarios.</p>
+                <p>Registrar pacientes, crear y editar consultas, ver historiales, cerrar historias clínicas, exportar reportes. No puede editar datos de pacientes existentes, eliminar registros ni administrar usuarios.</p>
               </div>
               
               <div class="help-epi-card">
                 <strong>👩‍⚕️ Enfermero</strong>
-                <p>Puede registrar pacientes, ver consultas y exportar reportes. Acceso limitado a funciones administrativas.</p>
-              </div>
-              
-              <div class="help-epi-card">
-                <strong>🛠️ Administrador</strong>
-                <p>Acceso total al sistema: configuración, usuarios, auditoría, reportes y mantenimiento de datos.</p>
+                <p>Registrar pacientes, ver consultas e historiales, exportar reportes. No puede crear ni editar consultas, ni acceder a funciones administrativas.</p>
               </div>
 
-              <h3 class="help-subtitle">Seguridad</h3>
+              <h3 class="help-subtitle">Controles de seguridad</h3>
               <ul class="help-list">
-                <li>Las contraseñas se almacenan con hash bcrypt</li>
-                <li>Los pacientes eliminados se guardan 30 días en "papelera" antes de borrado definitivo</li>
+                <li>Contraseñas almacenadas con hash bcrypt</li>
+                <li>Acciones administrativas requieren re-verificación de contraseña</li>
+                <li>Usuarios nuevos reciben contraseña temporal y deben cambiarla al iniciar sesión</li>
+                <li>Recuperación de contraseña por correo electrónico o por el administrador</li>
+                <li>Pacientes eliminados se guardan en papelera; eliminación permanente solo para Administrador</li>
+                <li>Historias clínicas cerradas protegen sus consultas contra edición o eliminación</li>
+                <li>Justificación de edición registrada en cada modificación de consulta</li>
                 <li>Todos los accesos requieren autenticación</li>
               </ul>
             </div>

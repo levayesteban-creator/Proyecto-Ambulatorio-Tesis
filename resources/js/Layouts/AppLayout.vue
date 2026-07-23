@@ -76,14 +76,14 @@ const goBack = () => window.history.back()
 
     <aside class="sidebar" :aria-expanded="!sidebarCollapsed">
       <div class="sidebar-logo">
-        <div class="logo-icon" title="SistemaMed">
+        <div class="logo-icon" title="Tepuy">
           <svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24">
             <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
           </svg>
         </div>
         <div class="logo-text">
-          SistemaMed
-          <span class="logo-sub">MPPS · El Chaparro</span>
+          Tepuy
+          <span class="logo-sub">Sistema digital de salud · El Chaparro de Guanta</span>
         </div>
       </div>
 

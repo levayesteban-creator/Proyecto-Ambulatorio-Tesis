@@ -1,12 +1,20 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Head, Link, useForm } from '@inertiajs/vue3'
-import { ref } from 'vue'
+import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
+import { ref, computed } from 'vue'
 
 const props = defineProps({ users: Array })
 
+const page = usePage()
+const flash = computed(() => page.props.flash || {})
+const showPasswordModal = ref(false)
+
 const deleting = ref(null)
+const resetting = ref(null)
+const newTempPassword = ref('')
+const resetForm = useForm({ admin_password: '' })
 const form = useForm({ admin_password: '' })
+const resetError = ref('')
 
 function confirmDelete(user) {
   deleting.value = user
@@ -18,6 +26,40 @@ function destroy() {
   form.delete(route('admin.users.destroy', deleting.value.id), {
     onSuccess: () => { deleting.value = null },
     onFinish: () => { form.admin_password = '' },
+  })
+}
+
+function confirmReset(user) {
+  resetting.value = user
+  newTempPassword.value = ''
+  resetForm.admin_password = ''
+  resetError.value = ''
+}
+
+function resetPassword() {
+  if (!resetting.value) return
+  resetError.value = ''
+  resetForm.put(route('admin.users.reset-password', resetting.value.id), {
+    preserveScroll: true,
+    onSuccess: () => {
+      const flash = page.props.flash
+      if (flash?.success) {
+        const match = flash.success.match(/Contraseña temporal:\s*(\S+)/)
+        newTempPassword.value = match ? match[1] : flash.success
+      } else {
+        resetting.value = null
+      }
+    },
+    onError: (errors) => {
+      if (errors.admin_password) {
+        resetError.value = errors.admin_password
+      } else {
+        resetError.value = 'Ocurrió un error. Intenta de nuevo.'
+      }
+    },
+    onFinish: () => {
+      resetForm.processing = false
+    },
   })
 }
 </script>
@@ -34,6 +76,23 @@ function destroy() {
         </svg>
         Nuevo Usuario
       </Link>
+    </div>
+
+    <div v-if="flash.success" class="flash-success" @click="showPasswordModal = flash.success.includes('Contraseña temporal')">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M9 12l2 2 4-4"/>
+        <circle cx="12" cy="12" r="10"/>
+      </svg>
+      <span>{{ flash.success }}</span>
+      <button class="flash-close" @click.stop="flash.success = null">&times;</button>
+    </div>
+
+    <div v-if="flash.error" class="flash-error">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+      <span>{{ flash.error }}</span>
+      <button class="flash-close" @click.stop="flash.error = null">&times;</button>
     </div>
 
     <div class="card">
@@ -63,6 +122,9 @@ function destroy() {
             <td>{{ new Date(user.created_at).toLocaleDateString() }}</td>
             <td class="text-right">
               <Link :href="route('admin.users.edit', user.id)" class="btn btn-sm btn-outline">Editar</Link>
+              <button @click="confirmReset(user)" class="btn btn-sm btn-warning ms-2">
+                Restablecer contraseña
+              </button>
               <button @click="confirmDelete(user)" class="btn btn-sm btn-danger ms-2"
                       :disabled="user.id === $page.props.auth.user.id">
                 Eliminar
@@ -88,6 +150,40 @@ function destroy() {
             <button class="btn btn-outline" @click="deleting = null">Cancelar</button>
             <button class="btn btn-danger" @click="destroy" :disabled="form.processing || !form.admin_password">
               {{ form.processing ? 'Eliminando...' : 'Eliminar' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <Teleport to="body">
+      <div v-if="resetting" class="modal-overlay" @click.self="resetting = null">
+        <div class="modal">
+          <h3>Restablecer contraseña</h3>
+          <p>Se generará una contraseña temporal para <strong>{{ resetting.name }}</strong>.</p>
+
+          <div v-if="newTempPassword" class="temp-password-box">
+            <p class="temp-label">Contraseña temporal generada:</p>
+            <code class="temp-password">{{ newTempPassword }}</code>
+            <p class="temp-hint">Copia esta contraseña y envíasela al usuario. Él deberá cambiarla al iniciar sesión.</p>
+          </div>
+
+          <div v-else class="form-group" style="margin-bottom: 1rem;">
+            <label for="reset_admin_password" class="form-label">Tu contraseña (para autorizar)</label>
+            <input id="reset_admin_password" v-model="resetForm.admin_password" type="password" class="form-input"
+                   placeholder="Confirma tu contraseña" required />
+            <div v-if="resetForm.errors.admin_password || resetError" class="form-error">
+              {{ resetError || resetForm.errors.admin_password }}
+            </div>
+          </div>
+
+          <div class="modal-actions">
+            <button class="btn btn-outline" @click="resetting = null">
+              {{ newTempPassword ? 'Cerrar' : 'Cancelar' }}
+            </button>
+            <button v-if="!newTempPassword" class="btn btn-primary" @click="resetPassword"
+                    :disabled="resetForm.processing || !resetForm.admin_password">
+              {{ resetForm.processing ? 'Generando...' : 'Generar contraseña' }}
             </button>
           </div>
         </div>
@@ -122,9 +218,16 @@ function destroy() {
 .btn-outline:hover { background: #F8FAFC; color: #0F172A; }
 .btn-danger { background: #DC2626; color: #fff; }
 .btn-danger:hover { background: #B91C1C; }
+.btn-warning { background: #F59E0B; color: #fff; }
+.btn-warning:hover { background: #D97706; }
 .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.75rem; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .ms-2 { margin-left: 0.5rem; }
+
+.flash-success { display: flex; align-items: center; gap: 0.5rem; background: #DCFCE7; border: 1px solid #86EFAC; border-left: 4px solid #16A34A; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; color: #166534; font-size: 0.875rem; cursor: pointer; }
+.flash-error { display: flex; align-items: center; gap: 0.5rem; background: #FEF2F2; border: 1px solid #FECACA; border-left: 4px solid #DC2626; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; color: #991B1B; font-size: 0.875rem; }
+.flash-close { margin-left: auto; background: none; border: none; font-size: 1.25rem; cursor: pointer; color: inherit; opacity: 0.6; }
+.flash-close:hover { opacity: 1; }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 9999; }
 .modal { background: #fff; border-radius: 12px; padding: 1.5rem; width: 400px; max-width: 90vw; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
@@ -136,4 +239,9 @@ function destroy() {
 .form-input { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid #D1D5DB; border-radius: 6px; font-size: 0.875rem; }
 .form-input:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 2px rgba(37,99,235,0.15); }
 .form-error { color: #DC2626; font-size: 0.75rem; margin-top: 0.25rem; }
+
+.temp-password-box { background: #F0FDF4; border: 1px solid #86EFAC; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; text-align: center; }
+.temp-label { margin: 0 0 0.5rem; font-size: 0.8125rem; color: #166534; font-weight: 600; }
+.temp-password { display: block; font-size: 1.5rem; font-weight: 700; color: #166534; background: #DCFCE7; padding: 0.5rem 1rem; border-radius: 6px; letter-spacing: 2px; margin-bottom: 0.5rem; }
+.temp-hint { margin: 0; font-size: 0.75rem; color: #6B7280; }
 </style>

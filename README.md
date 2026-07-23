@@ -1,66 +1,118 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Gestión de Salud - Consultorio "El Chaparro"
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistema de gestión de historias clínicas y reportes epidemiológicos (EPI) para el Consultorio Popular Tipo III "El Chaparro de Guanta".
 
-## About Laravel
+## Requisitos del Sistema
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Componente | Versión requerida | Versión probada |
+|------------|-------------------|-----------------|
+| PHP | ≥ 8.1 | 8.3.26 |
+| MySQL | ≥ 5.7 | 8.4.3 |
+| Node.js | ≥ 18 | 24.13.0 |
+| npm | ≥ 9 | 10.x |
+| Composer | ≥ 2.0 | 2.x |
+| Git | Cualquier versión reciente | - |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Extensiones PHP requeridas
+- php-curl
+- php-dom
+- php-mbstring
+- php-gd
+- php-pdo_mysql
+- php-openssl
+- php-zip
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Instalación Rápida (Windows)
 
-## Learning Laravel
+### Opción 1: Instalador automático
+1. Clonar el repositorio:
+   ```
+   git clone https://github.com/USUARIO/gestion-salud.git
+   ```
+2. Ejecutar `instalar.bat` como administrador
+3. Abrir http://gestion-salud.test
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Opción 2: Instalación manual
+1. Clonar el repositorio
+2. Ejecutar `verificar-entorno.bat` para confirmar que tienes todo instalado
+3. Abrir terminal en la carpeta del proyecto y ejecutar:
+   ```
+   composer install
+   npm install
+   npm run build
+   cp .env.example .env
+   php artisan key:generate
+   php artisan migrate --force
+   php artisan db:seed --force
+   ```
+4. Configurar Laragon con el host virtual `gestion-salud.test`
+5. Abrir http://gestion-salud.test
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Cuenta de Administrador
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Campo | Valor |
+|-------|-------|
+| Email | `levayesteban@gmail.com` |
+| Contraseña | `Estebanmiguel*` |
 
-## Laravel Sponsors
+> **Nota de seguridad:** Esta cuenta se crea automáticamente al ejecutar los seeders. Cambiar la contraseña en producción.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## Estructura del Proyecto
 
-### Premium Partners
+```
+├── app/
+│   ├── Http/Controllers/     # Controladores
+│   ├── Models/               # Modelos Eloquent
+│   ├── Policies/             # Políticas de autorización
+│   └── Notifications/        # Notificaciones por email
+├── database/
+│   ├── migrations/           # Migraciones de la BD
+│   └── seeders/              # Datos iniciales (roles, catálogos)
+├── resources/
+│   ├── js/Pages/             # Componentes Vue (Inertia)
+│   ├── js/Components/        # Componentes reutilizables
+│   └── views/reports/        # Plantillas PDF (DomPDF)
+├── routes/web.php            # Rutas
+├── instalar.bat              # Instalador automático
+├── verificar-entorno.bat     # Verificador de entorno
+└── .env.example              # Plantilla de configuración
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+## Roles del Sistema
 
-## Contributing
+| Rol | Permisos |
+|-----|----------|
+| **Administrador** | Acceso total: usuarios, eliminar/restaurar registros, auditoría, reportes |
+| **Médico Coordinador** | Gestionar usuarios, eliminar/restaurar, cerrar historias, auditoría, reportes |
+| **Médico** | Registrar pacientes, crear/editar consultas, cerrar historias, reportes |
+| **Enfermero** | Registrar pacientes, ver consultas, exportar reportes |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Reportes Epidemiológicos
 
-## Code of Conduct
+- **EPI-10**: Registro Diario de Atención Integral (SIS-02)
+- **EPI-12**: Consolidado Semanal de 52 Enfermedades × 13 Grupos de Edad (SIS-04)
+- **EPI-13**: Registro de Enfermedades de Notificación Obligatoria (SIS-03)
+- **EPI-15**: Consolidado Mensual de Morbilidad por Aparatos y Sistemas
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Solución de Problemas
 
-## Security Vulnerabilities
+### Error "No se pudo enviar el correo"
+El sistema funciona sin email. El administrador puede restablecer contraseñas directamente desde **Usuarios → Restablecer contraseña**.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Error de migraciones
+```
+php artisan migrate:fresh --force
+php artisan db:seed --force
+```
 
-## License
+### Frontend no se actualiza
+```
+npm run build
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Limpiar caché
+```
+php artisan config:clear
+php artisan route:clear
+php artisan cache:clear
+```

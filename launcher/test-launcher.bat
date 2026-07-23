@@ -1,9 +1,9 @@
 @echo off
-title Gestión Salud - Diagnóstico
+title Tepuy - Diagnóstico
 color 0A
 
 echo ============================================
-echo   Gestión Salud - Modo Diagnóstico
+echo   Tepuy - Modo Diagnóstico
 echo ============================================
 echo.
 

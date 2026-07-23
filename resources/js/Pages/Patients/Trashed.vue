@@ -117,7 +117,7 @@ const forceDeletePatient = (patientId) => {
                                     ♻️ Restaurar
                                 </button>
                                 <button
-                                    v-if="auth?.role_name === 'Administrador'"
+                                    v-if="auth?.user?.role_name === 'Administrador'"
                                     @click="forceDeletePatient(patient.id)"
                                     class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded-md transition"
                                     title="Eliminar permanentemente (irreversible)"

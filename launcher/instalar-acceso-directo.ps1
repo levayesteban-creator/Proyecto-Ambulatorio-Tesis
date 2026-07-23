@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-    Instala acceso directo profesional para Gesti�n Salud - El Chaparro
+    Instala acceso directo profesional para Tepuy - Sistema Digital de Salud
 .DESCRIPTION
     Crea un acceso directo en el Escritorio que abre la aplicaci�n
     en modo ventana (sin barra de direcciones del navegador),
@@ -11,7 +11,7 @@ $projectRoot = "C:\laragon\www\gestion-salud"
 $vbsPath = "$projectRoot\launcher\GestionSalud.vbs"
 $iconPath = "$projectRoot\public\favicon.ico"
 $desktop = [Environment]::GetFolderPath("Desktop")
-$shortcutPath = "$desktop\Gesti�n Salud - El Chaparro.lnk"
+$shortcutPath = "$desktop\Tepuy - Sistema Digital de Salud.lnk"
 
 # Validar que los archivos existen
 if (-not (Test-Path $vbsPath)) {
@@ -25,7 +25,7 @@ $shortcut = $wsh.CreateShortcut($shortcutPath)
 $shortcut.TargetPath = "wscript.exe"
 $shortcut.Arguments = """" + $vbsPath + """"
 $shortcut.WorkingDirectory = "$projectRoot\launcher"
-$shortcut.Description = "Sistema de Historias Clínicas Digitales - MPPS"
+$shortcut.Description = "Tepuy - Sistema Digital de Salud - MPPS"
 $shortcut.WindowStyle = 7
 
 # Asignar icono personalizado

@@ -30,27 +30,29 @@ class PasswordResetLinkController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'email' => 'required|string',
+            'identifier' => 'required|string',
         ]);
 
-        // Resolver email o cédula → email
-        $login = $request->string('email');
+        // Resolver cédula o correo → usuario
+        $login = $request->string('identifier');
         $user = \App\Models\User::findByIdentifier($login);
 
         if (!$user) {
             throw ValidationException::withMessages([
-                'email' => 'No se encontró una cuenta con ese correo o cédula.',
+                'identifier' => 'No se encontró una cuenta con esa cédula o correo.',
             ]);
         }
 
-        $status = Password::sendResetLink(['email' => $user->email]);
+        try {
+            $status = Password::sendResetLink(['email' => $user->email]);
+        } catch (\Exception $e) {
+            return back()->with('email_error', true)->with('status', 'No se pudo enviar el correo. Por favor, contacta al administrador del sistema para restablecer tu contraseña.');
+        }
 
         if ($status == Password::RESET_LINK_SENT) {
             return back()->with('status', __($status));
         }
 
-        throw ValidationException::withMessages([
-            'email' => [trans($status)],
-        ]);
+        return back()->with('email_error', true)->with('status', 'No se pudo enviar el correo. Por favor, contacta al administrador del sistema para restablecer tu contraseña.');
     }
 }

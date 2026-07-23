@@ -1,8 +1,9 @@
-# Gestión Salud - Launcher PowerShell
+# Tepuy - Launcher PowerShell
 $rootPath = "C:\laragon\www\gestion-salud"
 $appUrl = "http://localhost:8000"
 
-Write-Host "=== Gestión Salud - El Chaparro ===" -ForegroundColor Green
+Write-Host "=== Tepuy - El Chaparro de Guanta ===" -ForegroundColor Green
+Write-Host "Sistema digital de salud" -ForegroundColor Yellow
 Write-Host ""
 
 # Kill old processes

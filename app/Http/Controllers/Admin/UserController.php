@@ -140,4 +140,23 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')
             ->with('success', 'Usuario eliminado correctamente.');
     }
+
+    public function resetPassword(Request $request, User $user)
+    {
+        if (!Hash::check($request->admin_password, $request->user()->password)) {
+            throw ValidationException::withMessages([
+                'admin_password' => 'Tu contraseña no es correcta.',
+            ]);
+        }
+
+        $tempPassword = \Illuminate\Support\Str::random(10);
+
+        $user->update([
+            'password' => Hash::make($tempPassword),
+            'must_change_password' => true,
+        ]);
+
+        return redirect()->route('admin.users.index')
+            ->with('success', "Contraseña temporal: $tempPassword. El usuario debe cambiarla al iniciar sesión.");
+    }
 }

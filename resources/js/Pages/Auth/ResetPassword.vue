@@ -33,11 +33,15 @@ const submit = () => {
 
 <template>
     <GuestLayout>
-        <Head title="Reset Password" />
+        <Head title="Restablecer Contraseña" />
+
+        <div class="mb-4 text-sm text-gray-600">
+            Ingresa tu nueva contraseña a continuación.
+        </div>
 
         <form @submit.prevent="submit">
             <div>
-                <InputLabel for="email" value="Email" />
+                <InputLabel for="email" value="Correo electrónico" />
 
                 <TextInput
                     id="email"
@@ -53,7 +57,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password" value="Password" />
+                <InputLabel for="password" value="Nueva contraseña" />
 
                 <TextInput
                     id="password"
@@ -68,7 +72,7 @@ const submit = () => {
             </div>
 
             <div class="mt-4">
-                <InputLabel for="password_confirmation" value="Confirm Password" />
+                <InputLabel for="password_confirmation" value="Confirmar contraseña" />
 
                 <TextInput
                     id="password_confirmation"
@@ -84,7 +88,7 @@ const submit = () => {
 
             <div class="flex items-center justify-end mt-4">
                 <PrimaryButton :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Reset Password
+                    Restablecer contraseña
                 </PrimaryButton>
             </div>
         </form>

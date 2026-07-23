@@ -1,9 +1,10 @@
 @echo off
-title Gestión Salud - Inicio Manual
+title Tepuy - Inicio Manual
 color 0A
 echo ============================================
-echo   Iniciando Gestión Salud Manualmente
+echo   Tepuy - El Chaparro de Guanta
 echo ============================================
+echo   Sistema digital de salud
 echo.
 
 :: Matar procesos viejos

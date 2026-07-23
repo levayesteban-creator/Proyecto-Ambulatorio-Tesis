@@ -132,6 +132,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('/users', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
     Route::get('/users/{user}/edit', [App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
+    Route::put('/users/{user}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
     Route::delete('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
 });
 

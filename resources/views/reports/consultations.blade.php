@@ -94,7 +94,7 @@
     </table>
 
     <div class="footer">
-        <span>SistemaMed · MPPS · Consultorio Popular Tipo III, El Chaparro</span>
+        <span>Tepuy · MPPS · Consultorio Popular Tipo III, El Chaparro</span>
         <span>Página 1 de 1</span>
     </div>
 </body>

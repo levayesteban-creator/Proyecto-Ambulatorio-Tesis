@@ -1,4 +1,4 @@
-' Gestión Salud - Launcher Silencioso
+' Tepuy - Launcher Silencioso
 ' Abre la aplicación como si fuera un programa de escritorio.
 
 Dim shell, fso, rootPath, appUrl, chromePath, edgePath, logFile

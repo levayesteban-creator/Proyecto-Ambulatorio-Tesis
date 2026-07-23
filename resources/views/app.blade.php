@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title inertia>{{ config('app.name', 'SistemaMed') }}</title>
+        <title inertia>{{ config('app.name', 'Tepuy') }}</title>
 
         <!-- Fuentes: DM Sans (UI) + DM Mono (datos clínicos y numéricos) -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
