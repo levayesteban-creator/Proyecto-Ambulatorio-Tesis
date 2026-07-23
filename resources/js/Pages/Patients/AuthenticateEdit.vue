@@ -12,12 +12,9 @@ const form = useForm({
 })
 
 const authenticate = () => {
-    router.post(route('login'), {
-        email: form.email,
-        password: form.password,
+    form.post(route('login'), {
         patient_id: props.patient.id,
-        action: 'edit_closed_patient'
-    }, {
+        action: 'edit_closed_patient',
         onSuccess: () => {
             router.get(route('patients.edit', { patient: props.patient.id, authenticate: 'true' }))
         },

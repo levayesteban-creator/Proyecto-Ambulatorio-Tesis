@@ -128,8 +128,8 @@ class Consultation extends Model
 
     public function scopeForMonth($query, int $year, int $month)
     {
-        return $query->whereYear('created_at', $year)
-                     ->whereMonth('created_at', $month);
+        return $query->whereYear('consultation_date', $year)
+                     ->whereMonth('consultation_date', $month);
     }
 
     public function serviceTypeLabel(): string

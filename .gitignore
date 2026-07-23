@@ -26,3 +26,6 @@ yarn-error.log
 *.timestamp-*.mjs
 /tepuy-installer
 /installer
+MEJORAS-PROPUESTAS.html
+temp_*.php
+temp_*.docx

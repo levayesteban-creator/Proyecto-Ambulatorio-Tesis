@@ -8,6 +8,8 @@ const props = defineProps({ users: Array })
 const page = usePage()
 const flash = computed(() => page.props.flash || {})
 const showPasswordModal = ref(false)
+const showSuccess = ref(true)
+const showError = ref(true)
 
 const deleting = ref(null)
 const resetting = ref(null)
@@ -78,21 +80,21 @@ function resetPassword() {
       </Link>
     </div>
 
-    <div v-if="flash.success" class="flash-success" @click="showPasswordModal = flash.success.includes('Contraseña temporal')">
+    <div v-if="flash.success && showSuccess" class="flash-success" @click="showPasswordModal = flash.success.includes('Contraseña temporal')">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <path d="M9 12l2 2 4-4"/>
         <circle cx="12" cy="12" r="10"/>
       </svg>
       <span>{{ flash.success }}</span>
-      <button class="flash-close" @click.stop="flash.success = null">&times;</button>
+      <button class="flash-close" @click.stop="showSuccess = false">&times;</button>
     </div>
 
-    <div v-if="flash.error" class="flash-error">
+    <div v-if="flash.error && showError" class="flash-error">
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
         <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
       </svg>
       <span>{{ flash.error }}</span>
-      <button class="flash-close" @click.stop="flash.error = null">&times;</button>
+      <button class="flash-close" @click.stop="showError = false">&times;</button>
     </div>
 
     <div class="card">

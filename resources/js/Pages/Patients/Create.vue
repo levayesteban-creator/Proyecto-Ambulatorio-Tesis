@@ -456,7 +456,6 @@ const restoreScrollPosition = () => {
 }
 
 const submit = () => {
-  console.log('=== INICIANDO ENVÍO DE FORMULARIO ===')
   saveScrollPosition()
 
   const formData = {
@@ -503,18 +502,11 @@ const submit = () => {
 
   form.transform(() => payload)[submitMethod](submitRoute, {
     preserveScroll: true,
-    onSuccess: () => {
-      console.log('✅ PACIENTE GUARDADO EXITOSAMENTE')
-    },
     onError: (errors) => {
-      console.error('❌ Error de validación:', errors)
       restoreScrollPosition()
       requestAnimationFrame(() => {
         document.querySelector('.validation-errors')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
       })
-    },
-    onFinish: () => {
-      console.log('🏁 PROCESO FINALIZADO')
     }
   })
 }
