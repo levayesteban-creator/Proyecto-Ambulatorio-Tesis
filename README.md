@@ -50,12 +50,17 @@ Sistema de gestión de historias clínicas y reportes epidemiológicos (EPI) par
 
 ## Cuenta de Administrador
 
-| Campo | Valor |
-|-------|-------|
-| Email | `levayesteban@gmail.com` |
-| Contraseña | `Estebanmiguel*` |
+Las credenciales se configuran en el archivo `.env` (no se sube a GitHub):
 
-> **Nota de seguridad:** Esta cuenta se crea automáticamente al ejecutar los seeders. Cambiar la contraseña en producción.
+| Variable | Descripción |
+|----------|-------------|
+| `ADMIN_EMAIL` | Email del administrador |
+| `ADMIN_PASSWORD` | Contraseña del administrador |
+| `ADMIN_NAME` | Nombre completo |
+
+Al ejecutar `instalar.bat`, se te pedirá configurar estas credenciales.
+
+> **Nota de seguridad:** Nunca subir el archivo `.env` a GitHub. Usar `.env.example` como plantilla.
 
 ## Estructura del Proyecto
 

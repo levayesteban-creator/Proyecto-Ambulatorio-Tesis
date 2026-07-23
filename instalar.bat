@@ -33,7 +33,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-echo [1/6] Copiando archivo de entorno...
+echo [1/7] Copiando archivo de entorno...
 if not exist .env (
     copy .env.example .env
     php artisan key:generate
@@ -42,7 +42,20 @@ if not exist .env (
     echo   [OK] .env ya existe
 )
 
-echo [2/6] Instalando dependencias PHP...
+echo.
+echo ========================================
+echo   CONFIGURAR CUENTA DE ADMINISTRADOR
+echo ========================================
+echo.
+set /p ADMIN_EMAIL="Email del admin: "
+set /p ADMIN_PASSWORD="Contrasena del admin: "
+set /p ADMIN_NAME="Nombre del admin: "
+
+:: Actualizar .env con las credenciales
+php -r "$f='.env'; $c=file_get_contents($f); $c=preg_replace('/ADMIN_EMAIL=.*/','ADMIN_EMAIL=\"%ADMIN_EMAIL%\"',$c); $c=preg_replace('/ADMIN_PASSWORD=.*/','ADMIN_PASSWORD=\"%ADMIN_PASSWORD%\"',$c); $c=preg_replace('/ADMIN_NAME=.*/','ADMIN_NAME=\"%ADMIN_NAME%\"',$c); file_put_contents($f,$c);"
+echo   [OK] Credenciales configuradas en .env
+
+echo [2/7] Instalando dependencias PHP...
 call composer install --no-interaction
 if %errorlevel% neq 0 (
     echo   [X] Error en composer install
@@ -51,7 +64,7 @@ if %errorlevel% neq 0 (
 )
 echo   [OK] Dependencias PHP instaladas
 
-echo [3/6] Instalando dependencias JS...
+echo [3/7] Instalando dependencias JS...
 call npm install
 if %errorlevel% neq 0 (
     echo   [X] Error en npm install
@@ -60,7 +73,7 @@ if %errorlevel% neq 0 (
 )
 echo   [OK] Dependencias JS instaladas
 
-echo [4/6] Compilando frontend...
+echo [4/7] Compilando frontend...
 call npm run build
 if %errorlevel% neq 0 (
     echo   [X] Error en npm run build
@@ -69,16 +82,7 @@ if %errorlevel% neq 0 (
 )
 echo   [OK] Frontend compilado
 
-echo [5/6] Configurando base de datos...
-echo   Verificando conexion a MySQL...
-php artisan db:show >nul 2>&1
-if %errorlevel% neq 0 (
-    echo   [!] No se pudo conectar a MySQL.
-    echo   Verificar que MySQL este corriendo y las credenciales en .env sean correctas.
-    echo   Presiona cualquier tecla para continuar o Ctrl+C para cancelar...
-    pause >nul
-)
-
+echo [5/7] Configurando base de datos...
 php artisan migrate --force
 if %errorlevel% neq 0 (
     echo   [X] Error en migraciones
@@ -87,12 +91,18 @@ if %errorlevel% neq 0 (
 )
 echo   [OK] Migraciones ejecutadas
 
-echo [6/6] Poblando base de datos...
+echo [6/7] Poblando base de datos...
 php artisan db:seed --force
 if %errorlevel% neq 0 (
     echo   [!] Advertencia: Error en seeders (puede que ya existan datos)
 )
 echo   [OK] Datos iniciales cargados
+
+echo [7/7] Limpiando cache...
+php artisan config:clear
+php artisan route:clear
+php artisan cache:clear
+echo   [OK] Cache limpiado
 
 echo.
 echo ========================================
@@ -100,12 +110,14 @@ echo   INSTALACION COMPLETADA
 echo ========================================
 echo.
 echo   Cuenta de administrador:
-echo   Email:    levayesteban@gmail.com
-echo   Contrasena: Estebanmiguel*
+echo   Email:       %ADMIN_EMAIL%
+echo   Contrasena:  %ADMIN_PASSWORD%
 echo.
 echo   Para iniciar el servidor:
 echo   php artisan serve
 echo.
 echo   Luego abrir: http://localhost:8000
+echo.
+echo   IMPORTANTE: Cambiar la contrasena despues del primer inicio.
 echo.
 pause
