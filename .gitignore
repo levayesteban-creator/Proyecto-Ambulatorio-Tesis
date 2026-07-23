@@ -24,3 +24,5 @@ yarn-error.log
 /test_users.php
 /launcher/launcher.log
 *.timestamp-*.mjs
+/tepuy-installer
+/installer
