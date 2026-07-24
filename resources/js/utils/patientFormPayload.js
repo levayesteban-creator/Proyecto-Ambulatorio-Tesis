@@ -718,6 +718,7 @@ export function buildPatientStorePayload(data) {
     background: mapBackground(data.background || {}),
     family_background: mapFamilyBackground(data.family_background || {}),
     habits: mapHabits(data.habits || {}),
+    extra_backgrounds: (data.extra_backgrounds || []).filter(e => e.disease_name),
   }
 }
 
@@ -757,6 +758,15 @@ export function patientToFormState(patient) {
     background: backgroundToForm(patient.patient_background),
     family_background: familyBackgroundToForm(patient.family_background),
     habits: habitsToForm(patient.psychobiological_habit),
+    extra_backgrounds: (patient.extra_backgrounds || []).map(bg => ({
+      category: bg.category,
+      disease_name: bg.disease_name ?? '',
+      onset_value: bg.onset_value ?? '',
+      onset_unit: bg.onset_unit ?? 'años',
+      treatment: bg.treatment ?? '',
+      complications: bg.complications ?? '',
+      description: bg.description ?? '',
+    })),
   }
 }
 

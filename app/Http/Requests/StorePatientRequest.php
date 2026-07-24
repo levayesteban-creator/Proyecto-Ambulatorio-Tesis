@@ -257,6 +257,18 @@ class StorePatientRequest extends FormRequest
             'habits.housing.services.electricity'         => ['required', 'boolean'],
             'habits.housing.services.gas'                 => ['required', 'boolean'],
             'habits.housing.services.waste_collection'    => ['required', 'boolean'],
+
+            // ==========================================================================
+            // ANTECEDENTES ADICIONALES (LIBRES POR CATEGORÍA)
+            // ==========================================================================
+            'extra_backgrounds'                     => ['nullable', 'array'],
+            'extra_backgrounds.*.category'          => ['required_with:extra_backgrounds', 'string', Rule::in(['pathological','surgical','infectious','allergic','transfusion','std','traumatic','epidemiological','immunological','disability','obgyn'])],
+            'extra_backgrounds.*.disease_name'      => ['required_with:extra_backgrounds', 'string', 'max:255'],
+            'extra_backgrounds.*.onset_value'       => ['nullable', 'integer', 'min:0', 'max:150'],
+            'extra_backgrounds.*.onset_unit'        => ['nullable', 'string', Rule::in(['años', 'meses', 'días'])],
+            'extra_backgrounds.*.treatment'         => ['nullable', 'string', 'max:500'],
+            'extra_backgrounds.*.complications'     => ['nullable', 'string', 'max:500'],
+            'extra_backgrounds.*.description'       => ['nullable', 'string', 'max:1000'],
         ];
     }
 
@@ -386,6 +398,19 @@ class StorePatientRequest extends FormRequest
             'background.obgyn_menarche.after'               => 'La menarca debe ser posterior a 1900.',
             'background.obgyn_menopause.after_or_equal'     => 'La menopausia no puede ser posterior al día de hoy.',
             'background.obgyn_fur.before_or_equal'          => 'La fecha de última regla no puede ser posterior al día de hoy.',
+
+            // Antecedentes adicionales
+            'extra_backgrounds.*.category.required_with'    => 'La categoría del antecedente adicional es obligatoria.',
+            'extra_backgrounds.*.category.in'               => 'La categoría del antecedente adicional no es válida.',
+            'extra_backgrounds.*.disease_name.required_with' => 'El nombre de la enfermedad o intervención es obligatorio.',
+            'extra_backgrounds.*.disease_name.max'          => 'El nombre no debe exceder 255 caracteres.',
+            'extra_backgrounds.*.onset_value.integer'       => 'La edad de inicio debe ser un número entero.',
+            'extra_backgrounds.*.onset_value.min'           => 'La edad de inicio no puede ser negativa.',
+            'extra_backgrounds.*.onset_value.max'           => 'La edad de inicio no puede ser mayor a 150.',
+            'extra_backgrounds.*.onset_unit.in'             => 'La unidad de tiempo no es válida.',
+            'extra_backgrounds.*.treatment.max'             => 'El tratamiento no debe exceder 500 caracteres.',
+            'extra_backgrounds.*.complications.max'         => 'Las complicaciones no deben exceder 500 caracteres.',
+            'extra_backgrounds.*.description.max'           => 'La descripción no debe exceder 1000 caracteres.',
         ];
     }
 

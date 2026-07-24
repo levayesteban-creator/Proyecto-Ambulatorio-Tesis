@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useForm, Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import DatePicker from '@/Components/DatePicker.vue'
+import ExtraBackgrounds from './ExtraBackgrounds.vue'
 import {
   buildPatientStorePayload,
   patientToFormState,
@@ -97,6 +98,7 @@ const initialState = props.patient
       background: defaultBackground(),
       family_background: defaultFamilyBackground(),
       habits: defaultHabits(),
+      extra_backgrounds: [],
       close_history: false,
     }
 
@@ -1263,6 +1265,20 @@ const submit = () => {
               </div>
             </Transition>
           </div>
+
+          <!-- ══ Antecedentes Adicionales ══════════════════════════════════════ -->
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="pathological" category-label="Antecedentes Patológicos" icon="🏥"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="surgical" category-label="Antecedentes Quirúrgicos" icon="🔪"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="infectious" category-label="Antecedentes Infectocontagiosos" icon="🦠"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="allergic" category-label="Antecedentes Alérgicos" icon="🤧"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="traumatic" category-label="Antecedentes Traumáticos" icon="🦴"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="std" category-label="Antecedentes de ETS" icon="⚠️"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="transfusion" category-label="Antecedentes Transfusionales" icon="🩸"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="epidemiological" category-label="Antecedentes Epidemiológicos" icon="🌍"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="immunological" category-label="Antecedentes Inmunológicos" icon="💉"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="disability" category-label="Discapacidades" icon="♿"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="obgyn" category-label="Antecedentes Gineco-Obstétricos" icon="👩"/>
+
         </div>
         <nav v-show="false" class="section-nav">
           <button type="button" class="btn btn-ghost-nav" @click="prevStep">

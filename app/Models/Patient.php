@@ -195,4 +195,12 @@ class Patient extends Model
     {
         return $this->hasMany(Consultation::class);
     }
+
+    /**
+     * Antecedentes adicionales/libres que el médico va agregando por categoría.
+     */
+    public function extraBackgrounds(): HasMany
+    {
+        return $this->hasMany(PatientExtraBackground::class, 'patient_id');
+    }
 }

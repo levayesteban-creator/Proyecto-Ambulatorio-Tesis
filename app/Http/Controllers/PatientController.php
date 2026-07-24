@@ -219,6 +219,7 @@ class PatientController extends Controller
             'patientBackground',
             'familyBackground',
             'psychobiologicalHabit',
+            'extraBackgrounds',
         ]);
 
         return Inertia::render('Patients/Create', [
@@ -241,6 +242,7 @@ class PatientController extends Controller
             'patientBackground',
             'familyBackground',
             'psychobiologicalHabit',
+            'extraBackgrounds',
         ]);
 
         return Inertia::render('Patients/Show', [
@@ -425,6 +427,29 @@ class PatientController extends Controller
             $patient->psychobiologicalHabit()
                 ->updateOrCreate(['patient_id' => $patient->id], $habitsPayload);
             Log::info('Psychobiological habits sincronizados');
+        }
+
+        // ── Antecedentes adicionales/libres por categoría ──────────────────
+        if (isset($data['extra_backgrounds']) && is_array($data['extra_backgrounds'])) {
+            Log::info('Sincronizando extra backgrounds', ['count' => count($data['extra_backgrounds'])]);
+
+            // Eliminar antecedentes existentes y recrear
+            $patient->extraBackgrounds()->delete();
+
+            foreach ($data['extra_backgrounds'] as $extra) {
+                if (!empty($extra['disease_name'])) {
+                    $patient->extraBackgrounds()->create([
+                        'category'      => $extra['category'] ?? 'pathological',
+                        'disease_name'  => $extra['disease_name'],
+                        'onset_value'   => $extra['onset_value'] ?? null,
+                        'onset_unit'    => $extra['onset_unit'] ?? 'años',
+                        'treatment'     => $extra['treatment'] ?? null,
+                        'complications' => $extra['complications'] ?? null,
+                        'description'   => $extra['description'] ?? null,
+                    ]);
+                }
+            }
+            Log::info('Extra backgrounds sincronizados');
         }
     }
 
