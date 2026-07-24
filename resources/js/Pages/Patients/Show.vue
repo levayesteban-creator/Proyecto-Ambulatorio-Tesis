@@ -14,6 +14,17 @@ const bg = computed(() => props.patient.patient_background);
 const fb = computed(() => props.patient.family_background);
 const habits = computed(() => props.patient.psychobiological_habit);
 
+// Edad del paciente
+const patientAge = computed(() => {
+    if (!props.patient.birth_date) return null;
+    const today = new Date();
+    const birth = new Date(props.patient.birth_date);
+    let age = today.getFullYear() - birth.getFullYear();
+    const m = today.getMonth() - birth.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+    return age;
+});
+
 const confirmClose = () => {
     if (confirm('¿Está seguro de cerrar la historia clínica? Una vez cerrada solo el administrador y médico coordinador podrán reabrirla.')) {
         router.post(route('patients.close', props.patient.id))
@@ -75,6 +86,31 @@ const hacinamiento = computed(() => {
     return result.index != null
         ? { idx: result.display, overloaded: result.overloaded }
         : null;
+});
+
+// Índice tabáquico (paquetes-año)
+const indiceTabaquico = computed(() => {
+    const t = habits.value?.tobacco;
+    if (!t || t.deny || !t.start_age || !t.cigarettes_per_day) return null;
+
+    const startAge = parseInt(t.start_age);
+    const endAge = t.end_age ? parseInt(t.end_age) : null;
+    const cigsPerDay = parseInt(t.cigarettes_per_day);
+
+    if (isNaN(startAge) || isNaN(cigsPerDay) || cigsPerDay <= 0) return null;
+
+    const currentAge = parseInt(patientAge.value) || 30;
+    const yearsSmoking = (endAge ? endAge : currentAge) - startAge;
+    if (yearsSmoking <= 0) return null;
+
+    const packYears = (cigsPerDay * yearsSmoking) / 20;
+
+    let risk = 'low';
+    if (packYears > 30) risk = 'very_high';
+    else if (packYears > 20) risk = 'high';
+    else if (packYears > 10) risk = 'moderate';
+
+    return { value: packYears.toFixed(1), risk, formula: `${cigsPerDay} cig/día × ${yearsSmoking} años ÷ 20` };
 });
 
 const disabilityLabels = computed(() => {
@@ -358,6 +394,15 @@ const denyOr = (deny, text) => (deny ? 'Niega' : (text || '—'));
                             <template v-if="habits.tobacco.deny">Niega</template>
                             <template v-else>
                                 {{ habits.tobacco.cigarettes_per_day }} cig/día, {{ habits.tobacco.boxes_per_year }} cajas/año
+                                <span v-if="indiceTabaquico" class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold"
+                                      :class="{
+                                          'bg-red-100 text-red-800': indiceTabaquico.risk === 'very_high' || indiceTabaquico.risk === 'high',
+                                          'bg-yellow-100 text-yellow-800': indiceTabaquico.risk === 'moderate',
+                                          'bg-green-100 text-green-800': indiceTabaquico.risk === 'low'
+                                      }">
+                                    {{ indiceTabaquico.value }} paq-año
+                                    <template v-if="indiceTabaquico.risk === 'very_high' || indiceTabaquico.risk === 'high'"> ⚠</template>
+                                </span>
                             </template>
                         </dd>
                     </div>

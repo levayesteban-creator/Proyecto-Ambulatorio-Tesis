@@ -352,6 +352,39 @@ const hacinamiento = computed(() => {
   }
 })
 
+// ── Calculadora de índice tabáquico (paquetes-año) ──
+const indiceTabaquico = computed(() => {
+  const startAge = parseInt(form.habits.tobacco.start_age)
+  const endAge = form.habits.tobacco.end_age ? parseInt(form.habits.tobacco.end_age) : null
+  const cigsPerDay = parseInt(form.habits.tobacco.cigarettes_per_day)
+
+  if (isNaN(startAge) || isNaN(cigsPerDay) || cigsPerDay <= 0) {
+    return { value: '—', packYears: 0, risk: 'none', formula: '' }
+  }
+
+  const currentAge = parseInt(patientAge.value) || 30
+  const yearsSmoking = (endAge ? endAge : currentAge) - startAge
+
+  if (yearsSmoking <= 0) {
+    return { value: '—', packYears: 0, risk: 'none', formula: '' }
+  }
+
+  const packYears = (cigsPerDay * yearsSmoking) / 20
+
+  let risk = 'low'
+  if (packYears > 30) risk = 'very_high'
+  else if (packYears > 20) risk = 'high'
+  else if (packYears > 10) risk = 'moderate'
+
+  return {
+    value: packYears.toFixed(1),
+    packYears,
+    yearsSmoking,
+    risk,
+    formula: `${cigsPerDay} cig/día × ${yearsSmoking} años ÷ 20`,
+  }
+})
+
 const occupationIsOther = computed(() => {
   const occ = props.occupations.find((o) => o.id === form.occupation_id)
   return occ?.name?.toLowerCase() === 'otro'
@@ -1448,15 +1481,35 @@ const submit = () => {
               </div>
             </div>
             <Transition name="expand">
-              <div v-if="!form.habits.tobacco.deny" class="ante-fields form-grid grid-4">
-                <div><label class="field-label">Desde los (años)</label>
-                  <input v-model="form.habits.tobacco.start_age" class="field-input" type="number"/></div>
-                <div><label class="field-label">Hasta</label>
-                  <input v-model="form.habits.tobacco.end_age" class="field-input" type="text" placeholder="Actualmente"/></div>
-                <div><label class="field-label">Cigarros/día</label>
-                  <input v-model="form.habits.tobacco.cigarettes_per_day" class="field-input" type="number"/></div>
-                <div><label class="field-label">Cajas/año</label>
-                  <input v-model="form.habits.tobacco.boxes_per_year" class="field-input" type="number"/></div>
+              <div v-if="!form.habits.tobacco.deny" class="ante-fields">
+                <div class="form-grid grid-4">
+                  <div><label class="field-label">Desde los (años)</label>
+                    <input v-model="form.habits.tobacco.start_age" class="field-input" type="number"/></div>
+                  <div><label class="field-label">Hasta</label>
+                    <input v-model="form.habits.tobacco.end_age" class="field-input" type="text" placeholder="Actualmente"/></div>
+                  <div><label class="field-label">Cigarros/día</label>
+                    <input v-model="form.habits.tobacco.cigarettes_per_day" class="field-input" type="number"/></div>
+                  <div><label class="field-label">Cajas/año</label>
+                    <input v-model="form.habits.tobacco.boxes_per_year" class="field-input" type="number"/></div>
+                </div>
+
+                <!-- Calculadora de índice tabáquico -->
+                <div v-if="indiceTabaquico.value !== '—'" class="hacin-display" style="margin-top:12px"
+                     :style="indiceTabaquico.risk === 'very_high' || indiceTabaquico.risk === 'high' ? 'background:linear-gradient(135deg,#FEF2F2,#FEE2E2);border-color:#FCA5A5' : indiceTabaquico.risk === 'moderate' ? 'background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border-color:#FCD34D' : ''">
+                  <div class="hacin-value" :class="indiceTabaquico.risk === 'very_high' || indiceTabaquico.risk === 'high' ? 'danger' : indiceTabaquico.risk === 'moderate' ? 'warning' : 'normal'">
+                    {{ indiceTabaquico.value }} paquetes-año
+                  </div>
+                  <div class="hacin-label">Índice Tabáquico</div>
+                  <div class="hacin-status" :class="indiceTabaquico.risk === 'very_high' || indiceTabaquico.risk === 'high' ? 'hacin-warn' : indiceTabaquico.risk === 'moderate' ? 'hacin-moderate' : 'hacin-ok'">
+                    <template v-if="indiceTabaquico.risk === 'very_high'">⚠ ALTO RIESGO (>30 paq-año)</template>
+                    <template v-else-if="indiceTabaquico.risk === 'high'">⚠ RIESGO ALTO (>20 paq-año)</template>
+                    <template v-else-if="indiceTabaquico.risk === 'moderate'">⚡ RIESGO MODERADO (>10 paq-año)</template>
+                    <template v-else>✓ RIESGO BAJO</template>
+                  </div>
+                  <div style="font-size:10px;color:var(--clr-muted);margin-top:4px">
+                    {{ indiceTabaquico.formula }}
+                  </div>
+                </div>
               </div>
             </Transition>
           </div>
@@ -1958,10 +2011,12 @@ const submit = () => {
 }
 .hacin-value.normal { color: #2563EB; }
 .hacin-value.danger { color: #DC2626; }
+.hacin-value.warning { color: #D97706; }
 .hacin-label  { font-size: 12px; color: #64748B; font-weight: 500; }
 .hacin-status { font-size: 11px; font-weight: 700; margin-top: 8px; padding: 3px 10px; border-radius: 20px; display: inline-block; }
 .hacin-ok     { background: #D1FAE5; color: #065F46; }
 .hacin-warn   { background: #FEE2E2; color: #991B1B; }
+.hacin-moderate { background: #FEF3C7; color: #92400E; }
 
 /* ── INLINE ALERT ────────────────────────────────────────── */
 .inline-alert {
