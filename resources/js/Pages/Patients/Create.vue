@@ -1671,8 +1671,10 @@ const submit = () => {
           <div class="ante-card">
             <div class="ante-header"><div class="ante-title">💧 Hábito Genitourinario</div></div>
             <div class="ante-fields form-grid grid-4" style="padding-top:4px">
-              <div><label class="field-label">N° micciones/día</label>
-                <input v-model="form.habits.genitourinary.urinations_count" class="field-input" type="number"/></div>
+              <div><label class="field-label">N° micciones diurnas</label>
+                <input v-model="form.habits.genitourinary.urinations_day" class="field-input" type="number" placeholder="En el día"/></div>
+              <div><label class="field-label">N° micciones nocturnas</label>
+                <input v-model="form.habits.genitourinary.urinations_night" class="field-input" type="number" placeholder="En la noche"/></div>
               <div><label class="field-label">Color orina</label>
                 <input v-model="form.habits.genitourinary.color" class="field-input" type="text" placeholder="Amarillo pálido"/></div>
               <div><label class="field-label">Olor</label>

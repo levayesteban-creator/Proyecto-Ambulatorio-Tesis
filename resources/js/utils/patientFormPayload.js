@@ -547,7 +547,7 @@ function habitsToForm(habits) {
       nutrition: nutritionToForm(null),
       sexual_habits: { active: false, sexarche_age: '', partners_count: '', orientation: '', frequency_per_week: '', contraceptive_method: '' },
       gastrointestinal: { evacuations_count: '', frequency_unit: 'Por día', color: '', odor: '', bristol_scale: '4', shape: '' },
-      genitourinary: { urinations_count: '', color: '', odor: '', predominance: 'Matutino' },
+      genitourinary: { urinations_day: '', urinations_night: '', color: '', odor: '', predominance: 'Matutino' },
       housing: {
         floor_material: '', roof_material: '', walls_material: '',
         rooms_count: '', habitants_count: '',
@@ -612,6 +612,8 @@ function habitsToForm(habits) {
       shape: h.gastrointestinal?.shape ?? '',
     },
     genitourinary: {
+      urinations_day: h.genitourinary?.urinations_day ?? '',
+      urinations_night: h.genitourinary?.urinations_night ?? '',
       urinations_count: h.genitourinary?.urinations_count ?? '',
       color: h.genitourinary?.color ?? '',
       odor: h.genitourinary?.odor ?? '',

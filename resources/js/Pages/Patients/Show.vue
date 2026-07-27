@@ -467,7 +467,12 @@ const denyOr = (deny, text) => (deny ? 'Niega' : (text || '—'));
                     <div v-if="habits.genitourinary">
                         <dt class="text-gray-500 font-medium">Genitourinario</dt>
                         <dd>
-                            {{ habits.genitourinary.urinations_count }} micciones/día.
+                            <template v-if="habits.genitourinary.urinations_day || habits.genitourinary.urinations_night">
+                                {{ habits.genitourinary.urinations_day || '—' }} micciones diurnas, {{ habits.genitourinary.urinations_night || '—' }} micciones nocturnas.
+                            </template>
+                            <template v-else-if="habits.genitourinary.urinations_count">
+                                {{ habits.genitourinary.urinations_count }} micciones/día.
+                            </template>
                             Color: {{ habits.genitourinary.color || '—' }}.
                             Olor: {{ habits.genitourinary.odor || '—' }}.
                             {{ habits.genitourinary.predominance }}.
