@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -34,7 +35,7 @@ class ReportController extends Controller
      */
     public function checkExportData(Request $request)
     {
-        \Log::info('checkExportData', ['all' => $request->all()]);
+        $this->authorizeExport();
         $tipo = $request->input('tipo');
         $hasData = false;
         $message = '';
@@ -75,6 +76,8 @@ class ReportController extends Controller
 
             return response()->json(['hasData' => $hasData, 'message' => $message]);
 
+        } catch (ValidationException $e) {
+            return response()->json(['hasData' => false, 'message' => $e->getMessage()], 422);
         } catch (\Exception $e) {
             return response()->json(['hasData' => false, 'message' => 'Error al verificar datos'], 500);
         }
@@ -1456,6 +1459,8 @@ class ReportController extends Controller
      */
     public function epiMatrix(): Response
     {
+        $this->authorizeExport();
+
         return Inertia::render('Reports/EpiMatrix', [
             'currentYear' => (int) date('Y'),
         ]);
@@ -1467,6 +1472,7 @@ class ReportController extends Controller
      */
     public function epiMatrixData(Request $request): JsonResponse
     {
+        $this->authorizeExport();
         $request->validate([
             'year' => 'required|integer|min:2020|max:2050',
             'week' => 'required|integer|min:1|max:53',
@@ -1695,6 +1701,7 @@ class ReportController extends Controller
      */
     public function epiMatrixData15(Request $request): JsonResponse
     {
+        $this->authorizeExport();
         $request->validate([
             'year' => 'required|integer|min:2020|max:2050',
             'month' => 'required|integer|min:1|max:12',
@@ -1840,6 +1847,7 @@ class ReportController extends Controller
      */
     public function verifyWeek(Request $request): JsonResponse
     {
+        $this->authorizeExport();
         $request->validate([
             'year' => 'required|integer|min:2020|max:2050',
             'week' => 'required|integer|min:1|max:53',

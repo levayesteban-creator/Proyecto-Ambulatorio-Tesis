@@ -46,6 +46,10 @@ class ConsultationController extends Controller
      */
     public function index(): Response
     {
+        if (Gate::denies('viewAny', Consultation::class)) {
+            abort(403, 'No tiene permiso para ver el listado de consultas.');
+        }
+
         $query = Consultation::with([
             'patient:id,full_name,id_number',
             'doctor:id,name',
@@ -169,7 +173,7 @@ class ConsultationController extends Controller
 
             return back()->withErrors([
                 'error' => 'No se pudo guardar la consulta. Intente de nuevo.',
-            ]);
+            ])->withInput();
         }
     }
 
@@ -214,18 +218,7 @@ class ConsultationController extends Controller
     public function show(Consultation $consultation): Response
     {
         if (Gate::denies('view', $consultation)) {
-            return Inertia::render('Consultations/Show', [
-                'consultation' => $consultation->load([
-                    'patient:id,full_name,id_number,nationality,birth_date,gender,phone_number',
-                    'doctor:id,name',
-                    'sisDiagnoses.sisDiagnosis:id,code,name',
-                    'sisDiagnoses.medicalConduct:id,name',
-                    'referrals',
-                    'functionalExam',
-                    'physicalExam',
-                ]),
-                'error' => 'No tiene permiso para ver esta consulta.',
-            ]);
+            abort(403, 'No tiene permiso para ver esta consulta.');
         }
 
         $consultation->load([
@@ -253,11 +246,7 @@ class ConsultationController extends Controller
             $error = $consultation->patient?->closed_at
                 ? 'No se puede modificar consultas de una historia clínica cerrada.'
                 : 'No tiene permiso para editar consultas.';
-
-            return Inertia::render('Consultations/Show', [
-                'consultation' => $consultation->load('patient', 'doctor'),
-                'error' => $error,
-            ]);
+            abort(403, $error);
         }
 
         // Cargar datos de la consulta existente con todas sus relaciones
@@ -367,7 +356,7 @@ class ConsultationController extends Controller
 
             return back()->withErrors([
                 'error' => 'No se pudo actualizar la consulta. Intente de nuevo.',
-            ]);
+            ])->withInput();
         }
     }
 
@@ -384,13 +373,7 @@ class ConsultationController extends Controller
         try {
             DB::beginTransaction();
 
-            // Eliminar en cascada siguiendo el orden de dependencias
-            $consultation->referrals()->delete();
-            $consultation->sisDiagnoses()->delete();
-            $consultation->functionalExam()->delete();
-            $consultation->physicalExam()->delete();
-
-            // Finalmente eliminar la consulta principal
+            // Soft-delete de la consulta en cascada
             $consultation->delete();
 
             DB::commit();
@@ -408,7 +391,7 @@ class ConsultationController extends Controller
             ]);
 
             return back()->withErrors([
-                'error' => 'No se pudo eliminar la consulta: '.$e->getMessage(),
+                'error' => 'No se pudo eliminar la consulta. Intente de nuevo.',
             ]);
         }
     }

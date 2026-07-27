@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * ConsultationDiagnosis — Pivote del sistema de diagnósticos SIS/MPPS
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class ConsultationDiagnosis extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'consultation_sis_diagnosis';
 
     protected $fillable = [

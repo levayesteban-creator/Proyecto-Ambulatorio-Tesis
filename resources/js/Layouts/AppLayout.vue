@@ -161,7 +161,7 @@ const goBack = () => window.history.back()
         <span class="nav-label">Mi perfil</span>
       </Link>
 
-      <Link v-if="$page.props.auth.user?.role_id <= 2" class="nav-item" :href="route('admin.users.index')" :title="'Usuarios'"
+      <Link v-if="($page.props.auth.user?.role_id ?? 0) <= 2" class="nav-item" :href="route('admin.users.index')" :title="'Usuarios'"
             :class="{ active: $page.url.startsWith('/admin/users') }">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -171,7 +171,7 @@ const goBack = () => window.history.back()
         <span class="nav-label">Usuarios</span>
       </Link>
 
-      <Link v-if="$page.props.auth.user?.role_id <= 2" class="nav-item" :href="route('audit-logs.index')" :title="'Bitácora'"
+      <Link v-if="($page.props.auth.user?.role_id ?? 0) <= 2" class="nav-item" :href="route('audit-logs.index')" :title="'Bitácora'"
             :class="{ active: $page.url.startsWith('/audit-logs') }">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
@@ -182,7 +182,7 @@ const goBack = () => window.history.back()
         <span class="nav-label">Bitácora</span>
       </Link>
 
-      <Link v-if="$page.props.auth.user?.role_id <= 2" class="nav-item" :href="route('help.backup')" :title="'Respaldo y Recuperación'"
+      <Link v-if="($page.props.auth.user?.role_id ?? 0) <= 2" class="nav-item" :href="route('help.backup')" :title="'Respaldo y Recuperación'"
             :class="{ active: $page.url.startsWith('/help/backup') }">
         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10"/>

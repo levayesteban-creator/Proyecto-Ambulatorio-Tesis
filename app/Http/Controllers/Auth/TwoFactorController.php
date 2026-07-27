@@ -36,7 +36,7 @@ class TwoFactorController extends Controller
         }
 
         $cached = cache("2fa_user_{$userId}");
-        if (! $cached || $cached !== $request->code) {
+        if (! $cached || ! hash_equals($cached, $request->code)) {
             return back()->withErrors([
                 'code' => 'El código ingresado es inválido o ha expirado.',
             ]);

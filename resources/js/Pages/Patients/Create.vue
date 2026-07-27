@@ -362,7 +362,7 @@ const indiceTabaquico = computed(() => {
     return { value: '—', packYears: 0, risk: 'none', formula: '' }
   }
 
-  const currentAge = parseInt(patientAge.value) || 30
+  const currentAge = parseInt(calculatedAge.value) || 30
   const yearsSmoking = (endAge ? endAge : currentAge) - startAge
 
   if (yearsSmoking <= 0) {

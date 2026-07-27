@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ConsultationReferral extends Model
 {
+    use SoftDeletes;
+
     protected $table = 'consultation_referrals';
 
     protected $fillable = [

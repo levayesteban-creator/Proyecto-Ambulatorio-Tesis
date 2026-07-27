@@ -10,7 +10,11 @@ const props = defineProps({
 
 const currentUser = computed(() => usePage().props.auth?.user);
 const canDelete = computed(() => {
-    return currentUser.value?.role_id <= 2;
+    const user = currentUser.value;
+    if (!user) return false;
+    if (user.role_id !== undefined) return user.role_id <= 2;
+    const roleName = user.role?.name ?? '';
+    return roleName === 'Administrador' || roleName === 'Médico Coordinador';
 });
 
 const p = props.consultation.patient;

@@ -248,6 +248,10 @@ class PatientController extends Controller
 
         return Inertia::render('Patients/Show', [
             'patient' => $patient,
+            'consultations' => $patient->consultations()
+                ->with(['doctor:id,name', 'sisDiagnoses.sisDiagnosis:id,code,name'])
+                ->latest()
+                ->get(),
             'auth' => [
                 'user' => [
                     'id' => $user->id,
@@ -300,7 +304,7 @@ class PatientController extends Controller
         }
     }
 
-    public function editContact(Patient $patient): Response
+    public function editContact(Patient $patient): Response|RedirectResponse
     {
         if (Gate::denies('update', $patient)) {
             return back()->withErrors(['error' => 'No tiene permiso para editar datos de contacto.']);

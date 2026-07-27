@@ -1,7 +1,7 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue'
 import { Head, Link, useForm, usePage } from '@inertiajs/vue3'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const props = defineProps({ users: Array })
 
@@ -17,6 +17,13 @@ const newTempPassword = ref('')
 const resetForm = useForm({ admin_password: '' })
 const form = useForm({ admin_password: '' })
 const resetError = ref('')
+
+watch(() => page.props.flash?.success, (msg) => {
+  if (msg && resetting.value) {
+    const match = msg.match(/Contraseña temporal:\s*(\S+)/)
+    newTempPassword.value = match ? match[1] : msg
+  }
+})
 
 function confirmDelete(user) {
   deleting.value = user
@@ -128,7 +135,7 @@ function resetPassword() {
                 Restablecer contraseña
               </button>
               <button @click="confirmDelete(user)" class="btn btn-sm btn-danger ms-2"
-                      :disabled="user.id === $page.props.auth.user.id">
+                      :disabled="user.id === $page.props.auth?.user?.id">
                 Eliminar
               </button>
             </td>

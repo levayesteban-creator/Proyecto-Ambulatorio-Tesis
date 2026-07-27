@@ -201,4 +201,16 @@ class Patient extends Model
     {
         return $this->hasMany(PatientExtraBackground::class, 'patient_id');
     }
+
+    public function restore()
+    {
+        $result = parent::restore();
+
+        $this->patientBackground()->withTrashed()->restore();
+        $this->familyBackground()->withTrashed()->restore();
+        $this->psychobiologicalHabit()->withTrashed()->restore();
+        $this->extraBackgrounds()->withTrashed()->restore();
+
+        return $result;
+    }
 }

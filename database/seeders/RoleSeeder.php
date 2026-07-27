@@ -22,10 +22,10 @@ class RoleSeeder extends Seeder
         Role::create(['id' => 3, 'name' => 'Médico']);
         Role::create(['id' => 4, 'name' => 'Enfermero']);
 
-        // Creamos el usuario administrador predeterminado desde .env
-        $adminEmail = env('ADMIN_EMAIL', 'admin@ejemplo.com');
-        $adminPassword = env('ADMIN_PASSWORD', 'cambiar123');
-        $adminName = env('ADMIN_NAME', 'Administrador');
+        // Creamos el usuario administrador predeterminado desde config (.env)
+        $adminEmail = config('app.admin_email');
+        $adminPassword = config('app.admin_password');
+        $adminName = config('app.admin_name');
 
         $admin = User::where('email', $adminEmail)->first();
         if (! $admin) {

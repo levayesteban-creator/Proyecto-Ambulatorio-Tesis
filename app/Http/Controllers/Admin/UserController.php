@@ -104,11 +104,8 @@ class UserController extends Controller
             'id_number' => 'nullable|string|max:20|unique:users,id_number,'.$user->id,
             'email' => 'required|string|lowercase|email|max:255|unique:users,email,'.$user->id,
             'phone' => 'nullable|string|max:20|unique:users,phone,'.$user->id,
-            'role_id' => 'required|exists:roles,id',
+            'role_id' => 'required|exists:roles,id|not_in:1',
         ];
-        if ($user->role_id !== 1) {
-            $rules['role_id'] .= '|not_in:1';
-        }
         $request->validate($rules, [
             'id_number.unique' => 'La cédula «:input» ya se encuentra registrada.',
             'email.unique' => 'El correo «:input» ya se encuentra registrado.',

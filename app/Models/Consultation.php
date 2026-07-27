@@ -145,4 +145,16 @@ class Consultation extends Model
     {
         return $query->where('consultation_type', 'S');
     }
+
+    public function restore()
+    {
+        $result = parent::restore();
+
+        $this->sisDiagnoses()->withTrashed()->restore();
+        $this->referrals()->withTrashed()->restore();
+        $this->physicalExam()?->withTrashed()->restore();
+        $this->functionalExam()?->withTrashed()->restore();
+
+        return $result;
+    }
 }

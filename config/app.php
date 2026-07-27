@@ -224,6 +224,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Credentials
+    |--------------------------------------------------------------------------
+    |
+    | Default admin credentials used by the RoleSeeder. These values are
+    | read from environment variables and cached with the config.
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL', 'admin@ejemplo.com'),
+    'admin_password' => env('ADMIN_PASSWORD', 'cambiar123'),
+    'admin_name' => env('ADMIN_NAME', 'Administrador'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Class Aliases
     |--------------------------------------------------------------------------
     |
