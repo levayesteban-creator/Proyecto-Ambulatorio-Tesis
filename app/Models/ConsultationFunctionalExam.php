@@ -64,22 +64,22 @@ class ConsultationFunctionalExam extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'general_deny'            => 'boolean',
-        'skin_deny'               => 'boolean',
-        'head_face_deny'          => 'boolean',
-        'neck_throat_deny'        => 'boolean',
-        'eyes_deny'               => 'boolean',
-        'mouth_deny'              => 'boolean',
-        'breasts_deny'            => 'boolean',
-        'ears_deny'               => 'boolean',
-        'nose_deny'               => 'boolean',
-        'respiratory_deny'        => 'boolean',
-        'cardiovascular_deny'     => 'boolean',
-        'gastrointestinal_deny'   => 'boolean',
-        'genitourinary_deny'     => 'boolean',
-        'menstrual_cycle_deny'    => 'boolean',
-        'nervous_mental_deny'     => 'boolean',
-        'osteomuscular_deny'      => 'boolean',
+        'general_deny' => 'boolean',
+        'skin_deny' => 'boolean',
+        'head_face_deny' => 'boolean',
+        'neck_throat_deny' => 'boolean',
+        'eyes_deny' => 'boolean',
+        'mouth_deny' => 'boolean',
+        'breasts_deny' => 'boolean',
+        'ears_deny' => 'boolean',
+        'nose_deny' => 'boolean',
+        'respiratory_deny' => 'boolean',
+        'cardiovascular_deny' => 'boolean',
+        'gastrointestinal_deny' => 'boolean',
+        'genitourinary_deny' => 'boolean',
+        'menstrual_cycle_deny' => 'boolean',
+        'nervous_mental_deny' => 'boolean',
+        'osteomuscular_deny' => 'boolean',
     ];
 
     /**

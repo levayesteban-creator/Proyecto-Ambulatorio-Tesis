@@ -41,8 +41,8 @@ return new class extends Migration
             && DB::connection()->getDriverName() !== 'sqlite'
         ) {
             DB::statement(
-                "ALTER TABLE consultation_sis_diagnosis MODIFY diagnosis_type "
-                . "ENUM('Sospechoso', 'Probable', 'Confirmado', 'No Aplica') NOT NULL DEFAULT 'Confirmado'"
+                'ALTER TABLE consultation_sis_diagnosis MODIFY diagnosis_type '
+                ."ENUM('Sospechoso', 'Probable', 'Confirmado', 'No Aplica') NOT NULL DEFAULT 'Confirmado'"
             );
         }
     }
@@ -69,8 +69,8 @@ return new class extends Migration
 
         if (Schema::hasTable('consultation_sis_diagnosis')) {
             DB::statement(
-                "ALTER TABLE consultation_sis_diagnosis MODIFY diagnosis_type "
-                . "ENUM('Sospechoso', 'Probable', 'Confirmado') NOT NULL DEFAULT 'Confirmado'"
+                'ALTER TABLE consultation_sis_diagnosis MODIFY diagnosis_type '
+                ."ENUM('Sospechoso', 'Probable', 'Confirmado') NOT NULL DEFAULT 'Confirmado'"
             );
         }
     }

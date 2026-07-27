@@ -7,34 +7,38 @@ use Illuminate\Console\Command;
 class DatabaseRestore extends Command
 {
     protected $signature = 'db:restore {file? : Ruta del archivo .sql a restaurar}';
+
     protected $description = 'Restaura la base de datos desde un respaldo';
 
     public function handle(): int
     {
         $file = $this->argument('file');
 
-        if (!$file) {
+        if (! $file) {
             $backups = glob(storage_path('app/backups/*.sql'));
             if (empty($backups)) {
                 $this->error('No hay respaldos en storage/app/backups/');
+
                 return self::FAILURE;
             }
             rsort($backups);
             $this->info('Respaldos disponibles:');
             foreach ($backups as $i => $b) {
                 $size = filesize($b);
-                $this->line("  [{$i}] " . basename($b) . " (" . number_format($size / 1024, 1) . " KB)");
+                $this->line("  [{$i}] ".basename($b).' ('.number_format($size / 1024, 1).' KB)');
             }
             $idx = $this->ask('Selecciona el número del respaldo a restaurar');
-            if (!isset($backups[(int)$idx])) {
+            if (! isset($backups[(int) $idx])) {
                 $this->error('Selección inválida');
+
                 return self::FAILURE;
             }
-            $file = $backups[(int)$idx];
+            $file = $backups[(int) $idx];
         }
 
-        if (!file_exists($file)) {
+        if (! file_exists($file)) {
             $this->error("Archivo no encontrado: {$file}");
+
             return self::FAILURE;
         }
 
@@ -51,25 +55,28 @@ class DatabaseRestore extends Command
             $mysql = $laragonBin;
         }
 
-        if (!$this->confirm("¿Restaurar DB '{$db}' con el archivo " . basename($file) . "? Se borrarán los datos actuales.")) {
+        if (! $this->confirm("¿Restaurar DB '{$db}' con el archivo ".basename($file).'? Se borrarán los datos actuales.')) {
             $this->info('Operación cancelada.');
+
             return self::SUCCESS;
         }
 
         $cmd = "\"{$mysql}\" --host={$host} --port={$port} --user={$user}"
-            . ($pass ? " --password=\"{$pass}\"" : '')
-            . " \"{$db}\" < \"" . realpath($file) . '" 2>&1';
+            .($pass ? " --password=\"{$pass}\"" : '')
+            ." \"{$db}\" < \"".realpath($file).'" 2>&1';
 
         $output = [];
         $exitCode = 0;
         exec($cmd, $output, $exitCode);
 
         if ($exitCode !== 0) {
-            $this->error("Error al restaurar: " . implode("\n", $output));
+            $this->error('Error al restaurar: '.implode("\n", $output));
+
             return self::FAILURE;
         }
 
-        $this->info("Base de datos '{$db}' restaurada exitosamente desde " . basename($file));
+        $this->info("Base de datos '{$db}' restaurada exitosamente desde ".basename($file));
+
         return self::SUCCESS;
     }
 }

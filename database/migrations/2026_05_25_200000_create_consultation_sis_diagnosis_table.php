@@ -60,8 +60,8 @@ return new class extends Migration
 
             // ── Índices para consultas estadísticas EPI ───────────────────
             $table->index(['consultation_id', 'sort_order'], 'idx_csd_consultation_order');
-            $table->index('sis_diagnosis_id',                'idx_csd_sis_diagnosis');
-            $table->index('diagnosis_type',                  'idx_csd_diagnosis_type');
+            $table->index('sis_diagnosis_id', 'idx_csd_sis_diagnosis');
+            $table->index('diagnosis_type', 'idx_csd_diagnosis_type');
 
             $table->timestamps();
         });

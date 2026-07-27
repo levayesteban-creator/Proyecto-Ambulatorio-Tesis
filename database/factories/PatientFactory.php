@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
-use App\Models\Patient;
-use App\Models\MaritalStatus;
 use App\Models\Ethnicity;
 use App\Models\InstructionLevel;
+use App\Models\MaritalStatus;
 use App\Models\Occupation;
+use App\Models\Patient;
 use App\Models\Religion;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

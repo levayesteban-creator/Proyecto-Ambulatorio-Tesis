@@ -33,25 +33,25 @@ class PatientObserver
     {
         $user = Auth::user();
         $changes = $patient->getDirty();
-        
+
         // Filtrar cambios sensibles para logging
         $sensitiveChanges = [];
         foreach ($changes as $field => $newValue) {
             $oldValue = $patient->getOriginal($field);
-            
+
             // No loggear timestamps que cambian automáticamente
             if (in_array($field, ['updated_at', 'created_at'])) {
                 continue;
             }
-            
+
             // Loggear el cambio
             $sensitiveChanges[$field] = [
                 'old' => $oldValue,
                 'new' => $newValue,
             ];
         }
-        
-        if (!empty($sensitiveChanges)) {
+
+        if (! empty($sensitiveChanges)) {
             Log::channel('audit')->info('Patient updated', [
                 'patient_id' => $patient->id,
                 'patient_name' => $patient->full_name,

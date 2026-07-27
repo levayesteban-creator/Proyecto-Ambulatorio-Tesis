@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -26,9 +27,9 @@ class RoleSeeder extends Seeder
         $adminPassword = env('ADMIN_PASSWORD', 'cambiar123');
         $adminName = env('ADMIN_NAME', 'Administrador');
 
-        $admin = \App\Models\User::where('email', $adminEmail)->first();
-        if (!$admin) {
-            \App\Models\User::create([
+        $admin = User::where('email', $adminEmail)->first();
+        if (! $admin) {
+            User::create([
                 'name' => $adminName,
                 'email' => $adminEmail,
                 'password' => bcrypt($adminPassword),
@@ -38,7 +39,7 @@ class RoleSeeder extends Seeder
         }
 
         // Asignar cédula al admin si no tiene
-        if ($admin && !$admin->id_number) {
+        if ($admin && ! $admin->id_number) {
             $admin->update(['id_number' => '12345678', 'phone' => '0412-0000000']);
         }
     }

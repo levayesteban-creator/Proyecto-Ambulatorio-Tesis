@@ -2,9 +2,9 @@
 
 namespace App\Observers;
 
+use App\Models\AuditLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Request;
-use App\Models\AuditLog;
 
 class AuditObserver
 {
@@ -48,10 +48,10 @@ class AuditObserver
     private function log(string $action, $model, ?array $oldValues, ?array $newValues): void
     {
         AuditLog::create([
-            'user_id'    => Auth::id(),
-            'action'     => $action,
+            'user_id' => Auth::id(),
+            'action' => $action,
             'model_type' => get_class($model),
-            'model_id'   => $model->id,
+            'model_id' => $model->id,
             'old_values' => $oldValues,
             'new_values' => $newValues,
             'ip_address' => Request::ip(),

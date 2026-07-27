@@ -15,7 +15,7 @@ class TwoFactorController extends Controller
 {
     public function challenge(): Response|RedirectResponse
     {
-        if (!session()->has('2fa_user_id')) {
+        if (! session()->has('2fa_user_id')) {
             return redirect()->route('login');
         }
 
@@ -31,12 +31,12 @@ class TwoFactorController extends Controller
         ]);
 
         $userId = session('2fa_user_id');
-        if (!$userId) {
+        if (! $userId) {
             return redirect()->route('login');
         }
 
         $cached = cache("2fa_user_{$userId}");
-        if (!$cached || $cached !== $request->code) {
+        if (! $cached || $cached !== $request->code) {
             return back()->withErrors([
                 'code' => 'El código ingresado es inválido o ha expirado.',
             ]);

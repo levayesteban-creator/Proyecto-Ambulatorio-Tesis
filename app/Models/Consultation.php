@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Consultation extends Model
 {
@@ -54,12 +53,12 @@ class Consultation extends Model
     ];
 
     protected $casts = [
-        'is_healthy'         => 'boolean',
-        'temperature'        => 'decimal:1',
-        'oxygen_saturation'  => 'decimal:1',
-        'weight'             => 'decimal:2',
-        'height'             => 'decimal:2',
-        'consultation_date'  => 'datetime',
+        'is_healthy' => 'boolean',
+        'temperature' => 'decimal:1',
+        'oxygen_saturation' => 'decimal:1',
+        'weight' => 'decimal:2',
+        'height' => 'decimal:2',
+        'consultation_date' => 'datetime',
     ];
 
     // ─────────────────────────────────────────────────────────────────────
@@ -110,7 +109,7 @@ class Consultation extends Model
     public function sisDiagnoses(): HasMany
     {
         return $this->hasMany(ConsultationDiagnosis::class, 'consultation_id')
-                    ->orderBy('sort_order');
+            ->orderBy('sort_order');
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -129,7 +128,7 @@ class Consultation extends Model
     public function scopeForMonth($query, int $year, int $month)
     {
         return $query->whereYear('consultation_date', $year)
-                     ->whereMonth('consultation_date', $month);
+            ->whereMonth('consultation_date', $month);
     }
 
     public function serviceTypeLabel(): string

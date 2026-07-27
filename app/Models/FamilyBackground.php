@@ -37,14 +37,14 @@ class FamilyBackground extends Model
      * y los deserializa a arrays nativos cuando los recuperas para Inertia/Vue.
      */
     protected $casts = [
-        'mother'               => 'array',
-        'father'               => 'array',
+        'mother' => 'array',
+        'father' => 'array',
         'grandmother_maternal' => 'array',
         'grandfather_maternal' => 'array',
         'grandmother_paternal' => 'array',
         'grandfather_paternal' => 'array',
-        'siblings'             => 'array',
-        'children'             => 'array',
+        'siblings' => 'array',
+        'children' => 'array',
     ];
 
     /**

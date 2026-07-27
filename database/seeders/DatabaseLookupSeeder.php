@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\Religion;
-use App\Models\InstructionLevel;
-use App\Models\Occupation;
-use App\Models\MaritalStatus;
 use App\Models\Ethnicity;
+use App\Models\InstructionLevel;
+use App\Models\MaritalStatus;
+use App\Models\Occupation;
+use App\Models\Religion;
+use Illuminate\Database\Seeder;
 
 class DatabaseLookupSeeder extends Seeder
 {
@@ -30,7 +30,7 @@ class DatabaseLookupSeeder extends Seeder
             4 => 'Técnico medio',
             5 => 'Educación especial',
             6 => 'Universitaria',
-            7 => 'Ninguno'
+            7 => 'Ninguno',
         ];
         foreach ($niveles as $code => $name) {
             InstructionLevel::firstOrCreate(
@@ -50,7 +50,7 @@ class DatabaseLookupSeeder extends Seeder
             31 => 'Sáliva', 32 => 'Sanemá [Sanuma]', 33 => 'Sape', 34 => 'Timoto Cuicas', 35 => 'Tomusa',
             36 => 'Uruak [Arutani]', 37 => 'Warao', 38 => 'Warekena', 39 => 'Wayúu [Guajiro]', 40 => 'Yabarana',
             41 => 'Yanomami [Shiriana, Guaica, Waika]', 42 => 'Yek’uana [Makiritare]', 43 => 'Yeral [Flengatu]', 44 => 'Yukpa',
-            45 => 'Blanco o criollo', 46 => 'Afrodescendiente', 47 => 'Mestizo', 48 => 'Otros'
+            45 => 'Blanco o criollo', 46 => 'Afrodescendiente', 47 => 'Mestizo', 48 => 'Otros',
         ];
         foreach ($etnias as $code => $name) {
             Ethnicity::firstOrCreate(

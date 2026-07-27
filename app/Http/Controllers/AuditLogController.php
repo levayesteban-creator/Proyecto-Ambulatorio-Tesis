@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuditLog;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -40,10 +41,9 @@ class AuditLogController extends Controller
         $logs = $query->latest()->paginate(30)->withQueryString();
 
         return Inertia::render('AuditLogs/Index', [
-            'logs'      => $logs,
-            'filters'   => $request->only(['user_id', 'action', 'model_type', 'date_from', 'date_to']),
-            'users'     => \App\Models\User::select('id', 'name')->orderBy('name')->get(),
+            'logs' => $logs,
+            'filters' => $request->only(['user_id', 'action', 'model_type', 'date_from', 'date_to']),
+            'users' => User::select('id', 'name')->orderBy('name')->get(),
         ]);
     }
-
 }

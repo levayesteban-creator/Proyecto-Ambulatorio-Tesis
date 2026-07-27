@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Policies;
 
 use App\Models\Consultation;
-use App\Models\Patient;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
@@ -63,7 +62,7 @@ class ConsultationPolicy
 
     public function update(User $user, Consultation $consultation): Response
     {
-        if (!$this->isMedicalStaff($user)) {
+        if (! $this->isMedicalStaff($user)) {
             return Response::deny('No tiene permiso para editar consultas.');
         }
 
@@ -76,7 +75,7 @@ class ConsultationPolicy
 
     public function delete(User $user, Consultation $consultation): Response
     {
-        if (!$this->isAdmin($user) && !$this->isCoordinator($user)) {
+        if (! $this->isAdmin($user) && ! $this->isCoordinator($user)) {
             return Response::deny('Solo administradores y médicos coordinadores pueden eliminar consultas.');
         }
 

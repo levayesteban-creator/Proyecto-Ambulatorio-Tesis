@@ -35,25 +35,25 @@ class ConsultationObserver
     {
         $user = Auth::user();
         $changes = $consultation->getDirty();
-        
+
         // Filtrar cambios sensibles para logging
         $sensitiveChanges = [];
         foreach ($changes as $field => $newValue) {
             $oldValue = $consultation->getOriginal($field);
-            
+
             // No loggear timestamps que cambian automáticamente
             if (in_array($field, ['updated_at', 'created_at'])) {
                 continue;
             }
-            
+
             // Loggear el cambio
             $sensitiveChanges[$field] = [
                 'old' => $oldValue,
                 'new' => $newValue,
             ];
         }
-        
-        if (!empty($sensitiveChanges)) {
+
+        if (! empty($sensitiveChanges)) {
             Log::channel('audit')->info('Consultation updated', [
                 'consultation_id' => $consultation->id,
                 'patient_id' => $consultation->patient_id,

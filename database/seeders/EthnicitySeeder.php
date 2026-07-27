@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Ethnicity;
+use Illuminate\Database\Seeder;
 
 class EthnicitySeeder extends Seeder
 {
@@ -19,12 +19,12 @@ class EthnicitySeeder extends Seeder
             'Mako', 'Mapoyo', 'Pemón', 'Piapoco', 'Piaroa', 'Puinave', 'Pumé', 'Putumayo',
             'Sáliva', 'Sanemá', 'Sape', 'Timoto Cuicas', 'Tomusa', 'Uruak', 'Warao',
             'Warekena', 'Wayúu [Guajiro]', 'Yabarana', 'Yanomami', 'Yek’uana', 'Yeral',
-            'Yukpa', 'Blanco o criollo', 'Afrodescendiente', 'Mestizo', 'Otros'
+            'Yukpa', 'Blanco o criollo', 'Afrodescendiente', 'Mestizo', 'Otros',
         ];
 
         foreach ($etnias as $index => $etnia) {
             // Autogenera un código secuencial (ET-01, ET-02...) para evitar fallos si la columna 'code' es exigida por la migración
-            $code = 'ET-' . str_pad($index + 1, 2, '0', STR_PAD_LEFT);
+            $code = 'ET-'.str_pad($index + 1, 2, '0', STR_PAD_LEFT);
 
             Ethnicity::firstOrCreate(
                 ['name' => $etnia],

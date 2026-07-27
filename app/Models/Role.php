@@ -11,8 +11,11 @@ class Role extends Model
     use HasFactory;
 
     const ADMIN = 1;
+
     const COORDINATOR = 2;
+
     const DOCTOR = 3;
+
     const NURSE = 4;
 
     protected $fillable = ['name', 'descripcion'];

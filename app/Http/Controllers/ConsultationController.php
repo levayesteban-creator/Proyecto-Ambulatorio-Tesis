@@ -2,21 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Consultation;
-use App\Models\Patient;
-use App\Models\SisDiagnosis;
-use App\Models\MedicalConduct;
 use App\Http\Requests\StoreConsultationRequest;
 use App\Http\Requests\UpdateConsultationRequest;
+use App\Models\Consultation;
+use App\Models\MedicalConduct;
+use App\Models\Patient;
+use App\Models\SisDiagnosis;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
-
 use Inertia\Inertia;
 use Inertia\Response;
-use Carbon\Carbon;
 
 class ConsultationController extends Controller
 {
@@ -34,10 +33,10 @@ class ConsultationController extends Controller
         }
 
         return Inertia::render('Consultations/Create', [
-            'patient'          => $patient->load('occupation'),
-            'age_at_moment'    => Carbon::parse($patient->birth_date)->age,
+            'patient' => $patient->load('occupation'),
+            'age_at_moment' => Carbon::parse($patient->birth_date)->age,
             'diagnosesCatalog' => SisDiagnosis::select('id', 'code', 'name')->orderByRaw('ISNULL(code), code ASC')->get(),
-            'medicalConducts'  => MedicalConduct::select('id', 'name')->orderBy('name')->get(),
+            'medicalConducts' => MedicalConduct::select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -45,7 +44,7 @@ class ConsultationController extends Controller
      * Listado global de consultas con búsqueda y filtros.
      * GET /consultations
      */
-    public function index(): \Inertia\Response
+    public function index(): Response
     {
         $query = Consultation::with([
             'patient:id,full_name,id_number',
@@ -54,7 +53,7 @@ class ConsultationController extends Controller
         ])->orderBy('consultation_date', 'desc');
 
         if ($search = request('search')) {
-            $query->whereHas('patient', fn($q) => $q->where('id_number', 'like', "%$search%")->orWhere('full_name', 'like', "%$search%"));
+            $query->whereHas('patient', fn ($q) => $q->where('id_number', 'like', "%$search%")->orWhere('full_name', 'like', "%$search%"));
         }
 
         if ($dateFrom = request('date_from')) {
@@ -73,7 +72,7 @@ class ConsultationController extends Controller
             $query->where('is_healthy', request('is_healthy'));
         }
 
-        return \Inertia\Inertia::render('Consultations/Index', [
+        return Inertia::render('Consultations/Index', [
             'consultations' => $query->paginate(20)->withQueryString(),
             'filters' => request()->only(['search', 'date_from', 'date_to', 'consultation_type', 'is_healthy']),
         ]);
@@ -98,41 +97,41 @@ class ConsultationController extends Controller
 
             // ── 1. Registro principal + signos vitales ────────────────────
             $consultation = $patient->consultations()->create([
-                'user_id'                 => Auth::id(),
-                'age_at_moment'           => Carbon::parse($patient->birth_date)->age,
-                'address_at_moment'       => $patient->current_address,
-                'phone_at_moment'         => $patient->phone,
-                'occupation_id'           => $patient->occupation_id,
-                'consultation_type'       => $validated['consultation_type'],
-                'service_type'            => $validated['service_type'] ?? 'MG',
-                'is_healthy'              => $validated['is_healthy'],
-                'consultation_date'       => ! empty($validated['attended_at'])
+                'user_id' => Auth::id(),
+                'age_at_moment' => Carbon::parse($patient->birth_date)->age,
+                'address_at_moment' => $patient->current_address,
+                'phone_at_moment' => $patient->phone,
+                'occupation_id' => $patient->occupation_id,
+                'consultation_type' => $validated['consultation_type'],
+                'service_type' => $validated['service_type'] ?? 'MG',
+                'is_healthy' => $validated['is_healthy'],
+                'consultation_date' => ! empty($validated['attended_at'])
                     ? Carbon::parse($validated['attended_at'])
                     : now(),
                 'reason_for_consultation' => $validated['reason_for_consultation'] ?? '',
-                'current_illness'         => $validated['current_illness'] ?? '',
-                'treatment_plan'          => $validated['treatment_plan'] ?? null,
+                'current_illness' => $validated['current_illness'] ?? '',
+                'treatment_plan' => $validated['treatment_plan'] ?? null,
                 // Signos vitales — todos nullable
-                'blood_pressure'          => $validated['blood_pressure'] ?? null,
-                'temperature'             => $validated['temperature'] ?? null,
-                'temperature_route'       => $validated['temperature_route'] ?? null,
-                'heart_rate'              => $validated['heart_rate'] ?? null,
-                'respiratory_rate'        => $validated['respiratory_rate'] ?? null,
-                'oxygen_saturation'       => $validated['oxygen_saturation'] ?? null,
-                'weight'                  => $validated['weight'] ?? null,
-                'height'                  => $validated['height'] ?? null,
-                'physical_examination'    => $validated['physical_examination'] ?? null,
-                'complementary_studies'   => $validated['complementary_studies'] ?? null,
-                'epicrisis'               => $validated['epicrisis'] ?? null,
+                'blood_pressure' => $validated['blood_pressure'] ?? null,
+                'temperature' => $validated['temperature'] ?? null,
+                'temperature_route' => $validated['temperature_route'] ?? null,
+                'heart_rate' => $validated['heart_rate'] ?? null,
+                'respiratory_rate' => $validated['respiratory_rate'] ?? null,
+                'oxygen_saturation' => $validated['oxygen_saturation'] ?? null,
+                'weight' => $validated['weight'] ?? null,
+                'height' => $validated['height'] ?? null,
+                'physical_examination' => $validated['physical_examination'] ?? null,
+                'complementary_studies' => $validated['complementary_studies'] ?? null,
+                'epicrisis' => $validated['epicrisis'] ?? null,
             ]);
 
             // ── 2. Examen Funcional por Aparatos y Sistemas ───────────────
-            if (!empty($validated['functional_exam'])) {
+            if (! empty($validated['functional_exam'])) {
                 $consultation->functionalExam()->create($validated['functional_exam']);
             }
 
             // ── 3. Examen Físico Estructurado (17 secciones JSON) ─────────
-            if (!empty($validated['physical_exam'])) {
+            if (! empty($validated['physical_exam'])) {
                 $consultation->physicalExam()->create(
                     array_merge(
                         $validated['physical_exam'],
@@ -142,7 +141,7 @@ class ConsultationController extends Controller
             }
 
             // ── 4. Referencias / Contra-referencias (opcional) ────────────
-            if (!empty($validated['referrals'])) {
+            if (! empty($validated['referrals'])) {
                 $consultation->referrals()->createMany($validated['referrals']);
             }
 
@@ -162,10 +161,10 @@ class ConsultationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error al guardar consulta: ' . $e->getMessage(), [
+            Log::error('Error al guardar consulta: '.$e->getMessage(), [
                 'patient_id' => $patient->id,
-                'user_id'    => Auth::id(),
-                'trace'      => $e->getTraceAsString(),
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()->withErrors([
@@ -203,7 +202,7 @@ class ConsultationController extends Controller
             ->withQueryString();
 
         return Inertia::render('Consultations/History', [
-            'patient'       => $patient,
+            'patient' => $patient,
             'consultations' => $consultations,
         ]);
     }
@@ -271,12 +270,12 @@ class ConsultationController extends Controller
         ]);
 
         return Inertia::render('Consultations/Create', [
-            'patient'          => $patient->load('occupation'),
-            'consultation'     => $consultation,
-            'mode'             => 'edit',
-            'age_at_moment'    => Carbon::parse($patient->birth_date)->age,
+            'patient' => $patient->load('occupation'),
+            'consultation' => $consultation,
+            'mode' => 'edit',
+            'age_at_moment' => Carbon::parse($patient->birth_date)->age,
             'diagnosesCatalog' => SisDiagnosis::select('id', 'code', 'name')->orderByRaw('ISNULL(code), code ASC')->get(),
-            'medicalConducts'  => MedicalConduct::select('id', 'name')->orderBy('name')->get(),
+            'medicalConducts' => MedicalConduct::select('id', 'name')->orderBy('name')->get(),
         ]);
     }
 
@@ -298,24 +297,24 @@ class ConsultationController extends Controller
             // ── 1. Actualizar registro principal ────────────────────────
             $consultation->update([
                 'reason_for_consultation' => $validated['reason_for_consultation'],
-                'current_illness'         => $validated['current_illness'],
-                'consultation_type'       => $validated['consultation_type'],
-                'service_type'            => $validated['service_type'] ?? 'MG',
-                'is_healthy'              => $validated['is_healthy'],
-                'treatment_plan'          => $validated['treatment_plan'] ?? null,
-                'blood_pressure'          => $validated['blood_pressure'] ?? null,
-                'temperature'             => $validated['temperature'] ?? null,
-                'temperature_route'       => $validated['temperature_route'] ?? null,
-                'heart_rate'              => $validated['heart_rate'] ?? null,
-                'respiratory_rate'        => $validated['respiratory_rate'] ?? null,
-                'oxygen_saturation'       => $validated['oxygen_saturation'] ?? null,
-                'weight'                  => $validated['weight'] ?? null,
-                'height'                  => $validated['height'] ?? null,
-                'physical_examination'    => $validated['physical_examination'] ?? null,
-                'complementary_studies'   => $validated['complementary_studies'] ?? null,
-                'epicrisis'               => $validated['epicrisis'] ?? null,
-                'edit_justification'      => $validated['edit_justification'] ?? null,
-                'consultation_date'       => $validated['consultation_date'] ?? $consultation->consultation_date,
+                'current_illness' => $validated['current_illness'],
+                'consultation_type' => $validated['consultation_type'],
+                'service_type' => $validated['service_type'] ?? 'MG',
+                'is_healthy' => $validated['is_healthy'],
+                'treatment_plan' => $validated['treatment_plan'] ?? null,
+                'blood_pressure' => $validated['blood_pressure'] ?? null,
+                'temperature' => $validated['temperature'] ?? null,
+                'temperature_route' => $validated['temperature_route'] ?? null,
+                'heart_rate' => $validated['heart_rate'] ?? null,
+                'respiratory_rate' => $validated['respiratory_rate'] ?? null,
+                'oxygen_saturation' => $validated['oxygen_saturation'] ?? null,
+                'weight' => $validated['weight'] ?? null,
+                'height' => $validated['height'] ?? null,
+                'physical_examination' => $validated['physical_examination'] ?? null,
+                'complementary_studies' => $validated['complementary_studies'] ?? null,
+                'epicrisis' => $validated['epicrisis'] ?? null,
+                'edit_justification' => $validated['edit_justification'] ?? null,
+                'consultation_date' => $validated['consultation_date'] ?? $consultation->consultation_date,
             ]);
 
             // ── 2. Actualizar examen funcional ─────────────────────────
@@ -326,7 +325,7 @@ class ConsultationController extends Controller
             }
 
             // ── 3. Actualizar examen físico ────────────────────────────
-            if (!empty($validated['physical_exam'])) {
+            if (! empty($validated['physical_exam'])) {
                 if ($consultation->physicalExam()->exists()) {
                     $consultation->physicalExam()->update($validated['physical_exam']);
                 } else {
@@ -341,7 +340,7 @@ class ConsultationController extends Controller
 
             // ── 4. Actualizar referencias (borrar y recrear) ────────────
             $consultation->referrals()->delete();
-            if (!empty($validated['referrals'])) {
+            if (! empty($validated['referrals'])) {
                 $consultation->referrals()->createMany($validated['referrals']);
             }
 
@@ -359,11 +358,11 @@ class ConsultationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error actualizando consulta: ' . $e->getMessage(), [
+            Log::error('Error actualizando consulta: '.$e->getMessage(), [
                 'consultation_id' => $consultation->id,
-                'patient_id'      => $patient->id,
-                'user_id'         => Auth::id(),
-                'trace'           => $e->getTraceAsString(),
+                'patient_id' => $patient->id,
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return back()->withErrors([
@@ -402,14 +401,14 @@ class ConsultationController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error eliminando consulta: ' . $e->getMessage(), [
+            Log::error('Error eliminando consulta: '.$e->getMessage(), [
                 'consultation_id' => $consultation->id,
-                'patient_id'      => $patient->id,
-                'user_id'         => Auth::id(),
+                'patient_id' => $patient->id,
+                'user_id' => Auth::id(),
             ]);
 
             return back()->withErrors([
-                'error' => 'No se pudo eliminar la consulta: ' . $e->getMessage(),
+                'error' => 'No se pudo eliminar la consulta: '.$e->getMessage(),
             ]);
         }
     }

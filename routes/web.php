@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\PatientController;
-use App\Http\Controllers\ConsultationController;
-use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuditLogController;
+use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\ExportController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -21,6 +21,7 @@ Route::get('/dashboard', function () {
     if ($user->must_change_password) {
         return redirect()->route('password.force-change');
     }
+
     return Inertia::render('Dashboard', [
         'user' => [
             'id' => $user->id,
@@ -67,7 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Manual de Respaldo y Recuperación
     Route::get('/help/backup', function () {
-        return \Inertia\Inertia::render('HelpBackup');
+        return Inertia::render('HelpBackup');
     })->name('help.backup');
 
     // Gestión de Pacientes
@@ -116,10 +117,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Cambio obligatorio de contraseña (primer inicio)
     Route::get('/force-password-change', function () {
         $user = auth()->user();
-        if (!$user || !$user->must_change_password) {
+        if (! $user || ! $user->must_change_password) {
             return redirect('/dashboard');
         }
-        return \Inertia\Inertia::render('Auth/ForcePasswordChange');
+
+        return Inertia::render('Auth/ForcePasswordChange');
     })->name('password.force-change');
 
     Route::post('/force-password-change', [ProfileController::class, 'forcePasswordChange'])->name('password.force-change.update');
@@ -127,13 +129,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // --- Administración de Usuarios (solo Admin y Médico Coordinador) ---
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
-    Route::get('/users/create', [App\Http\Controllers\Admin\UserController::class, 'create'])->name('users.create');
-    Route::post('/users', [App\Http\Controllers\Admin\UserController::class, 'store'])->name('users.store');
-    Route::get('/users/{user}/edit', [App\Http\Controllers\Admin\UserController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'update'])->name('users.update');
-    Route::put('/users/{user}/reset-password', [App\Http\Controllers\Admin\UserController::class, 'resetPassword'])->name('users.reset-password');
-    Route::delete('/users/{user}', [App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::put('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.reset-password');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
 });
 
 require __DIR__.'/auth.php';

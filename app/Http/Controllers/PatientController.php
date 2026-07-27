@@ -4,26 +4,27 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Models\Patient;
-use App\Models\PatientBackground;
-use App\Models\FamilyBackground;
-use App\Models\PsychobiologicalHabit;
-use App\Models\Religion;
-use App\Models\Occupation;
-use App\Models\InstructionLevel;
-use App\Models\MaritalStatus;
-use App\Models\Ethnicity;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Inertia\Inertia;
-use Inertia\Response;
+use App\Models\Ethnicity;
+use App\Models\FamilyBackground;
+use App\Models\InstructionLevel;
+use App\Models\MaritalStatus;
+use App\Models\Occupation;
+use App\Models\Patient;
+use App\Models\PatientBackground;
+use App\Models\PsychobiologicalHabit;
+use App\Models\Religion;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class PatientController extends Controller
 {
@@ -32,15 +33,15 @@ class PatientController extends Controller
         $patients = Patient::query()
             ->when($request->search, function ($query, $search) {
                 $query->where('full_name', 'like', "%{$search}%")
-                      ->orWhere('id_number', 'like', "%{$search}%");
+                    ->orWhere('id_number', 'like', "%{$search}%");
             })
-            ->when($request->gender, fn($q, $v) => $q->where('gender', $v))
-            ->when($request->status === 'open', fn($q) => $q->whereNull('closed_at'))
-            ->when($request->status === 'closed', fn($q) => $q->whereNotNull('closed_at'))
-            ->when($request->age_min, fn($q, $v) => $q->whereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) >= ?', [$v]))
-            ->when($request->age_max, fn($q, $v) => $q->whereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) <= ?', [$v]))
-            ->when($request->date_from, fn($q, $v) => $q->whereDate('created_at', '>=', $v))
-            ->when($request->date_to, fn($q, $v) => $q->whereDate('created_at', '<=', $v))
+            ->when($request->gender, fn ($q, $v) => $q->where('gender', $v))
+            ->when($request->status === 'open', fn ($q) => $q->whereNull('closed_at'))
+            ->when($request->status === 'closed', fn ($q) => $q->whereNotNull('closed_at'))
+            ->when($request->age_min, fn ($q, $v) => $q->whereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) >= ?', [$v]))
+            ->when($request->age_max, fn ($q, $v) => $q->whereRaw('TIMESTAMPDIFF(YEAR, birth_date, CURDATE()) <= ?', [$v]))
+            ->when($request->date_from, fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
+            ->when($request->date_to, fn ($q, $v) => $q->whereDate('created_at', '<=', $v))
             ->with([
                 'religion:id,name',
                 'occupation:id,name',
@@ -56,7 +57,7 @@ class PatientController extends Controller
 
         return Inertia::render('Patients/Index', [
             'patients' => $patients,
-            'filters'  => $request->only(['search', 'gender', 'status', 'age_min', 'age_max', 'date_from', 'date_to']),
+            'filters' => $request->only(['search', 'gender', 'status', 'age_min', 'age_max', 'date_from', 'date_to']),
             'auth' => [
                 'user' => [
                     'id' => $user->id,
@@ -116,12 +117,12 @@ class PatientController extends Controller
 
             Log::info('Paso 7: Redirigiendo a creación de consulta');
             Log::info('=== REGISTRO DE PACIENTE COMPLETADO EXITOSAMENTE ===');
-            
+
             return redirect()
                 ->route('consultations.create', $patient->id)
                 ->with('success', "Historia clínica de {$patient->full_name} registrada exitosamente.");
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             DB::rollBack();
             Log::error('ERROR: Validación fallida', [
                 'errors' => $e->errors(),
@@ -132,7 +133,7 @@ class PatientController extends Controller
                 ->withErrors($e->errors())
                 ->withInput();
 
-        } catch (\Illuminate\Database\QueryException $e) {
+        } catch (QueryException $e) {
             DB::rollBack();
             Log::error('ERROR: Base de datos falló', [
                 'message' => $e->getMessage(),
@@ -225,7 +226,7 @@ class PatientController extends Controller
         return Inertia::render('Patients/Create', [
             ...$this->formCatalogs(),
             'patient' => $patient,
-            'mode'    => 'edit',
+            'mode' => 'edit',
         ]);
     }
 
@@ -288,9 +289,9 @@ class PatientController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error actualizando expediente: ' . $e->getMessage(), [
+            Log::error('Error actualizando expediente: '.$e->getMessage(), [
                 'patient_id' => $patient->id,
-                'user_id'    => Auth::id(),
+                'user_id' => Auth::id(),
             ]);
 
             return back()
@@ -316,17 +317,17 @@ class PatientController extends Controller
             return back()->withErrors(['error' => 'No tiene permiso para editar datos de contacto.']);
         }
         $validated = $request->validate([
-            'phone_number'      => ['nullable', 'string', 'max:20', 'regex:/^[\d\s\+\-\(\)]+$/'],
-            'addr_state'        => ['required', 'string', 'max:100'],
+            'phone_number' => ['nullable', 'string', 'max:20', 'regex:/^[\d\s\+\-\(\)]+$/'],
+            'addr_state' => ['required', 'string', 'max:100'],
             'addr_municipality' => ['required', 'string', 'max:100'],
-            'addr_parish'       => ['required', 'string', 'max:100'],
-            'addr_locality'     => ['nullable', 'string', 'max:255'],
-            'addr_sector'       => ['required', 'string', 'max:255'],
-            'addr_street'       => ['nullable', 'string', 'max:255'],
+            'addr_parish' => ['required', 'string', 'max:100'],
+            'addr_locality' => ['nullable', 'string', 'max:255'],
+            'addr_sector' => ['required', 'string', 'max:255'],
+            'addr_street' => ['nullable', 'string', 'max:255'],
             'addr_house_number' => ['nullable', 'string', 'max:100'],
-            'addr_zip_code'     => ['nullable', 'string', 'max:20', 'regex:/^\d{4,10}$/'],
-            'addr_reference'    => ['nullable', 'string', 'max:255'],
-            'residence_time'    => ['nullable', 'string', 'max:100'],
+            'addr_zip_code' => ['nullable', 'string', 'max:20', 'regex:/^\d{4,10}$/'],
+            'addr_reference' => ['nullable', 'string', 'max:255'],
+            'residence_time' => ['nullable', 'string', 'max:100'],
         ]);
 
         $patient->update($validated);
@@ -342,15 +343,15 @@ class PatientController extends Controller
     private function formCatalogs(): array
     {
         return [
-            'maritalStatuses'   => MaritalStatus::select('id', 'name')->orderBy('name')->get(),
-            'ethnicities'       => Ethnicity::select('id', 'code', 'name')->orderBy('code')->get(),
+            'maritalStatuses' => MaritalStatus::select('id', 'name')->orderBy('name')->get(),
+            'ethnicities' => Ethnicity::select('id', 'code', 'name')->orderBy('code')->get(),
             'instructionLevels' => InstructionLevel::select('id', 'code', 'name')->orderBy('code')->get(),
-            'occupations'       => Occupation::select('id', 'name')->orderBy('name')->get(),
-            'religions'         => Religion::select('id', 'name')->orderBy('name')->get(),
-            'institution'       => 'Consultorio Popular Tipo III "El Chaparro"',
-            'userName'          => Auth::user()->name,
-            'mode'              => 'create',
-            'patient'           => null,
+            'occupations' => Occupation::select('id', 'name')->orderBy('name')->get(),
+            'religions' => Religion::select('id', 'name')->orderBy('name')->get(),
+            'institution' => 'Consultorio Popular Tipo III "El Chaparro"',
+            'userName' => Auth::user()->name,
+            'mode' => 'create',
+            'patient' => null,
         ];
     }
 
@@ -361,33 +362,33 @@ class PatientController extends Controller
     private function patientAttributes(array $data): array
     {
         return [
-            'full_name'            => $data['full_name'],
-            'id_number'            => $data['id_number'],
-            'nationality'          => $data['nationality'],
-            'nationality_country'  => $data['nationality_country'] ?? null,
-            'gender'               => $data['gender'],
-            'birth_date'           => $data['birth_date'],
-            'birth_place'          => $data['birth_place'],
-            'marital_status_id'    => $data['marital_status_id'],
-            'ethnicity_id'         => $data['ethnicity_id'],
+            'full_name' => $data['full_name'],
+            'id_number' => $data['id_number'],
+            'nationality' => $data['nationality'],
+            'nationality_country' => $data['nationality_country'] ?? null,
+            'gender' => $data['gender'],
+            'birth_date' => $data['birth_date'],
+            'birth_place' => $data['birth_place'],
+            'marital_status_id' => $data['marital_status_id'],
+            'ethnicity_id' => $data['ethnicity_id'],
             'instruction_level_id' => $data['instruction_level_id'],
-            'occupation_id'        => $data['occupation_id'],
-            'occupation_detail'    => $data['occupation_detail'] ?? null,
-            'religion_id'          => $data['religion_id'],
-            'religion_detail'      => $data['religion_detail'] ?? null,
-            'blood_type'           => $data['knows_blood_type'] ? $data['blood_type'] : 'Desconoce',
-            'rh_factor'            => $data['knows_blood_type'] ? $data['rh_factor'] : null,
-            'phone_number'         => $data['phone_number'],
-            'addr_state'           => $data['addr_state'],
-            'addr_municipality'    => $data['addr_municipality'],
-            'addr_parish'          => $data['addr_parish'],
-            'addr_locality'        => $data['addr_locality'] ?? null,
-            'addr_sector'          => $data['addr_sector'] ?? null,
-            'addr_street'          => $data['addr_street'] ?? null,
-            'addr_house_number'    => $data['addr_house_number'] ?? null,
-            'addr_zip_code'        => $data['addr_zip_code'] ?? null,
-            'addr_reference'       => $data['addr_reference'] ?? null,
-            'residence_time'       => $data['residence_time'] ?? null,
+            'occupation_id' => $data['occupation_id'],
+            'occupation_detail' => $data['occupation_detail'] ?? null,
+            'religion_id' => $data['religion_id'],
+            'religion_detail' => $data['religion_detail'] ?? null,
+            'blood_type' => $data['knows_blood_type'] ? $data['blood_type'] : 'Desconoce',
+            'rh_factor' => $data['knows_blood_type'] ? $data['rh_factor'] : null,
+            'phone_number' => $data['phone_number'],
+            'addr_state' => $data['addr_state'],
+            'addr_municipality' => $data['addr_municipality'],
+            'addr_parish' => $data['addr_parish'],
+            'addr_locality' => $data['addr_locality'] ?? null,
+            'addr_sector' => $data['addr_sector'] ?? null,
+            'addr_street' => $data['addr_street'] ?? null,
+            'addr_house_number' => $data['addr_house_number'] ?? null,
+            'addr_zip_code' => $data['addr_zip_code'] ?? null,
+            'addr_reference' => $data['addr_reference'] ?? null,
+            'residence_time' => $data['residence_time'] ?? null,
         ];
     }
 
@@ -396,7 +397,7 @@ class PatientController extends Controller
      */
     private function syncClinicalRecords(Patient $patient, array $data): void
     {
-        if (!empty($data['background'])) {
+        if (! empty($data['background'])) {
             Log::info('Sincronizando patient background');
             $bgPayload = collect($data['background'])
                 ->only((new PatientBackground)->getFillable())
@@ -407,7 +408,7 @@ class PatientController extends Controller
             Log::info('Patient background sincronizado');
         }
 
-        if (!empty($data['family_background'])) {
+        if (! empty($data['family_background'])) {
             Log::info('Sincronizando family background');
             $fbPayload = collect($data['family_background'])
                 ->only((new FamilyBackground)->getFillable())
@@ -418,7 +419,7 @@ class PatientController extends Controller
             Log::info('Family background sincronizado');
         }
 
-        if (!empty($data['habits'])) {
+        if (! empty($data['habits'])) {
             Log::info('Sincronizando psychobiological habits');
             $habitsPayload = collect($data['habits'])
                 ->only((new PsychobiologicalHabit)->getFillable())
@@ -437,15 +438,15 @@ class PatientController extends Controller
             $patient->extraBackgrounds()->delete();
 
             foreach ($data['extra_backgrounds'] as $extra) {
-                if (!empty($extra['disease_name'])) {
+                if (! empty($extra['disease_name'])) {
                     $patient->extraBackgrounds()->create([
-                        'category'      => $extra['category'] ?? 'pathological',
-                        'disease_name'  => $extra['disease_name'],
-                        'onset_value'   => $extra['onset_value'] ?? null,
-                        'onset_unit'    => $extra['onset_unit'] ?? 'años',
-                        'treatment'     => $extra['treatment'] ?? null,
+                        'category' => $extra['category'] ?? 'pathological',
+                        'disease_name' => $extra['disease_name'],
+                        'onset_value' => $extra['onset_value'] ?? null,
+                        'onset_unit' => $extra['onset_unit'] ?? 'años',
+                        'treatment' => $extra['treatment'] ?? null,
                         'complications' => $extra['complications'] ?? null,
-                        'description'   => $extra['description'] ?? null,
+                        'description' => $extra['description'] ?? null,
                     ]);
                 }
             }
@@ -464,7 +465,7 @@ class PatientController extends Controller
 
             return back()->with('success', "Historia clínica de {$patient->full_name} movida a papelera.");
         } catch (\Exception $e) {
-            Log::error('Error eliminando paciente: ' . $e->getMessage(), [
+            Log::error('Error eliminando paciente: '.$e->getMessage(), [
                 'patient_id' => $patient->id,
                 'user_id' => Auth::id(),
             ]);
@@ -486,7 +487,7 @@ class PatientController extends Controller
 
             return back()->with('success', "Historia clínica de {$patient->full_name} restaurada exitosamente.");
         } catch (\Exception $e) {
-            Log::error('Error restaurando paciente: ' . $e->getMessage(), [
+            Log::error('Error restaurando paciente: '.$e->getMessage(), [
                 'patient_id' => $id,
                 'user_id' => Auth::id(),
             ]);
@@ -508,7 +509,7 @@ class PatientController extends Controller
 
             return redirect()->route('patients.index')->with('success', "Historia clínica de {$patient->full_name} eliminada permanentemente.");
         } catch (\Exception $e) {
-            Log::error('Error eliminando permanentemente paciente: ' . $e->getMessage(), [
+            Log::error('Error eliminando permanentemente paciente: '.$e->getMessage(), [
                 'patient_id' => $id,
                 'user_id' => Auth::id(),
             ]);
@@ -528,7 +529,7 @@ class PatientController extends Controller
         $patients = Patient::onlyTrashed()
             ->when($request->search, function ($query, $search) {
                 $query->where('full_name', 'like', "%{$search}%")
-                      ->orWhere('id_number', 'like', "%{$search}%");
+                    ->orWhere('id_number', 'like', "%{$search}%");
             })
             ->with([
                 'religion:id,name',
@@ -543,7 +544,7 @@ class PatientController extends Controller
 
         return Inertia::render('Patients/Trashed', [
             'patients' => $patients,
-            'filters'  => $request->only(['search']),
+            'filters' => $request->only(['search']),
             'auth' => [
                 'user' => [
                     'id' => $user->id,

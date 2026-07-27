@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Role;
-use App\Models\Patient;
-use App\Models\MaritalStatus;
 use App\Models\Ethnicity;
 use App\Models\InstructionLevel;
-use App\Models\Occupation;
-use App\Models\Religion;
-use App\Models\SisDiagnosis;
+use App\Models\MaritalStatus;
 use App\Models\MedicalConduct;
+use App\Models\Occupation;
+use App\Models\Patient;
+use App\Models\Religion;
+use App\Models\Role;
+use App\Models\SisDiagnosis;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
@@ -156,7 +156,7 @@ class ReportControllerTest extends TestCase
     {
         $this->markTestSkipped(
             'ReportController usa relaciones (consultationDiagnoses) que no existen en el modelo Consultation. '
-            . 'Requiere refactor previo del ReportController.'
+            .'Requiere refactor previo del ReportController.'
         );
     }
 }

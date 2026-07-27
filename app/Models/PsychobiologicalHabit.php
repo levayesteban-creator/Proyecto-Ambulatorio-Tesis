@@ -44,17 +44,17 @@ class PsychobiologicalHabit extends Model
      * El frontend recibe objetos JavaScript nativos sin conversión adicional.
      */
     protected $casts = [
-        'alcohol'          => 'array',
-        'tobacco'          => 'array',
-        'coffee'           => 'array',
-        'drugs'            => 'array',
-        'physical_activity'=> 'array',
-        'sleep'            => 'array',
-        'nutrition'        => 'array',
-        'sexual_habits'    => 'array',
+        'alcohol' => 'array',
+        'tobacco' => 'array',
+        'coffee' => 'array',
+        'drugs' => 'array',
+        'physical_activity' => 'array',
+        'sleep' => 'array',
+        'nutrition' => 'array',
+        'sexual_habits' => 'array',
         'gastrointestinal' => 'array',
-        'genitourinary'    => 'array',
-        'housing'          => 'array',
+        'genitourinary' => 'array',
+        'housing' => 'array',
     ];
 
     public function patient(): BelongsTo

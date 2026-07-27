@@ -14,10 +14,10 @@ return new class extends Migration
             $table->text('therapeutic_plan')->nullable()->after('diagnosis');
 
             // Opcional: Si quieres asegurar que respiratory_rate y height existan (ya que en tu código original no estaban)
-            if (!Schema::hasColumn('consultations', 'respiratory_rate')) {
+            if (! Schema::hasColumn('consultations', 'respiratory_rate')) {
                 $table->integer('respiratory_rate')->nullable()->after('heart_rate');
             }
-            if (!Schema::hasColumn('consultations', 'height')) {
+            if (! Schema::hasColumn('consultations', 'height')) {
                 $table->decimal('height', 5, 2)->nullable()->after('weight');
             }
         });

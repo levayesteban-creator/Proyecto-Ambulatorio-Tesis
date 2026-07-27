@@ -21,6 +21,7 @@ class SisDiagnosisFactory extends Factory
         ];
 
         $diag = $diagnoses[$index++ % count($diagnoses)];
+
         return [
             'code' => $diag['code'],
             'name' => $diag['name'],

@@ -16,9 +16,9 @@ return new class extends Migration
 
             // Relación con la consulta principal
             $table->foreignId('consultation_id')
-                  ->constrained()
-                  ->onDelete('cascade')
-                  ->comment('Enlace con la consulta médica principal');
+                ->constrained()
+                ->onDelete('cascade')
+                ->comment('Enlace con la consulta médica principal');
 
             // 1. GENERAL (Mareos | Fiebre | Escalofríos | ↑o ↓Peso | Sudoración)
             $table->boolean('general_deny')->default(true);

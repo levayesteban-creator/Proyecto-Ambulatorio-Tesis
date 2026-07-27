@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class SisDiagnosisSeeder extends Seeder
 {
@@ -340,8 +340,8 @@ class SisDiagnosisSeeder extends Seeder
 
         $dataToInsert = array_map(function ($diag) use ($now) {
             return [
-                'code'       => $diag['code'],
-                'name'       => $diag['name'],
+                'code' => $diag['code'],
+                'name' => $diag['name'],
                 'created_at' => $now,
                 'updated_at' => $now,
             ];

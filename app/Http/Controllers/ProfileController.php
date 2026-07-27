@@ -7,9 +7,9 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Validation\Rules;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -51,7 +51,7 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        if (!$user || !$user->must_change_password) {
+        if (! $user || ! $user->must_change_password) {
             return Redirect::route('dashboard');
         }
 

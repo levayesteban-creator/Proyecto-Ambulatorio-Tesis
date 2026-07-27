@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\EpidemiologicalDiagnosis;
+use Illuminate\Database\Seeder;
 
 class EpidemiologicalDiagnosisSeeder extends Seeder
 {

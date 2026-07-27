@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -25,7 +26,7 @@ class PasswordResetLinkController extends Controller
     /**
      * Handle an incoming password reset link request.
      *
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
@@ -35,9 +36,9 @@ class PasswordResetLinkController extends Controller
 
         // Resolver cédula o correo → usuario
         $login = $request->string('identifier');
-        $user = \App\Models\User::findByIdentifier($login);
+        $user = User::findByIdentifier($login);
 
-        if (!$user) {
+        if (! $user) {
             throw ValidationException::withMessages([
                 'identifier' => 'No se encontró una cuenta con esa cédula o correo.',
             ]);

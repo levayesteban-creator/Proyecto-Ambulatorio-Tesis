@@ -10,6 +10,7 @@ class UpdatePatientRequest extends StorePatientRequest
     public function authorize(): bool
     {
         $patient = $this->route('patient');
+
         return Gate::allows('update', $patient);
     }
 

@@ -51,7 +51,7 @@ class PatientPolicy
 
     public function update(User $user, ?Patient $patient = null): Response
     {
-        if (!$this->isAdminOrCoordinator($user)) {
+        if (! $this->isAdminOrCoordinator($user)) {
             return Response::deny('No tiene permiso para editar historias clínicas. Contacte al administrador.');
         }
 

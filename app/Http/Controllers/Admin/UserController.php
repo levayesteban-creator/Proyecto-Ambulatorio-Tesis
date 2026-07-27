@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
@@ -17,9 +18,10 @@ class UserController extends Controller
     {
         $this->middleware(function ($request, $next) {
             $user = $request->user();
-            if (!$user || !in_array($user->role_id, [Role::ADMIN, Role::COORDINATOR])) {
+            if (! $user || ! in_array($user->role_id, [Role::ADMIN, Role::COORDINATOR])) {
                 abort(403, 'No autorizado');
             }
+
             return $next($request);
         });
     }
@@ -27,6 +29,7 @@ class UserController extends Controller
     public function index()
     {
         $users = User::with('role')->orderBy('name')->get();
+
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
         ]);
@@ -35,6 +38,7 @@ class UserController extends Controller
     public function create()
     {
         $roles = Role::where('id', '!=', 1)->orderBy('name')->get();
+
         return Inertia::render('Admin/Users/Create', [
             'roles' => $roles,
         ]);
@@ -42,7 +46,7 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        if (!Hash::check($request->admin_password, $request->user()->password)) {
+        if (! Hash::check($request->admin_password, $request->user()->password)) {
             throw ValidationException::withMessages([
                 'admin_password' => 'Tu contraseña no es correcta.',
             ]);
@@ -60,7 +64,7 @@ class UserController extends Controller
             'phone.unique' => 'El teléfono «:input» ya se encuentra registrado.',
         ]);
 
-        $tempPassword = \Illuminate\Support\Str::random(10);
+        $tempPassword = Str::random(10);
 
         User::create([
             'name' => $request->name,
@@ -80,6 +84,7 @@ class UserController extends Controller
     public function edit(User $user)
     {
         $roles = Role::where('id', '!=', 1)->orderBy('name')->get();
+
         return Inertia::render('Admin/Users/Edit', [
             'user' => $user->load('role'),
             'roles' => $roles,
@@ -88,7 +93,7 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        if (!Hash::check($request->admin_password, $request->user()->password)) {
+        if (! Hash::check($request->admin_password, $request->user()->password)) {
             throw ValidationException::withMessages([
                 'admin_password' => 'Tu contraseña no es correcta.',
             ]);
@@ -129,7 +134,7 @@ class UserController extends Controller
             return back()->with('error', 'No puedes eliminarte a ti mismo.');
         }
 
-        if (!Hash::check($request->admin_password, $request->user()->password)) {
+        if (! Hash::check($request->admin_password, $request->user()->password)) {
             throw ValidationException::withMessages([
                 'admin_password' => 'Tu contraseña no es correcta.',
             ]);
@@ -143,13 +148,13 @@ class UserController extends Controller
 
     public function resetPassword(Request $request, User $user)
     {
-        if (!Hash::check($request->admin_password, $request->user()->password)) {
+        if (! Hash::check($request->admin_password, $request->user()->password)) {
             throw ValidationException::withMessages([
                 'admin_password' => 'Tu contraseña no es correcta.',
             ]);
         }
 
-        $tempPassword = \Illuminate\Support\Str::random(10);
+        $tempPassword = Str::random(10);
 
         $user->update([
             'password' => Hash::make($tempPassword),

@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Patient extends Model
 {
@@ -87,8 +87,7 @@ class Patient extends Model
      */
     protected function age(): Attribute
     {
-        return Attribute::get(fn () =>
-            $this->birth_date ? Carbon::parse($this->birth_date)->age : null
+        return Attribute::get(fn () => $this->birth_date ? Carbon::parse($this->birth_date)->age : null
         );
     }
 
@@ -110,9 +109,9 @@ class Patient extends Model
                 $this->addr_locality,
                 $this->addr_parish,
                 $this->addr_municipality,
-            ], fn($value) => !is_null($value) && $value !== '');
+            ], fn ($value) => ! is_null($value) && $value !== '');
 
-            return !empty($parts) ? implode(', ', $parts) : '';
+            return ! empty($parts) ? implode(', ', $parts) : '';
         });
     }
 
@@ -131,7 +130,6 @@ class Patient extends Model
      * RELACIONES PARA INTEGRIDAD REFERENCIAL (Tablas Maestras / Catálogos)
      * --------------------------------------------------------------------------
      */
-
     public function maritalStatus(): BelongsTo
     {
         return $this->belongsTo(MaritalStatus::class);

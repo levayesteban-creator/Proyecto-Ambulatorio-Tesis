@@ -10,7 +10,7 @@ class HandleInertiaRequests extends Middleware
 {
     protected $rootView = 'app';
 
-    public function version(Request $request): string|null
+    public function version(Request $request): ?string
     {
         return parent::version($request);
     }
@@ -32,7 +32,7 @@ class HandleInertiaRequests extends Middleware
     public function handle(Request $request, \Closure $next): Response
     {
         if ($user = $request->user()) {
-            if ($user->must_change_password && !$request->routeIs('password.force-change*')) {
+            if ($user->must_change_password && ! $request->routeIs('password.force-change*')) {
                 return redirect()->route('password.force-change');
             }
         }

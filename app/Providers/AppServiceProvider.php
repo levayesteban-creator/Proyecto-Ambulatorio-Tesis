@@ -2,12 +2,12 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-use App\Models\Patient;
 use App\Models\Consultation;
-use App\Models\User;
+use App\Models\Patient;
 use App\Models\SisDiagnosis;
+use App\Models\User;
 use App\Observers\AuditObserver;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {

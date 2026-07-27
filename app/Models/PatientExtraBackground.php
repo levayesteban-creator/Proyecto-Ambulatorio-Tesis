@@ -26,23 +26,23 @@ class PatientExtraBackground extends Model
     ];
 
     const CATEGORIES = [
-        'allergic'        => 'Alérgicos',
-        'pathological'    => 'Patológicos',
-        'infectious'      => 'Infectocontagiosos',
-        'immunological'   => 'Inmunológicos',
-        'transfusion'     => 'Transfusionales',
-        'obgyn'           => 'Gineco-Obstétricos',
-        'surgical'        => 'Quirúrgicos',
-        'traumatic'       => 'Traumáticos',
-        'std'             => 'ETS',
+        'allergic' => 'Alérgicos',
+        'pathological' => 'Patológicos',
+        'infectious' => 'Infectocontagiosos',
+        'immunological' => 'Inmunológicos',
+        'transfusion' => 'Transfusionales',
+        'obgyn' => 'Gineco-Obstétricos',
+        'surgical' => 'Quirúrgicos',
+        'traumatic' => 'Traumáticos',
+        'std' => 'ETS',
         'epidemiological' => 'Epidemiológicos',
-        'disability'      => 'Discapacidades',
+        'disability' => 'Discapacidades',
     ];
 
     const ONSET_UNITS = [
-        'años'   => 'Años',
-        'meses'  => 'Meses',
-        'días'   => 'Días',
+        'años' => 'Años',
+        'meses' => 'Meses',
+        'días' => 'Días',
     ];
 
     public function patient(): BelongsTo

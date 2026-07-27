@@ -14,16 +14,16 @@ class AuditLogger
         $user = Auth::user();
 
         Log::channel('audit')->info('audit', [
-            'action'       => $action,
-            'entity_type'  => $entityType,
-            'entity_id'    => $entityId,
-            'user_id'      => $user?->id,
-            'user_email'   => $user?->email,
-            'user_role'    => $user?->role?->name,
-            'ip'           => request()->ip(),
-            'user_agent'   => request()->userAgent(),
-            'context'      => $context,
-            'timestamp'    => now()->toISOString(),
+            'action' => $action,
+            'entity_type' => $entityType,
+            'entity_id' => $entityId,
+            'user_id' => $user?->id,
+            'user_email' => $user?->email,
+            'user_role' => $user?->role?->name,
+            'ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'context' => $context,
+            'timestamp' => now()->toISOString(),
         ]);
     }
 
@@ -75,14 +75,14 @@ class AuditLogger
     public static function failedLogin(string $email, array $context = []): void
     {
         Log::channel('audit')->warning('audit', [
-            'action'       => 'failed_login',
-            'entity_type'  => 'user',
-            'entity_id'    => null,
-            'email'        => $email,
-            'ip'           => request()->ip(),
-            'user_agent'   => request()->userAgent(),
-            'context'      => $context,
-            'timestamp'    => now()->toISOString(),
+            'action' => 'failed_login',
+            'entity_type' => 'user',
+            'entity_id' => null,
+            'email' => $email,
+            'ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'context' => $context,
+            'timestamp' => now()->toISOString(),
         ]);
     }
 }

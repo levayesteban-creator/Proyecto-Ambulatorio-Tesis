@@ -8,6 +8,7 @@ class UpdateConsultationRequest extends StoreConsultationRequest
     {
         $rules = parent::rules();
         $rules['edit_justification'] = ['required', 'string', 'min:10'];
+
         return $rules;
     }
 

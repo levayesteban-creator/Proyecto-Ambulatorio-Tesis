@@ -89,10 +89,10 @@ return new class extends Migration
             // ──────────────────────────────────────────────────────────────
             // ÍNDICES DE BÚSQUEDA RÁPIDA
             // ──────────────────────────────────────────────────────────────
-            $table->index('full_name',   'idx_patient_full_name');
-            $table->index('id_number',   'idx_patient_id_number');
-            $table->index('birth_date',  'idx_patient_birth_date');
-            $table->index('gender',      'idx_patient_gender');
+            $table->index('full_name', 'idx_patient_full_name');
+            $table->index('id_number', 'idx_patient_id_number');
+            $table->index('birth_date', 'idx_patient_birth_date');
+            $table->index('gender', 'idx_patient_gender');
 
             $table->timestamps();
         });

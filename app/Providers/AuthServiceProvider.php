@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Models\Patient;
 use App\Models\Consultation;
-use App\Models\AuditLog;
+use App\Models\Patient;
 use App\Models\Role;
 use App\Models\User;
-use App\Policies\PatientPolicy;
 use App\Policies\ConsultationPolicy;
+use App\Policies\PatientPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 
@@ -30,4 +29,3 @@ class AuthServiceProvider extends ServiceProvider
         });
     }
 }
-

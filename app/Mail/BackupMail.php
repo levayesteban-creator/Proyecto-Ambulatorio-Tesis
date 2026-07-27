@@ -22,7 +22,7 @@ class BackupMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Respaldo BD — ' . now()->format('d/m/Y H:i'),
+            subject: 'Respaldo BD — '.now()->format('d/m/Y H:i'),
         );
     }
 
@@ -31,7 +31,7 @@ class BackupMail extends Mailable
         return new Content(
             htmlString: view('emails.backup', [
                 'fileName' => $this->fileName,
-                'fileSize' => number_format($this->fileSize / 1024, 1) . ' KB',
+                'fileSize' => number_format($this->fileSize / 1024, 1).' KB',
                 'date' => now()->format('d/m/Y H:i:s'),
             ])->render(),
         );

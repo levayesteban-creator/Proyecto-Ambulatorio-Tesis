@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Patient;
-use App\Models\Role;
-use App\Models\MaritalStatus;
 use App\Models\Ethnicity;
 use App\Models\InstructionLevel;
+use App\Models\MaritalStatus;
 use App\Models\Occupation;
+use App\Models\Patient;
 use App\Models\Religion;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Tests\TestCase;
@@ -21,6 +21,7 @@ class PatientControllerTest extends TestCase
     use RefreshDatabase;
 
     private User $admin;
+
     private User $doctor;
 
     protected function setUp(): void

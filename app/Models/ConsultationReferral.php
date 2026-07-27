@@ -27,7 +27,7 @@ class ConsultationReferral extends Model
         27 => 'Reumatología', 28 => 'Oncología', 29 => 'Urología', 30 => 'Gastroenterología',
         31 => 'Psicología', 32 => 'Infectología', 33 => 'Cirugía Cardiovascular', 34 => 'Hematología',
         35 => 'Neuroradiología', 36 => 'Radiodiagnóstico', 37 => 'Toxicología', 38 => 'Alergólogo',
-        39 => 'Optometrista'
+        39 => 'Optometrista',
     ];
 
     public function consultation(): BelongsTo

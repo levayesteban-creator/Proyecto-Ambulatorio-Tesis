@@ -12,8 +12,8 @@ return new class extends Migration
             $table->id();
 
             $table->foreignId('consultation_id')
-                  ->constrained()
-                  ->onDelete('cascade');
+                ->constrained()
+                ->onDelete('cascade');
 
             // Almacenamos el código numérico de la especialidad (1 al 39) según la lista del ministerio
             $table->unsignedTinyInteger('specialty_code');

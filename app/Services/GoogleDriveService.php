@@ -11,7 +11,9 @@ use Illuminate\Support\Facades\Log;
 class GoogleDriveService
 {
     private Client $http;
+
     private string $credentialsPath;
+
     private string $folderId;
 
     public function __construct()
@@ -23,13 +25,15 @@ class GoogleDriveService
 
     public function upload(string $localPath, string $remoteName): bool
     {
-        if (!file_exists($this->credentialsPath)) {
-            Log::error('Google Drive: Credentials file not found at ' . $this->credentialsPath);
+        if (! file_exists($this->credentialsPath)) {
+            Log::error('Google Drive: Credentials file not found at '.$this->credentialsPath);
+
             return false;
         }
 
-        if (!file_exists($localPath)) {
-            Log::error('Google Drive: Local backup file not found at ' . $localPath);
+        if (! file_exists($localPath)) {
+            Log::error('Google Drive: Local backup file not found at '.$localPath);
+
             return false;
         }
 
@@ -38,9 +42,11 @@ class GoogleDriveService
             $fileId = $this->uploadFile($token, $localPath, $remoteName);
 
             Log::info("Google Drive: Backup uploaded successfully. File ID: {$fileId}");
+
             return true;
         } catch (\Throwable $e) {
-            Log::error('Google Drive upload failed: ' . $e->getMessage());
+            Log::error('Google Drive upload failed: '.$e->getMessage());
+
             return false;
         }
     }
@@ -53,7 +59,7 @@ class GoogleDriveService
             $httpHandler = HttpHandlerFactory::build();
             $authToken = $credentials->fetchAuthToken($httpHandler);
 
-            if (!isset($authToken['access_token'])) {
+            if (! isset($authToken['access_token'])) {
                 throw new \RuntimeException('Failed to obtain Google Drive access token.');
             }
 
@@ -70,7 +76,7 @@ class GoogleDriveService
 
         $fileContent = file_get_contents($localPath);
 
-        $boundary = 'boundary_' . uniqid();
+        $boundary = 'boundary_'.uniqid();
         $bodyParts = [
             "--{$boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n{$metadata}\r\n",
             "--{$boundary}\r\nContent-Type: application/octet-stream\r\n\r\n{$fileContent}\r\n",
@@ -87,6 +93,7 @@ class GoogleDriveService
         ]);
 
         $data = json_decode((string) $resp->getBody(), true);
+
         return $data['id'];
     }
 }
