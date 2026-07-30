@@ -34,7 +34,8 @@ import { Head } from '@inertiajs/vue3';
                     <h3 class="text-lg font-semibold text-gray-900 mb-3">Respaldo automático diario</h3>
                     <p class="text-sm text-gray-600">
                         Todas las madrugadas a las <strong>2:00 AM</strong> el sistema genera un respaldo completo de la base
-                        de datos y lo envía al correo del consultorio. No requiere ninguna acción manual.
+                        de datos y lo envía al correo del consultorio. Los respaldos se guardan permanentemente en la
+                        carpeta <code>backups/</code> del proyecto. No requiere ninguna acción manual.
                     </p>
                 </div>
 
@@ -54,7 +55,7 @@ import { Head } from '@inertiajs/vue3';
                                 Descarga el adjunto y colócalo en:
                             </p>
                             <div class="bg-gray-100 p-3 rounded-lg font-mono text-xs mt-1">
-                                C:\laragon\www\gestion-salud\storage\app\backups\
+                                C:\laragon\www\gestion-salud\backups\
                             </div>
                         </div>
 
@@ -86,6 +87,16 @@ import { Head } from '@inertiajs/vue3';
                         Un solo archivo <code>.sql</code> con todas las tablas del sistema: pacientes, historias clínicas,
                         consultas, diagnósticos, exámenes, usuarios, roles, bitácora de auditoría y más.
                         Pesa aproximadamente <strong>~450 KB</strong>.
+                    </p>
+                </div>
+
+                <!-- Nota importante -->
+                <div class="p-6 bg-blue-50 border-l-4 border-blue-400 shadow sm:rounded-lg">
+                    <h3 class="text-lg font-semibold text-blue-800 mb-2">Archivo de instrucciones</h3>
+                    <p class="text-sm text-blue-700">
+                        Dentro de la carpeta <code>backups/</code> encontrarás un archivo <strong>LEEME.txt</strong>
+                        con instrucciones detalladas paso a paso para generar y restaurar respaldos.
+                        Si alguien que no es del área de informática necesita hacer un respaldo, ese archivo le indica exactamente qué hacer.
                     </p>
                 </div>
 

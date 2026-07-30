@@ -15,9 +15,9 @@ class DatabaseRestore extends Command
         $file = $this->argument('file');
 
         if (! $file) {
-            $backups = glob(storage_path('app/backups/*.sql'));
+            $backups = glob(base_path('backups/*.sql'));
             if (empty($backups)) {
-                $this->error('No hay respaldos en storage/app/backups/');
+                $this->error('No hay respaldos en la carpeta backups/');
 
                 return self::FAILURE;
             }

@@ -1,0 +1,183 @@
+========================================================
+   SISTEMA DE GESTION DE SALUD "TEPUY"
+   INSTRUCCIONES PARA RESPALDOS DE LA BASE DE DATOS
+========================================================
+
+Este archivo contiene las instrucciones paso a paso para
+hacer un respaldo de la base de datos del consultorio.
+
+No necesita conocimientos de informatica. Solo siga los
+pasos que se indican abajo.
+
+
+--------------------------------------------------------
+  QUE ES UN RESPALDO?
+--------------------------------------------------------
+
+Un respaldo es una copia de seguridad de toda la informacion
+del consultorio: pacientes, historias clinicas, consultas,
+diagnosticos, medicamentos y todo lo demas.
+
+Si la computadora se daña, se borra algo por error, o hay
+cualquier problema, usted puede restaurar el respaldo y
+recuperar toda la informacion como estaba antes.
+
+
+--------------------------------------------------------
+  DONDE SE GUARDAN LOS RESPALDOS?
+--------------------------------------------------------
+
+Todos los respaldos se guardan automaticamente en esta
+misma carpeta:
+
+  C:\laragon\www\gestion-salud\backups\
+
+Cada archivo se llama asi:
+  backup_gestion_salud_2026-07_30-02-00-01.sql
+
+La fecha y hora indican cuando se hizo el respaldo.
+
+
+--------------------------------------------------------
+  RESPALDO AUTOMATICO (NO TIENE QUE HACER NADA)
+--------------------------------------------------------
+
+Todos los dias a las 2:00 de la mañana, el sistema genera
+un respaldo automáticamente y lo envia por correo electronico
+a: consultoriochaparrodeguanta@gmail.com
+
+Usted no tiene que hacer nada. Solo verifique de vez en
+cuando que los respaldos se estan generando abriendo esta
+carpeta y comprobando que hay archivos nuevos.
+
+
+--------------------------------------------------------
+  COMO HACER UN RESPALDO MANUAL
+--------------------------------------------------------
+
+Si usted quiere hacer un respaldo en cualquier momento
+(por ejemplo, antes de cerrar el sistema por un dia),
+siga estos pasos:
+
+
+PASO 1: Abrir la terminal
+
+  - Presione la tecla WINDOWS en su teclado
+  - Escriba: CMD
+  - Presione ENTER
+  - Se abrira una ventana negra (la terminal)
+
+
+PASO 2: Escribir el comando
+
+  Copie y pegue (o escriba) esta linea exacta:
+
+  cd C:\laragon\www\gestion-salud && php artisan db:backup --cloud
+
+  Presione ENTER
+
+
+PASO 3: Esperar
+
+  Espere a que aparezca el mensaje:
+
+  "Respaldo creado: backup_...sql (... KB)"
+  "Respaldo enviado por correo exitosamente."
+
+  Esto tarda unos segundos.
+
+
+PASO 4: Listo
+
+  El respaldo se guardo en esta carpeta y tambien se envio
+  por correo electronico.
+
+
+--------------------------------------------------------
+  COMO RESTAURAR UN RESPALDO
+--------------------------------------------------------
+
+SI SE PERDIO INFORMACION y necesita recuperar un respaldo
+anterior, siga estos pasos:
+
+
+PASO 1: Abrir la terminal
+
+  - Presione la tecla WINDOWS
+  - Escriba: CMD
+  - Presione ENTER
+
+
+PASO 2: Escribir el comando
+
+  Copie y pegue esta linea:
+
+  cd C:\laragon\www\gestion-salud && php artisan db:restore
+
+  Presione ENTER
+
+
+PASO 3: Seleccionar el respaldo
+
+  El sistema mostrara una lista de todos los respaldos
+  disponibles, ordenados del mas reciente al mas viejo.
+
+  Ejemplo:
+    [0] backup_gestion_salud_2026-07_30-02-00-01.sql (450.2 KB)
+    [1] backup_gestion_salud_2026-07_29-02-00-01.sql (449.8 KB)
+    [2] backup_gestion_salud_2026-07_28-02-00-01.sql (448.5 KB)
+
+  Escriba el NUMERO del respaldo que desea restaurar
+  y presione ENTER.
+
+
+PASO 4: Confirmar
+
+  El sistema preguntara:
+
+  "Restaurar DB 'gestion_salud' con el archivo
+   backup_...sql? Se borraran los datos actuales."
+
+  Escriba: SI (o simplemente presione ENTER si dice que si)
+
+
+PASO 5: Esperar
+
+  Espere a que aparezca el mensaje:
+
+  "Base de datos 'gestion_salud' restaurada exitosamente"
+
+
+PASO 6: Verificar
+
+  Abra el sistema normalmente y verifique que los datos
+  esten completos.
+
+
+--------------------------------------------------------
+  NOTAS IMPORTANTES
+--------------------------------------------------------
+
+1. Los respaldos se guardan PARA SIEMPRE. No se borran
+   automaticamente. Si la carpeta se llena mucho, pida
+   ayuda al area de informatica para borrar los mas viejos.
+
+2. Los archivos de respaldo contienen datos sensibles de
+   pacientes. NO los comparta con nadie y NO los envie
+   por correo sin autorizacion.
+
+3. Si recibe un archivo .sql por correo y necesita
+   restaurarlo, copielo a esta carpeta antes de ejecutar
+   el comando de restauracion.
+
+4. La restauracion BORRA los datos actuales y los reemplaza
+   con los del respaldo. Solo hagalo si esta seguro.
+
+5. Si tiene alguna duda, consulte al area de informatica
+   antes de ejecutar cualquier comando.
+
+
+========================================================
+   CONSULTORIO POPULAR TIPO III "EL CHAPARRO DE GUANTA"
+   SISTEMA DE GESTION DE SALUD "TEPUY"
+========================================================

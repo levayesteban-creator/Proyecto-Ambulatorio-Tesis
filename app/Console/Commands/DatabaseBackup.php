@@ -22,7 +22,7 @@ class DatabaseBackup extends Command
 
         $date = now()->format('Y-m_d-H-i-s');
         $filename = "backup_{$db}_{$date}.sql";
-        $localPath = storage_path("app/backups/{$filename}");
+        $localPath = base_path("backups/{$filename}");
 
         if (! is_dir(dirname($localPath))) {
             mkdir(dirname($localPath), 0755, true);
