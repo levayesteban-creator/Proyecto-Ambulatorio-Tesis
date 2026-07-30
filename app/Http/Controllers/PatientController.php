@@ -367,7 +367,8 @@ class PatientController extends Controller
     {
         return [
             'full_name' => $data['full_name'],
-            'id_number' => $data['id_number'],
+            'id_number' => $data['id_number'] ?? null,
+            'guardian_id_number' => $data['guardian_id_number'] ?? null,
             'nationality' => $data['nationality'],
             'nationality_country' => $data['nationality_country'] ?? null,
             'gender' => $data['gender'],

@@ -690,7 +690,8 @@ export function defaultHabits() {
 export function buildPatientStorePayload(data) {
   return {
     full_name: data.full_name,
-    id_number: data.id_number,
+    id_number: data.id_number || null,
+    guardian_id_number: data.has_id_number ? null : (data.guardian_id_number || null),
     nationality: data.nationality,
     nationality_country: data.nationality_country || null,
     gender: data.gender,
@@ -731,6 +732,8 @@ export function patientToFormState(patient) {
   return {
     full_name: patient.full_name ?? '',
     id_number: patient.id_number ?? '',
+    has_id_number: !!patient.id_number,
+    guardian_id_number: patient.guardian_id_number ?? '',
     nationality: patient.nationality ?? 'V',
     nationality_country: patient.nationality_country ?? '',
     gender: patient.gender ?? '',

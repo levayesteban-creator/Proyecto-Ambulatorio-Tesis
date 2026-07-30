@@ -1,0 +1,250 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Patient;
+use Illuminate\Database\Seeder;
+
+class TestPatientsGuardianSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $patients = [
+            // ═══════════════════════════════════════════════════════════
+            // CASO 1: Adultos con cédula propia (normal)
+            // ═══════════════════════════════════════════════════════════
+            [
+                'full_name' => 'María Elena Rodríguez Pérez',
+                'id_number' => '30.111.222',
+                'guardian_id_number' => null,
+                'nationality' => 'V',
+                'gender' => 'F',
+                'birth_date' => '1985-03-15',
+                'birth_place' => 'Barcelona, Anzoátegui',
+                'marital_status_id' => 2,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 6,
+                'occupation_id' => 3,
+                'religion_id' => 3,
+                'blood_type' => 'A',
+                'rh_factor' => '+',
+                'phone_number' => '0414-1234567',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Puerto La Cruz',
+                'addr_sector' => 'Urbanización El Paraíso',
+            ],
+            [
+                'full_name' => 'Carlos Andrés Martínez López',
+                'id_number' => '30.333.444',
+                'guardian_id_number' => null,
+                'nationality' => 'V',
+                'gender' => 'M',
+                'birth_date' => '1978-07-22',
+                'birth_place' => 'Puerto La Cruz, Anzoátegui',
+                'marital_status_id' => 1,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 6,
+                'occupation_id' => 5,
+                'religion_id' => 3,
+                'blood_type' => 'O',
+                'rh_factor' => '+',
+                'phone_number' => '0412-9876543',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Puerto La Cruz',
+                'addr_sector' => 'Centro',
+            ],
+            [
+                'full_name' => 'Ana Lucía Fernández García',
+                'id_number' => '30.555.666',
+                'guardian_id_number' => null,
+                'nationality' => 'E',
+                'gender' => 'F',
+                'birth_date' => '1990-11-08',
+                'birth_place' => 'Cúcuta, Colombia',
+                'marital_status_id' => 3,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 6,
+                'occupation_id' => 5,
+                'religion_id' => 3,
+                'blood_type' => 'B',
+                'rh_factor' => '-',
+                'phone_number' => '0416-5551234',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Guanta',
+                'addr_sector' => 'Sector La Playa',
+            ],
+            [
+                'full_name' => 'Roberto José Díaz Mendoza',
+                'id_number' => '30.777.888',
+                'guardian_id_number' => null,
+                'nationality' => 'V',
+                'gender' => 'M',
+                'birth_date' => '1965-01-30',
+                'birth_place' => 'Barcelona, Anzoátegui',
+                'marital_status_id' => 2,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 4,
+                'occupation_id' => 2,
+                'religion_id' => 3,
+                'blood_type' => 'AB',
+                'rh_factor' => '+',
+                'phone_number' => '0424-3334455',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Puerto La Cruz',
+                'addr_sector' => 'Urbanización Las Garzas',
+            ],
+
+            // ═══════════════════════════════════════════════════════════
+            // CASO 2: Menores de edad con cédula del padre/responsable
+            // ═══════════════════════════════════════════════════════════
+            [
+                'full_name' => 'Santiago Rodríguez Martínez',
+                'id_number' => null,
+                'guardian_id_number' => '30.111.222',
+                'nationality' => 'V',
+                'gender' => 'M',
+                'birth_date' => '2018-05-12',
+                'birth_place' => 'Puerto La Cruz, Anzoátegui',
+                'marital_status_id' => 5,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 1,
+                'occupation_id' => 3,
+                'religion_id' => 3,
+                'blood_type' => 'A',
+                'rh_factor' => '+',
+                'phone_number' => '0414-1234567',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Puerto La Cruz',
+                'addr_sector' => 'Urbanización El Paraíso',
+            ],
+            [
+                'full_name' => 'Valentina Rodríguez Martínez',
+                'id_number' => null,
+                'guardian_id_number' => '30.111.222',
+                'nationality' => 'V',
+                'gender' => 'F',
+                'birth_date' => '2020-09-03',
+                'birth_place' => 'Puerto La Cruz, Anzoátegui',
+                'marital_status_id' => 5,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 1,
+                'occupation_id' => 3,
+                'religion_id' => 3,
+                'blood_type' => 'O',
+                'rh_factor' => '+',
+                'phone_number' => '0414-1234567',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Puerto La Cruz',
+                'addr_sector' => 'Urbanización El Paraíso',
+            ],
+            [
+                'full_name' => 'Mateo Martínez Fernández',
+                'id_number' => null,
+                'guardian_id_number' => '30.333.444',
+                'nationality' => 'V',
+                'gender' => 'M',
+                'birth_date' => '2016-02-14',
+                'birth_place' => 'Barcelona, Anzoátegui',
+                'marital_status_id' => 5,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 2,
+                'occupation_id' => 3,
+                'religion_id' => 3,
+                'blood_type' => 'B',
+                'rh_factor' => '+',
+                'phone_number' => '0412-9876543',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Puerto La Cruz',
+                'addr_sector' => 'Centro',
+            ],
+
+            // ═══════════════════════════════════════════════════════════
+            // CASO 3: Mayores de edad sin cédula propia
+            // ═══════════════════════════════════════════════════════════
+            [
+                'full_name' => 'Pedro José Sánchez Vargas',
+                'id_number' => null,
+                'guardian_id_number' => '30.777.888',
+                'nationality' => 'V',
+                'gender' => 'M',
+                'birth_date' => '1995-06-20',
+                'birth_place' => 'El Tigre, Anzoátegui',
+                'marital_status_id' => 1,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 4,
+                'occupation_id' => 4,
+                'religion_id' => 3,
+                'blood_type' => 'Desconoce',
+                'rh_factor' => null,
+                'phone_number' => '0416-7778899',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Guanta',
+                'addr_sector' => 'Sector El Confite',
+            ],
+            [
+                'full_name' => 'Luisana del Carmen Pérez Rojas',
+                'id_number' => null,
+                'guardian_id_number' => '30.555.666',
+                'nationality' => 'V',
+                'gender' => 'F',
+                'birth_date' => '1988-12-01',
+                'birth_place' => 'Puerto La Cruz, Anzoátegui',
+                'marital_status_id' => 2,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 5,
+                'occupation_id' => 1,
+                'religion_id' => 3,
+                'blood_type' => 'O',
+                'rh_factor' => '+',
+                'phone_number' => '0424-1122334',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Puerto La Cruz',
+                'addr_sector' => 'Urbanización Buenos Aires',
+            ],
+            [
+                'full_name' => 'Javier Antonio Morales Castro',
+                'id_number' => null,
+                'guardian_id_number' => '30.777.888',
+                'nationality' => 'V',
+                'gender' => 'M',
+                'birth_date' => '1992-04-18',
+                'birth_place' => 'Barcelona, Anzoátegui',
+                'marital_status_id' => 1,
+                'ethnicity_id' => 47,
+                'instruction_level_id' => 3,
+                'occupation_id' => 2,
+                'religion_id' => 4,
+                'blood_type' => 'Desconoce',
+                'rh_factor' => null,
+                'phone_number' => '0414-5566778',
+                'addr_state' => 'Anzoátegui',
+                'addr_municipality' => 'Sotillo',
+                'addr_parish' => 'Puerto La Cruz',
+                'addr_sector' => 'Sector Pirítico',
+            ],
+        ];
+
+        foreach ($patients as $data) {
+            $patient = Patient::create(array_merge($data, [
+                'closed_at' => now(),
+            ]));
+
+            $tipo = $patient->id_number
+                ? "Cédula: {$patient->id_number}"
+                : "Sin cédula (Resp: {$patient->guardian_id_number})";
+
+            $this->command->info("✅ {$patient->full_name} — {$tipo}");
+        }
+
+        $this->command->info("─── Total: " . count($patients) . " pacientes creados ───");
+    }
+}

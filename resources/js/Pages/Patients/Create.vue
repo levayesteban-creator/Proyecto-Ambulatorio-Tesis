@@ -69,6 +69,8 @@ const initialState = props.patient
   : {
       full_name: '',
       id_number: '',
+      has_id_number: true,
+      guardian_id_number: '',
       nationality: 'V',
       nationality_country: '',
       gender: '',
@@ -400,7 +402,7 @@ const fieldProgress = computed(() => {
   let filled = 0
   const total = 6
   if (form.full_name)         filled++
-  if (form.id_number)         filled++
+  if (form.id_number || (!form.has_id_number && form.guardian_id_number)) filled++
   if (form.birth_date)        filled++
   if (form.gender)            filled++
   if (form.addr_state)        filled++
@@ -496,6 +498,8 @@ const submit = () => {
   const formData = {
       full_name: form.full_name,
       id_number: form.id_number,
+      has_id_number: form.has_id_number,
+      guardian_id_number: form.guardian_id_number,
       nationality: form.nationality,
       nationality_country: form.nationality_country,
       gender: form.gender,
@@ -568,6 +572,9 @@ const submit = () => {
           </span>
           <span v-if="form.id_number" class="meta-chip">
             🪪 {{ form.nationality }}-{{ form.id_number }}
+          </span>
+          <span v-else-if="!form.has_id_number && form.guardian_id_number" class="meta-chip">
+            🪪 Sin cédula · Responsable: {{ form.guardian_id_number }}
           </span>
           <span v-if="form.blood_type && form.knows_blood_type" class="meta-chip">
             💉 {{ form.blood_type }}{{ form.rh_factor }}
@@ -644,13 +651,22 @@ const submit = () => {
               <p v-if="form.errors.full_name" class="field-error">{{ form.errors.full_name }}</p>
             </div>
             <div>
-              <label class="field-label">Cédula de Identidad <span class="req">*</span></label>
+              <label class="field-label">Cédula de Identidad <span class="req" v-if="form.has_id_number">*</span></label>
               <div style="display:flex;gap:6px">
                 <select v-model="form.nationality" class="field-select" style="width:70px;flex-shrink:0">
                   <option value="V">V</option>
                   <option value="E">E</option>
                 </select>
-                <input :value="form.id_number" class="field-input" type="text" placeholder="00.000.000" style="font-family:'DM Mono',monospace" @input="filterIdNumber"/>
+                <input :value="form.id_number" class="field-input" type="text" placeholder="00.000.000" style="font-family:'DM Mono',monospace" @input="filterIdNumber" :disabled="!form.has_id_number"/>
+              </div>
+              <label class="checkbox-option" style="margin-top:6px;font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer">
+                <input type="checkbox" v-model="form.has_id_number" class="checkbox-input"/>
+                <span>Tiene cédula de identidad propia</span>
+              </label>
+              <div v-if="!form.has_id_number" style="margin-top:8px">
+                <label class="field-label">Cédula del Padre o Responsable <span class="req">*</span></label>
+                <input v-model="form.guardian_id_number" class="field-input" type="text" placeholder="Cédula del padre o tutor" style="font-family:'DM Mono',monospace"/>
+                <p v-if="form.errors.guardian_id_number" class="field-error">{{ form.errors.guardian_id_number }}</p>
               </div>
               <p v-if="form.errors.id_number" class="field-error">{{ form.errors.id_number }}</p>
             </div>

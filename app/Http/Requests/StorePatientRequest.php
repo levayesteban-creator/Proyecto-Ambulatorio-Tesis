@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use Carbon\Carbon;
+use App\Models\Patient;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -24,7 +25,8 @@ class StorePatientRequest extends FormRequest
             // ==========================================================================
 
             'full_name' => ['required', 'string', 'max:255'],
-            'id_number' => ['required', 'string', 'max:20', Rule::unique('patients', 'id_number')->ignore($this->patient)],
+            'id_number' => ['nullable', 'string', 'max:20', Rule::unique('patients', 'id_number')->ignore($this->patient)],
+            'guardian_id_number' => ['nullable', 'string', 'max:20'],
             'nationality' => ['required', 'string', 'max:1', Rule::in(['V', 'E'])],
             'nationality_country' => ['nullable', 'string', 'max:100'],
             'occupation_detail' => ['nullable', 'string', 'max:255'],
@@ -282,6 +284,7 @@ class StorePatientRequest extends FormRequest
         }
 
         $this->validateClinicalConsistency();
+        $this->validateGuardianDuplicate();
 
         if ($this->has('habits')) {
             $validated['habits'] = array_replace_recursive(
@@ -297,8 +300,9 @@ class StorePatientRequest extends FormRequest
     {
         return [
             'full_name.required' => 'El nombre completo es obligatorio.',
-            'id_number.required' => 'El número de cédula es obligatorio.',
             'id_number.unique' => 'La cédula ingresada ya se encuentra registrada en el sistema.',
+            'guardian_id_number.required_with' => 'La cédula del padre o responsable es obligatoria para pacientes sin cédula propia.',
+            'guardian_id_number.max' => 'La cédula del responsable no debe exceder 20 caracteres.',
             'nationality.required' => 'La nacionalidad es obligatoria.',
             'gender.required' => 'El género es obligatorio.',
             'birth_date.required' => 'La fecha de nacimiento es obligatoria.',
@@ -421,6 +425,7 @@ class StorePatientRequest extends FormRequest
             // Datos demográficos
             'full_name' => 'nombre completo',
             'id_number' => 'cédula de identidad',
+            'guardian_id_number' => 'cédula del padre o responsable',
             'nationality' => 'nacionalidad',
             'gender' => 'género',
             'birth_date' => 'fecha de nacimiento',
@@ -637,6 +642,31 @@ class StorePatientRequest extends FormRequest
             if ($mealsCount < 1 || $mealsCount > 8) {
                 $this->throwClinicalValidationError('El número de comidas por día debe ser entre 1 y 8.');
             }
+        }
+    }
+
+    private function validateGuardianDuplicate(): void
+    {
+        $data = $this->all();
+
+        if (! empty($data['id_number'])) {
+            return;
+        }
+
+        $query = Patient::query()
+            ->whereNull('id_number')
+            ->where('full_name', $data['full_name'] ?? '')
+            ->where('birth_date', $data['birth_date'] ?? '')
+            ->where('gender', $data['gender'] ?? '');
+
+        if ($this->patient) {
+            $query->where('id', '!=', $this->patient);
+        }
+
+        if ($query->exists()) {
+            throw ValidationException::withMessages([
+                'id_number' => 'Ya existe un paciente registrado con el mismo nombre, fecha de nacimiento y género sin cédula propia. Verifique los datos.',
+            ]);
         }
     }
 

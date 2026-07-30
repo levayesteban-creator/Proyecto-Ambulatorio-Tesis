@@ -171,7 +171,16 @@ const denyOr = (deny, text) => (deny ? 'Niega' : (text || '—'));
                     </span>
                     <h1 class="text-2xl font-bold text-gray-900 mt-1">{{ patient.full_name }}</h1>
                     <p class="text-sm text-gray-500">
-                        {{ patient.nationality }}-{{ patient.id_number }} · {{ genderLabel(patient.gender) }}
+                        <template v-if="patient.id_number">
+                            {{ patient.nationality }}-{{ patient.id_number }}
+                        </template>
+                        <template v-else-if="patient.guardian_id_number">
+                            Sin cédula · Responsable: {{ patient.guardian_id_number }}
+                        </template>
+                        <template v-else>
+                            Sin cédula registrada
+                        </template>
+                        · {{ genderLabel(patient.gender) }}
                         <span v-if="patient.age != null"> · {{ patient.age }} años</span>
                     </p>
                 </div>

@@ -21,11 +21,13 @@ class UpdatePatientRequest extends StorePatientRequest
         $patientId = $this->route('patient')?->id ?? $this->route('patient');
 
         $rules['id_number'] = [
-            'required',
+            'nullable',
             'string',
             'max:20',
             Rule::unique('patients', 'id_number')->ignore($patientId),
         ];
+
+        $rules['guardian_id_number'] = ['nullable', 'string', 'max:20'];
 
         return $rules;
     }
