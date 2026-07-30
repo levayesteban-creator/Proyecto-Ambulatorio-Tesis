@@ -101,7 +101,6 @@ const initialState = props.patient
       family_background: defaultFamilyBackground(),
       habits: defaultHabits(),
       extra_backgrounds: [],
-      close_history: false,
     }
 
 const form = useForm(initialState)
@@ -135,7 +134,6 @@ const fieldLabels = {
   addr_zip_code: 'Código Postal',
   addr_reference: 'Punto de Referencia',
   residence_time: 'Tiempo de Residencia',
-  close_history: 'Cerrar Historia Clínica',
   clinical_validation_error: 'Validación clínica',
 
   // Antecedentes personales (background)
@@ -529,7 +527,6 @@ const submit = () => {
       background: form.background,
       family_background: form.family_background,
       habits: form.habits,
-      close_history: form.close_history,
     }
 
   const payload = buildPatientStorePayload(formData)
@@ -1716,13 +1713,6 @@ const submit = () => {
 
       <!-- Botón de envío dentro del formulario -->
       <div style="display:flex;justify-content:flex-end;padding-top:16px;align-items:center;gap:16px">
-        <!-- Checkbox para cerrar historia clínica -->
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-          <input type="checkbox" v-model="form.close_history" style="width:18px;height:18px;cursor:pointer"/>
-          <span style="font-size:14px;color:#374151">
-            🔒 Cerrar historia clínica al registrar
-          </span>
-        </label>
         <button type="button" class="btn btn-ghost" @click="confirmExit" :disabled="form.processing">
           ❌ Cancelar
         </button>

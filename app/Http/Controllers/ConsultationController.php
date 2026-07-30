@@ -154,9 +154,6 @@ class ConsultationController extends Controller
                 $consultation->sisDiagnoses()->create($diag);
             }
 
-            $patient->closed_at = now();
-            $patient->save();
-
             DB::commit();
 
             return redirect()
