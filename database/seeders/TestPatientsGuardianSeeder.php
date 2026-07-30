@@ -245,6 +245,6 @@ class TestPatientsGuardianSeeder extends Seeder
             $this->command->info("✅ {$patient->full_name} — {$tipo}");
         }
 
-        $this->command->info("─── Total: " . count($patients) . " pacientes creados ───");
+        $this->command->info('─── Total: '.count($patients).' pacientes creados ───');
     }
 }
