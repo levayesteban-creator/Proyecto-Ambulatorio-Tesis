@@ -650,7 +650,7 @@ export function defaultBackground() {
     },
     transfusion: { deny: true, age: '', blood_type_used: '', bags_count: '', reason: '' },
     gynecological: {
-      not_apply: false,
+      not_apply: true,
       gestas: '',
       deliveries: '',
       cesareans: '',

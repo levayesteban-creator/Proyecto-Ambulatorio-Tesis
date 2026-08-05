@@ -6,7 +6,7 @@ Set shell = CreateObject("WScript.Shell")
 Set fso = CreateObject("Scripting.FileSystemObject")
 
 rootPath = "C:\laragon\www\gestion-salud"
-appUrl = "http://localhost:8000"
+appUrl = "http://gestion-salud.test"
 logFile = rootPath & "\launcher\launcher.log"
 chromePath = "C:\Program Files\Google\Chrome\Application\chrome.exe"
 edgePath = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
@@ -28,9 +28,8 @@ Sub RunHidden(cmd)
     shell.Run "cmd.exe /c " & cmd, 0, False
 End Sub
 
-' 0. Kill old processes
+' 0. Kill old node processes (Vite)
 Log "Matando procesos anteriores..."
-RunHidden "taskkill /f /im php.exe >nul 2>&1"
 RunHidden "taskkill /f /im node.exe >nul 2>&1"
 WScript.Sleep 2000
 
@@ -52,17 +51,7 @@ Else
     WScript.Sleep 2000
 End If
 
-' 2. Start npm run dev (Vite)
-Log "Iniciando npm run dev..."
-RunHidden "cd /d " & chr(34) & rootPath & chr(34) & " && npm run dev"
-WScript.Sleep 10000
-
-' 3. Start PHP artisan serve
-Log "Iniciando php artisan serve..."
-RunHidden "cd /d " & chr(34) & rootPath & chr(34) & " && php artisan serve --host=0.0.0.0 --port=8000"
-WScript.Sleep 5000
-
-' 4. Find browser (Chrome preferred, Edge fallback)
+' 1. Find browser (Chrome preferred, Edge fallback)
 If Not fso.FileExists(chromePath) Then
     chromePath = edgePath
 End If

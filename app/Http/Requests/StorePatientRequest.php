@@ -248,9 +248,9 @@ class StorePatientRequest extends FormRequest
             'habits.genitourinary' => ['nullable', 'array'],
 
             'habits.housing' => ['required', 'array'],
-            'habits.housing.floor_material' => ['required', 'string', 'max:100'],
-            'habits.housing.roof_material' => ['required', 'string', 'max:100'],
-            'habits.housing.walls_material' => ['required', 'string', 'max:100'],
+            'habits.housing.floor_material' => ['nullable', 'string', 'max:100'],
+            'habits.housing.roof_material' => ['nullable', 'string', 'max:100'],
+            'habits.housing.walls_material' => ['nullable', 'string', 'max:100'],
             'habits.housing.rooms_count' => ['required', 'integer', 'min:1'],
             'habits.housing.habitants_count' => ['required', 'integer', 'min:1'],
             'habits.housing.animals' => ['nullable', 'array'],
@@ -385,11 +385,11 @@ class StorePatientRequest extends FormRequest
             'habits.sleep.type.required' => 'El patrón de sueño es obligatorio.',
             'habits.sleep.hours.required' => 'Las horas de sueño diarias son obligatorias.',
             'habits.sexual_habits.sexarche_age.required_if' => 'La edad de la sexarquía es obligatoria si mantiene vida sexual activa.',
-            'habits.housing.roof_material.required' => 'El material del techo es obligatorio.',
-            'habits.housing.walls_material.required' => 'El material de las paredes es obligatorio.',
             'habits.housing.rooms_count.required' => 'El número de habitaciones es obligatorio.',
             'habits.housing.habitants_count.required' => 'El número de habitantes es requerido para calcular el índice de hacinamiento.',
-            'habits.housing.floor_material.required' => 'El material del piso es obligatorio.',
+            'habits.housing.floor_material.string' => 'El material del piso debe ser un texto.',
+            'habits.housing.roof_material.string' => 'El material del techo debe ser un texto.',
+            'habits.housing.walls_material.string' => 'El material de las paredes debe ser un texto.',
             'habits.housing.services.water.required' => 'Indique si dispone de agua potable.',
             'habits.housing.services.electricity.required' => 'Indique si dispone de electricidad.',
             'habits.housing.services.gas.required' => 'Indique si dispone de gas.',
@@ -584,7 +584,9 @@ class StorePatientRequest extends FormRequest
     {
         $data = $this->all();
 
-        if (isset($data['background']['obgyn_fur'])) {
+        $obgynApply = $data['background']['obgyn_apply'] ?? false;
+
+        if ($obgynApply && ! empty($data['background']['obgyn_fur'])) {
             $birthDate = Carbon::parse($data['birth_date']);
             $dueDate = Carbon::parse($data['background']['obgyn_fur']);
             $gestationalWeeks = $birthDate->diffInWeeks($dueDate);
@@ -594,7 +596,7 @@ class StorePatientRequest extends FormRequest
             }
         }
 
-        if (isset($data['background']['obgyn_menarche']) && isset($data['background']['obgyn_menopause'])) {
+        if ($obgynApply && ! empty($data['background']['obgyn_menarche']) && ! empty($data['background']['obgyn_menopause'])) {
             $menarche = Carbon::parse($data['background']['obgyn_menarche']);
             $menopause = Carbon::parse($data['background']['obgyn_menopause']);
 
@@ -608,7 +610,7 @@ class StorePatientRequest extends FormRequest
             }
         }
 
-        if (isset($data['background']['obgyn_menarche'])) {
+        if ($obgynApply && ! empty($data['background']['obgyn_menarche'])) {
             $birthDate = Carbon::parse($data['birth_date']);
             $menarcheDate = Carbon::parse($data['background']['obgyn_menarche']);
             $ageAtMenarche = $menarcheDate->diffInYears($birthDate);

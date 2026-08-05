@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useForm, Head, router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import DatePicker from '@/Components/DatePicker.vue'
@@ -527,6 +527,7 @@ const submit = () => {
       background: form.background,
       family_background: form.family_background,
       habits: form.habits,
+      extra_backgrounds: form.extra_backgrounds,
     }
 
   const payload = buildPatientStorePayload(formData)
@@ -537,11 +538,13 @@ const submit = () => {
     : route('patients.store')
 
   form.transform(() => payload)[submitMethod](submitRoute, {
-    preserveScroll: true,
+    preserveScroll: false,
     onError: (errors) => {
-      restoreScrollPosition()
-      requestAnimationFrame(() => {
-        document.querySelector('.validation-errors')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      nextTick(() => {
+        const el = document.querySelector('.validation-errors')
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
       })
     }
   })
@@ -682,7 +685,7 @@ const submit = () => {
               <input v-model="form.nationality_country" class="field-input" type="text" placeholder="Ej: Venezolana" />
             </div>
             <div>
-              <label class="field-label">Lugar de Nacimiento</label>
+              <label class="field-label">Lugar de Nacimiento <span class="req">*</span></label>
               <input v-model="form.birth_place" class="field-input" type="text" placeholder="Ciudad / Estado / País" />
             </div>
             <div>
@@ -1313,17 +1316,17 @@ const submit = () => {
           </div>
 
           <!-- ══ Antecedentes Adicionales ══════════════════════════════════════ -->
-          <ExtraBackgrounds v-model="form.extra_backgrounds" category="pathological" category-label="Antecedentes Patológicos" icon="🏥"/>
-          <ExtraBackgrounds v-model="form.extra_backgrounds" category="surgical" category-label="Antecedentes Quirúrgicos" icon="🔪"/>
-          <ExtraBackgrounds v-model="form.extra_backgrounds" category="infectious" category-label="Antecedentes Infectocontagiosos" icon="🦠"/>
           <ExtraBackgrounds v-model="form.extra_backgrounds" category="allergic" category-label="Antecedentes Alérgicos" icon="🤧"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="pathological" category-label="Antecedentes Patológicos" icon="🏥"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="infectious" category-label="Antecedentes Infectocontagiosos" icon="🦠"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="immunological" category-label="Antecedentes Inmunológicos" icon="💉"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="transfusion" category-label="Antecedentes Transfusionales" icon="🩸"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="obgyn" category-label="Antecedentes Gineco-Obstétricos" icon="👩"/>
+          <ExtraBackgrounds v-model="form.extra_backgrounds" category="surgical" category-label="Antecedentes Quirúrgicos" icon="🔪"/>
           <ExtraBackgrounds v-model="form.extra_backgrounds" category="traumatic" category-label="Antecedentes Traumáticos" icon="🦴"/>
           <ExtraBackgrounds v-model="form.extra_backgrounds" category="std" category-label="Antecedentes de ETS" icon="⚠️"/>
-          <ExtraBackgrounds v-model="form.extra_backgrounds" category="transfusion" category-label="Antecedentes Transfusionales" icon="🩸"/>
           <ExtraBackgrounds v-model="form.extra_backgrounds" category="epidemiological" category-label="Antecedentes Epidemiológicos" icon="🌍"/>
-          <ExtraBackgrounds v-model="form.extra_backgrounds" category="immunological" category-label="Antecedentes Inmunológicos" icon="💉"/>
           <ExtraBackgrounds v-model="form.extra_backgrounds" category="disability" category-label="Discapacidades" icon="♿"/>
-          <ExtraBackgrounds v-model="form.extra_backgrounds" category="obgyn" category-label="Antecedentes Gineco-Obstétricos" icon="👩"/>
 
         </div>
         <nav v-show="false" class="section-nav">

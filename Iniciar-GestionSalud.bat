@@ -51,26 +51,6 @@ goto vite_check
 :mysql_ok
 echo [OK] MySQL ya esta corriendo
 
-:: ------------ Vite ------------
-:vite_check
-netstat -an 2>NUL | find ":5173 " | find "LISTENING" >NUL
-if not errorlevel 1 goto vite_ok
-
-echo [..] Iniciando Vite...
-start "Vite" /min cmd /c "cd /d C:\laragon\www\gestion-salud && npm run dev"
-
-set RETRY=0
-:wait_vite
-if %RETRY% geq %MAX_RETRIES% goto error_vite
-timeout /t 2 /nobreak >NUL
-netstat -an 2>NUL | find ":5173 " | find "LISTENING" >NUL
-if errorlevel 1 ( set /a RETRY+=1 & goto wait_vite )
-echo [OK] Vite listo
-goto app_check
-
-:vite_ok
-echo [OK] Vite ya esta corriendo
-
 :: ------------ App check ------------
 :app_check
 set RETRY=0
@@ -106,13 +86,6 @@ exit /b 1
 echo.
 echo [ERROR] No se pudo iniciar MySQL (puerto 3306).
 echo         Verifique que Laragon este funcionando.
-pause
-exit /b 1
-
-:error_vite
-echo.
-echo [ERROR] No se pudo iniciar Vite (puerto 5173).
-echo         Ejecute "Iniciar-Vite.bat" desde la carpeta del proyecto.
 pause
 exit /b 1
 
