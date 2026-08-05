@@ -57,14 +57,6 @@ const epi15Columns = [
 
 const columns = computed(() => formType.value === 'epi15' ? epi15Columns : epi12Columns.value)
 
-function getCsrfToken() {
-  return document.querySelector('meta[name=csrf-token]')?.content || ''
-}
-function getCookie(name) {
-  const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'))
-  return m ? decodeURIComponent(m[2]) : ''
-}
-
 function procesar() {
   loading.value = true
   error.value = null
@@ -73,23 +65,9 @@ function procesar() {
   const body = formType.value === 'epi15'
     ? { year: year.value, month: month.value }
     : { year: year.value, week: week.value }
-  const url = route(routeName)
-  const csrf = getCsrfToken()
-  const headers = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'X-Requested-With': 'XMLHttpRequest' }
-  const xsrfToken = getCookie('XSRF-TOKEN')
-  if (xsrfToken) headers['X-XSRF-TOKEN'] = xsrfToken
-  fetch(url, {
-    method: 'POST',
-    headers,
-    credentials: 'include',
-    body: JSON.stringify({ ...body, _token: csrf }),
-  })
-    .then(r => {
-      if (!r.ok) throw new Error('Error del servidor (' + r.status + ')')
-      return r.json()
-    })
-    .then(d => { data.value = d; loading.value = false })
-    .catch(e => { error.value = e.message; loading.value = false })
+  axios.post(route(routeName), body)
+    .then(r => { data.value = r.data; loading.value = false })
+    .catch(e => { error.value = e.response?.data?.message || e.message || 'Error del servidor'; loading.value = false })
 }
 
 function getEpi12Val(row, col) {
@@ -129,16 +107,15 @@ async function exportPDF(type) {
 
   try {
     const checkUrl = route('reports.epi.check-data', { tipo: `epi${type}`, ...params })
-    const res = await fetch(checkUrl)
-    const data = await res.json()
-    if (!data.hasData) {
-      alert(data.message || 'No hay datos para el período seleccionado')
+    const res = await axios.get(checkUrl)
+    if (!res.data.hasData) {
+      alert(res.data.message || 'No hay datos para el período seleccionado')
       return
     }
     const routeName = type === 15 ? 'reports.epi15.export' : `reports.epi${type}.export`
     descargar(route(routeName, params))
   } catch (e) {
-    alert('Error al verificar datos: ' + e.message)
+    alert('Error al verificar datos: ' + (e.response?.data?.message || e.message))
   }
 }
 
@@ -151,18 +128,9 @@ const verifying = ref(false)
 function verifyWeek() {
   if (!confirm(`¿Marcar la semana ${week.value} de ${year.value} como verificada?`)) return
   verifying.value = true
-  const csrf2 = getCsrfToken()
-  const headers2 = { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf2, 'X-Requested-With': 'XMLHttpRequest' }
-  const xsrfToken2 = getCookie('XSRF-TOKEN')
-  if (xsrfToken2) headers2['X-XSRF-TOKEN'] = xsrfToken2
-  fetch(route('reports.epi.verify'), {
-    method: 'POST',
-    headers: headers2,
-    body: JSON.stringify({ year: year.value, week: week.value, _token: csrf2 }),
-  })
-    .then(r => { if (!r.ok) throw new Error('Error del servidor al verificar'); return r.json() })
-    .then(d => { alert(d.message); verifying.value = false; procesar() })
-    .catch(e => { alert('Error: ' + e.message); verifying.value = false })
+  axios.post(route('reports.epi.verify'), { year: year.value, week: week.value })
+    .then(r => { alert(r.data.message); verifying.value = false; procesar() })
+    .catch(e => { alert('Error: ' + (e.response?.data?.message || e.message)); verifying.value = false })
 }
 
 function rowStyle(row) {
