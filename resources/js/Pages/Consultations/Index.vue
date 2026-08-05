@@ -13,15 +13,23 @@ const isHealthy = ref(props.filters.is_healthy ?? '')
 const dateFrom = ref(props.filters.date_from ?? '')
 const dateTo = ref(props.filters.date_to ?? '')
 const showFilters = ref(false)
+const loading = ref(false)
+let currentVisit = null
 
 const applyFilters = debounce(() => {
-    router.get(route('consultations.index'), {
+    if (currentVisit) currentVisit.cancel()
+    loading.value = true
+    currentVisit = router.get(route('consultations.index'), {
         search: search.value || null,
         consultation_type: consultationType.value || null,
         is_healthy: isHealthy.value !== '' ? isHealthy.value : null,
         date_from: dateFrom.value || null,
         date_to: dateTo.value || null,
-    }, { preserveState: true, replace: true })
+    }, {
+        preserveState: true,
+        replace: true,
+        onFinish: () => { loading.value = false },
+    })
 }, 300)
 
 const clearFilters = () => {
@@ -78,6 +86,8 @@ const typeLabel = (t) => ({ P: 'Primera Vez', S: 'Sucesiva', X: 'Asociada' }[t] 
         </select>
         <button @click="clearFilters" class="btn btn-outline" style="font-size:0.7rem">Limpiar filtros</button>
       </div>
+
+      <div v-if="loading" class="loading-bar"></div>
 
       <table class="table">
         <thead>
@@ -167,4 +177,6 @@ const typeLabel = (t) => ({ P: 'Primera Vez', S: 'Sucesiva', X: 'Asociada' }[t] 
 .page-link.active { background: #2563EB; color: #fff; border-color: #2563EB; }
 .page-link.disabled { opacity: 0.4; pointer-events: none; }
 .page-link:hover:not(.active):not(.disabled) { background: #F1F5F9; }
+.loading-bar { height: 3px; background: linear-gradient(90deg, #2563EB 0%, #60A5FA 50%, #2563EB 100%); background-size: 200% 100%; animation: loading-slide 1s ease-in-out infinite; border-radius: 2px; margin: 0 1rem; }
+@keyframes loading-slide { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 </style>

@@ -57,7 +57,13 @@ class ConsultationController extends Controller
         ])->orderBy('consultation_date', 'desc');
 
         if ($search = request('search')) {
-            $query->whereHas('patient', fn ($q) => $q->where('id_number', 'like', "%$search%")->orWhere('full_name', 'like', "%$search%"));
+            $escaped = '%'.addcslashes($search, '%_\\').'%';
+            $query->whereHas('patient', function ($q) use ($escaped) {
+                $q->where(function ($sub) use ($escaped) {
+                    $sub->where('id_number', 'like', $escaped)
+                        ->orWhere('full_name', 'like', $escaped);
+                });
+            });
         }
 
         if ($dateFrom = request('date_from')) {
